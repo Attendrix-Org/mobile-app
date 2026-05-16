@@ -1,0 +1,40 @@
+name: Architecture Task
+description: Large structural or system-level engineering task
+title: "[Architecture]: "
+labels:
+  - architecture
+
+body:
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      placeholder: Current streak recalculation causes repeated full-table scans
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed Solution
+      placeholder: Introduce incremental streak state caching
+
+  - type: textarea
+    id: tradeoffs
+    attributes:
+      label: Tradeoffs
+      placeholder: |
+        Pros:
+        Cons:
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: Affected Systems
+      placeholder: |
+        - attendance
+        - streak engine
+        - realtime
+
+  - type: textarea
+    id: risks
+    attributes:
+      label: Risks
