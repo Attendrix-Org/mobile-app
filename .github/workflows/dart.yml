@@ -13,6 +13,9 @@ on:
 permissions:
   contents: read
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true  # Suppress Node 20 deprecation warnings
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -30,7 +33,9 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
-          flutter-version-file: pubspec.yaml # optional: pins to pubspec's flutter version
+          # Removed flutter-version-file — pubspec.yaml's environment.flutter
+          # is typically a range constraint, not a pinned version.
+          # If you want to pin, use: flutter-version: '3.29.3'
           cache: true
 
       - name: Install dependencies
