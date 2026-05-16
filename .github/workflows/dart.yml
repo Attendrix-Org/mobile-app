@@ -13,9 +13,6 @@ on:
 permissions:
   contents: read
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -27,13 +24,25 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.2
 
       - name: Set up Flutter SDK
-        uses: subosito/flutter-action@v2
+        uses: subosito/flutter-action@v2.21.0
         with:
           channel: stable
           cache: true
+
+      - name: Verify pubspec.lock is committed and up to date
+        run: |
+          if [ ! -f pubspec.lock ]; then
+            echo "pubspec.lock is missing. Commit it to the repository."
+            exit 1
+          fi
+          flutter pub get
+          if ! git diff --exit-code pubspec.lock; then
+            echo "pubspec.lock is out of sync with pubspec.yaml. Run 'flutter pub get' and commit the result."
+            exit 1
+          fi
 
       - name: Install dependencies
         run: flutter pub get
@@ -41,15 +50,31 @@ jobs:
       - name: Verify Dart formatting
         run: dart format --output=none --set-exit-if-changed .
 
+      - name: Check for auto-fixable issues
+        run: dart fix --dry-run
+
       - name: Analyze project source
         run: flutter analyze --fatal-infos --fatal-warnings
 
-      - name: Run unit and widget tests
+      - name: Dependency audit
+        run: flutter pub outdated --no-dev-dependencies || true
+
+      - name: Run unit and widget tests with coverage
         run: flutter test --coverage
+
+      - name: Enforce coverage threshold (80%)
+        run: |
+          sudo apt-get install -y lcov
+          COVERAGE=$(lcov --summary coverage/lcov.info 2>&1 | grep "lines" | grep -oP '\d+\.\d+(?=%)')
+          echo "Line coverage: $COVERAGE%"
+          if (( $(echo "$COVERAGE < 80" | bc -l) )); then
+            echo "Coverage $COVERAGE% is below the required 80% threshold."
+            exit 1
+          fi
 
       - name: Upload coverage report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-report
           path: coverage/lcov.info
@@ -61,10 +86,10 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.2
 
       - name: Set up Java SDK
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: zulu
           java-version: 17
@@ -80,7 +105,7 @@ jobs:
             ${{ runner.os }}-gradle-
 
       - name: Set up Flutter SDK
-        uses: subosito/flutter-action@v2
+        uses: subosito/flutter-action@v2.21.0
         with:
           channel: stable
           cache: true
@@ -92,7 +117,7 @@ jobs:
         run: flutter build apk --debug
 
       - name: Upload debug APK
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: android-debug-apk
           path: build/app/outputs/flutter-apk/app-debug.apk
@@ -104,10 +129,10 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.2
 
       - name: Set up Flutter SDK
-        uses: subosito/flutter-action@v2
+        uses: subosito/flutter-action@v2.21.0
         with:
           channel: stable
           cache: true
@@ -122,7 +147,7 @@ jobs:
         run: flutter build web --release
 
       - name: Upload web build
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: web-build
           path: build/web/
