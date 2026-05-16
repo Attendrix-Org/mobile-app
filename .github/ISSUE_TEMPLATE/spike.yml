@@ -1,0 +1,35 @@
+name: Research Spike
+description: Investigate unknown technical problem
+title: "[Spike]: "
+labels:
+  - research
+
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: Research Question
+      placeholder: Can Supabase Realtime scale for per-class subscriptions?
+
+  - type: textarea
+    id: constraints
+    attributes:
+      label: Constraints
+      placeholder: |
+        - mobile bandwidth
+        - concurrent users
+        - battery usage
+
+  - type: textarea
+    id: deliverables
+    attributes:
+      label: Expected Deliverables
+      placeholder: |
+        - benchmarks
+        - recommendation
+        - prototype
+
+  - type: input
+    id: deadline
+    attributes:
+      label: Investigation Deadline
