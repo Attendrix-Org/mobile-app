@@ -1,0 +1,124 @@
+name: Attendrix Mobile CI
+
+on:
+  push:
+    branches:
+      - main
+      - staging
+  pull_request:
+    branches:
+      - main
+      - staging
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  code_quality_and_tests:
+    name: Code Quality & Automated Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version-file: pubspec.yaml # optional: pins to pubspec's flutter version
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Verify Dart formatting
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Analyze project source
+        run: flutter analyze --fatal-infos --fatal-warnings
+
+      - name: Run unit and widget tests
+        run: flutter test --coverage
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/lcov.info
+
+  verify_android_build:
+    name: Verify Android Compile
+    needs: code_quality_and_tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java SDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: zulu
+          java-version: 17
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Set up Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build Android APK
+        run: flutter build apk --debug
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-debug-apk
+          path: build/app/outputs/flutter-apk/app-debug.apk
+
+  verify_ios_build:
+    name: Verify iOS Compile
+    needs: code_quality_and_tests
+    runs-on: macos-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Install CocoaPods
+        run: sudo gem install cocoapods
+
+      - name: Pod install
+        working-directory: ios
+        run: pod install --repo-update
+
+      - name: Build iOS Application
+        run: flutter build ios --release --no-codesign
