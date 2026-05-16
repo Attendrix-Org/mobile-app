@@ -14,7 +14,7 @@ permissions:
   contents: read
 
 env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true  # Suppress Node 20 deprecation warnings
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -33,9 +33,6 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
-          # Removed flutter-version-file — pubspec.yaml's environment.flutter
-          # is typically a range constraint, not a pinned version.
-          # If you want to pin, use: flutter-version: '3.29.3'
           cache: true
 
       - name: Install dependencies
@@ -100,11 +97,11 @@ jobs:
           name: android-debug-apk
           path: build/app/outputs/flutter-apk/app-debug.apk
 
-  verify_ios_build:
-    name: Verify iOS Compile
+  verify_web_build:
+    name: Verify Web Compile
     needs: code_quality_and_tests
-    runs-on: macos-latest
-    timeout-minutes: 20
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -118,12 +115,14 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Install CocoaPods
-        run: sudo gem install cocoapods
+      - name: Enable Flutter web
+        run: flutter config --enable-web
 
-      - name: Pod install
-        working-directory: ios
-        run: pod install --repo-update
+      - name: Build web
+        run: flutter build web --release
 
-      - name: Build iOS Application
-        run: flutter build ios --release --no-codesign
+      - name: Upload web build
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-build
+          path: build/web/
