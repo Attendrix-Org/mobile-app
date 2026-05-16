@@ -1,0 +1,47 @@
+name: Bug Report
+description: Report a reproducible bug
+title: "[Bug]: "
+labels:
+  - bug
+
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      placeholder: Attendance percentage becomes negative after undo absence
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction Steps
+      placeholder: |
+        1. Mark absence
+        2. Undo absence
+        3. Refresh dashboard
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      placeholder: Attendance percentage restores correctly
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      placeholder: Percentage becomes -12%
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: |
+        Device:
+        OS:
+        App Version:
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / Screenshots
