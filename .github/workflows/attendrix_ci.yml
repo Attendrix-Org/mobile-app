@@ -1,4 +1,4 @@
-name: Attendrix Mobile CI
+name: Attendrix CI/CD Pipeline
 
 on:
   push:
