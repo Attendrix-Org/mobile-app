@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -22,7 +24,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _submit() {
     if (_formKey.currentState?.validate() ?? false) {
-      Navigator.of(context).pushReplacementNamed('/dashboard');
+      unawaited(Navigator.of(context).pushReplacementNamed('/dashboard'));
     }
   }
 
@@ -31,7 +33,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Login')),
       body: Padding(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.all(24),
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 480),
@@ -62,7 +64,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: ElevatedButton(
                       onPressed: _submit,
                       child: const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 12.0),
+                        padding: EdgeInsets.symmetric(vertical: 12),
                         child: Text('Sign in'),
                       ),
                     ),

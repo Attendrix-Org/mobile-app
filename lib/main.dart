@@ -1,10 +1,9 @@
+import 'package:attendrix_app/screens/dashboard_screen.dart';
+import 'package:attendrix_app/screens/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-
-import 'screens/dashboard_screen.dart';
-import 'screens/login_screen.dart';
 
 Future<void> main() async {
   await dotenv.load();
