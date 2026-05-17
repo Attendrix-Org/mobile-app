@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'screens/login_screen.dart';
+
 import 'screens/dashboard_screen.dart';
+import 'screens/login_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,36 +16,25 @@ class MyApp extends StatelessWidget {
     final base = ThemeData();
 
     // Build text themes using Google Fonts: Outfit as primary, Plus Jakarta Sans
-    // for headline/body slots. Provide common fallbacks for offline cases.
+    // for headline/body slots. Note: explicit font-family-fallbacks are
+    // platform/SDK-dependent; Google Fonts will fall back to system fonts if
+    // the remote font can't be fetched.
     final outfitText = GoogleFonts.outfitTextTheme(base.textTheme);
-    final outfitPrimaryText = GoogleFonts.outfitTextTheme(base.primaryTextTheme);
-    const fallbacks = <String>['Roboto', 'Helvetica Neue', 'Arial'];
+    final outfitPrimaryText = GoogleFonts.outfitTextTheme(
+      base.primaryTextTheme,
+    );
 
     final textTheme = outfitText.copyWith(
       headlineLarge: GoogleFonts.plusJakartaSans(
         textStyle: outfitText.headlineLarge,
-        fontFamilyFallback: fallbacks,
       ),
-      headlineMedium: GoogleFonts.plusJakartaSans(
-        textStyle: outfitText.headlineMedium,
-        fontFamilyFallback: fallbacks,
+      titleMedium: GoogleFonts.plusJakartaSans(
+        textStyle: outfitText.titleMedium,
       ),
-      headlineSmall: GoogleFonts.plusJakartaSans(
-        textStyle: outfitText.headlineSmall,
-        fontFamilyFallback: fallbacks,
-      ),
-      bodyLarge: GoogleFonts.plusJakartaSans(
-        textStyle: outfitText.bodyLarge,
-        fontFamilyFallback: fallbacks,
-      ),
-      bodyMedium: GoogleFonts.plusJakartaSans(
-        textStyle: outfitText.bodyMedium,
-        fontFamilyFallback: fallbacks,
-      ),
-      bodySmall: GoogleFonts.plusJakartaSans(
-        textStyle: outfitText.bodySmall,
-        fontFamilyFallback: fallbacks,
-      ),
+      titleSmall: GoogleFonts.plusJakartaSans(textStyle: outfitText.titleSmall),
+      bodyLarge: GoogleFonts.plusJakartaSans(textStyle: outfitText.bodyLarge),
+      bodyMedium: GoogleFonts.plusJakartaSans(textStyle: outfitText.bodyMedium),
+      bodySmall: GoogleFonts.plusJakartaSans(textStyle: outfitText.bodySmall),
     );
 
     return MaterialApp(
@@ -55,7 +45,9 @@ class MyApp extends StatelessWidget {
         primaryTextTheme: outfitPrimaryText,
         appBarTheme: base.appBarTheme.copyWith(
           titleTextStyle: GoogleFonts.outfit(
-            textStyle: base.textTheme.titleLarge?.copyWith(color: Colors.white) ?? const TextStyle(color: Colors.white),
+            textStyle:
+                base.textTheme.titleLarge?.copyWith(color: Colors.white) ??
+                const TextStyle(color: Colors.white),
           ),
         ),
       ),

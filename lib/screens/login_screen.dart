@@ -44,14 +44,17 @@ class _LoginScreenState extends State<LoginScreen> {
                     controller: _emailController,
                     decoration: const InputDecoration(labelText: 'Email'),
                     keyboardType: TextInputType.emailAddress,
-                    validator: (v) => (v == null || v.isEmpty) ? 'Enter email' : null,
+                    validator: (v) =>
+                        (v == null || v.isEmpty) ? 'Enter email' : null,
                   ),
                   const SizedBox(height: 12),
                   TextFormField(
                     controller: _passwordController,
                     decoration: const InputDecoration(labelText: 'Password'),
                     obscureText: true,
-                    validator: (v) => (v == null || v.length < 6) ? 'Password too short' : null,
+                    validator: (v) => (v == null || v.length < 6)
+                        ? 'Password too short'
+                        : null,
                   ),
                   const SizedBox(height: 20),
                   SizedBox(
