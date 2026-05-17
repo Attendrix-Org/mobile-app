@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'screens/dashboard_screen.dart';
 import 'screens/login_screen.dart';
 
-void main() {
+Future<void> main() async {
+  await Supabase.initialize(
+    url: 'https://ifazfjkpmeqgovitgkwb.supabase.co',
+    anonKey: 'sb_publishable_GSW6N1sTdFpYzLhDUJeo2A_lEy2yIiM',
+  );
   runApp(const MyApp());
 }
 
