@@ -1,1 +1,22 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"attendrix-app","appId":"1:1058303346843:android:9ef3c48e93fab0016bde3e","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"attendrix-app","configurations":{"android":"1:1058303346843:android:9ef3c48e93fab0016bde3e","web":"1:1058303346843:web:c5420d5a78f696eb6bde3e"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "attendrix-app",
+          "appId": "1:1058303346843:android:9ef3c48e93fab0016bde3e",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "attendrix-app",
+          "configurations": {
+            "android": "1:1058303346843:android:9ef3c48e93fab0016bde3e",
+            "web": "1:1058303346843:web:c5420d5a78f696eb6bde3e"
+          }
+        }
+      }
+    }
+  }
+}
