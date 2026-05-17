@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -6,9 +7,10 @@ import 'screens/dashboard_screen.dart';
 import 'screens/login_screen.dart';
 
 Future<void> main() async {
+  await dotenv.load();
   await Supabase.initialize(
-    url: 'https://ifazfjkpmeqgovitgkwb.supabase.co',
-    anonKey: 'sb_publishable_GSW6N1sTdFpYzLhDUJeo2A_lEy2yIiM',
+    url: dotenv.env['SUPABASE_URL']!,
+    anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
   );
   runApp(const MyApp());
 }
