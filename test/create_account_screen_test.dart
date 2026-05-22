@@ -150,8 +150,8 @@ void main() {
       await tester.pump(const Duration(milliseconds: 600));
       await tester.pumpAndSettle();
 
-      // Should redirect to dashboard
-      expect(find.text('[greetingMessageForUser]'), findsOneWidget);
+      // Should redirect to onboarding username screen
+      expect(find.text('Choose Your Username'), findsOneWidget);
     });
 
     testWidgets('Interactive State - toggles password and confirm password visibility', (tester) async {

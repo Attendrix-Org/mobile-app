@@ -74,7 +74,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
           });
           unawaited(
             Navigator.of(context).pushNamedAndRemoveUntil(
-              '/dashboard',
+              '/onboarding/username',
               (route) => false,
             ),
           );

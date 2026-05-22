@@ -4,6 +4,8 @@ import 'package:attendrix_app/features/apod/presentation/providers/apod_provider
 import 'package:attendrix_app/screens/create_account_screen.dart';
 import 'package:attendrix_app/screens/dashboard_screen.dart';
 import 'package:attendrix_app/screens/login_screen.dart';
+import 'package:attendrix_app/screens/onboarding/profile_setup_screen.dart';
+import 'package:attendrix_app/screens/onboarding/username_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -79,6 +81,8 @@ class MyApp extends StatelessWidget {
         DashboardScreen.routeName: (context) => const DashboardScreen(),
         ApodDetailPage.routeName: (context) => const ApodDetailPage(),
         ApodHistoryPage.routeName: (context) => const ApodHistoryPage(),
+        '/onboarding/username': (context) => const UsernameScreen(),
+        '/onboarding/profile': (context) => const ProfileSetupScreen(),
       },
     );
   }
