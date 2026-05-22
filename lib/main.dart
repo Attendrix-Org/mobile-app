@@ -1,17 +1,32 @@
+import 'package:attendrix_app/features/apod/presentation/pages/apod_detail_page.dart';
+import 'package:attendrix_app/features/apod/presentation/pages/apod_history_page.dart';
+import 'package:attendrix_app/features/apod/presentation/providers/apod_providers.dart';
+import 'package:attendrix_app/screens/create_account_screen.dart';
 import 'package:attendrix_app/screens/dashboard_screen.dart';
 import 'package:attendrix_app/screens/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load();
   await Supabase.initialize(
     url: dotenv.env['SUPABASE_URL']!,
     anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
   );
-  runApp(const MyApp());
+  final sharedPrefs = await SharedPreferences.getInstance();
+  runApp(
+    ProviderScope(
+      overrides: [
+        sharedPreferencesProvider.overrideWithValue(sharedPrefs),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -60,7 +75,10 @@ class MyApp extends StatelessWidget {
       initialRoute: LoginScreen.routeName,
       routes: {
         LoginScreen.routeName: (context) => const LoginScreen(),
+        CreateAccountScreen.routeName: (context) => const CreateAccountScreen(),
         DashboardScreen.routeName: (context) => const DashboardScreen(),
+        ApodDetailPage.routeName: (context) => const ApodDetailPage(),
+        ApodHistoryPage.routeName: (context) => const ApodHistoryPage(),
       },
     );
   }
