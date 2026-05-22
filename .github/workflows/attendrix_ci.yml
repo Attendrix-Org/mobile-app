@@ -171,10 +171,7 @@ jobs:
           heap-size: 512M
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
           disable-animations: true
-          script: |
-            flutter test integration_test/app_test.dart \
-              --reporter=compact \
-              -d "$(flutter devices | grep emulator | head -1 | awk '{print $1}')"
+          script: flutter test -d "$(flutter devices | grep emulator | head -1 | awk '{print $1}')" integration_test/app_test.dart --reporter=compact
 
   # ─────────────────────────────────────────────────────────────────────────
   # JOB 5: Dependency CVE Audit
