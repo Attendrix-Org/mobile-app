@@ -11,7 +11,10 @@ void main() {
       expect(parsed!.provider, VideoProvider.youtube);
       expect(parsed.videoId, 'P3GkZe3nRQ0');
       expect(parsed.originalUrl, url);
-      expect(parsed.thumbnailUrl, 'https://img.youtube.com/vi/P3GkZe3nRQ0/hqdefault.jpg');
+      expect(
+        parsed.thumbnailUrl,
+        'https://img.youtube.com/vi/P3GkZe3nRQ0/hqdefault.jpg',
+      );
     });
 
     test('should parse YouTube watch URL correctly', () {
@@ -21,7 +24,10 @@ void main() {
       expect(parsed, isNotNull);
       expect(parsed!.provider, VideoProvider.youtube);
       expect(parsed.videoId, 'dQw4w9WgXcQ');
-      expect(parsed.thumbnailUrl, 'https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg');
+      expect(
+        parsed.thumbnailUrl,
+        'https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg',
+      );
     });
 
     test('should parse YouTube short URL correctly', () {

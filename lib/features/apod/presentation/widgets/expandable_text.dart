@@ -4,9 +4,9 @@ import 'package:google_fonts/google_fonts.dart';
 /// A widget that displays text with a "Read More" / "Read Less" toggle
 /// if the text content exceeds the specified line limit.
 class ExpandableText extends StatefulWidget {
-
   const ExpandableText({
-    required this.text, super.key,
+    required this.text,
+    super.key,
     this.trimLines = 4,
   });
   final String text;
@@ -51,14 +51,18 @@ class _ExpandableTextState extends State<ExpandableText> {
                 widget.text,
                 style: textStyle,
                 maxLines: _isExpanded ? null : widget.trimLines,
-                overflow: _isExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
+                overflow: _isExpanded
+                    ? TextOverflow.visible
+                    : TextOverflow.ellipsis,
               ),
             ),
             if (didExceed) ...[
               const SizedBox(height: 10),
               Semantics(
                 button: true,
-                label: _isExpanded ? 'Show less explanation' : 'Show more explanation',
+                label: _isExpanded
+                    ? 'Show less explanation'
+                    : 'Show more explanation',
                 child: InkWell(
                   onTap: () {
                     setState(() {
@@ -67,7 +71,10 @@ class _ExpandableTextState extends State<ExpandableText> {
                   },
                   borderRadius: BorderRadius.circular(4),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 4,
+                      horizontal: 2,
+                    ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -77,14 +84,18 @@ class _ExpandableTextState extends State<ExpandableText> {
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
                             letterSpacing: 1.2,
-                            color: isDark ? const Color(0xFFC5C0FF) : const Color(0xFF6F61EF),
+                            color: isDark
+                                ? const Color(0xFFC5C0FF)
+                                : const Color(0xFF6F61EF),
                           ),
                         ),
                         const SizedBox(width: 4),
                         Icon(
                           _isExpanded ? Icons.expand_less : Icons.expand_more,
                           size: 16,
-                          color: isDark ? const Color(0xFFC5C0FF) : const Color(0xFF6F61EF),
+                          color: isDark
+                              ? const Color(0xFFC5C0FF)
+                              : const Color(0xFF6F61EF),
                         ),
                       ],
                     ),

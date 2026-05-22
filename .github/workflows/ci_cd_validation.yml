@@ -7,7 +7,7 @@ on:
     branches: [main, develop]
 
 env:
-  FLUTTER_VERSION: "3.32.0"
+  FLUTTER_VERSION: "3.41.9"
   JAVA_VERSION: "17"
   # NASA_API_KEY is injected at runtime from GitHub Actions secrets.
   # Never hardcode credentials here.

@@ -158,12 +158,15 @@ class _UsernameScreenState extends State<UsernameScreen> {
                         children: [
                           // 1. Centered Illustration
                           Center(
-                            child: Image.asset(
-                              'assets/onboarding_cat_laptop.png',
-                              height: 220,
-                              fit: BoxFit.contain,
-                            ),
-                          ).animate().fadeIn(duration: 600.ms).scale(
+                                child: Image.asset(
+                                  'assets/onboarding_cat_laptop.png',
+                                  height: 220,
+                                  fit: BoxFit.contain,
+                                ),
+                              )
+                              .animate()
+                              .fadeIn(duration: 600.ms)
+                              .scale(
                                 begin: const Offset(0.95, 0.95),
                                 end: const Offset(1, 1),
                                 curve: Curves.easeOutBack,
@@ -172,29 +175,32 @@ class _UsernameScreenState extends State<UsernameScreen> {
 
                           // 2. Heading + Subtitle
                           Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Choose Your Username',
-                                style: GoogleFonts.outfit(
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.bold,
-                                  color: primaryTextColor,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                "This will be your identity on Attendrix. We've suggest you to make "
-                                'something cool—feel free to edit it!',
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  color: secondaryTextColor,
-                                  height: 1.4,
-                                ),
-                              ),
-                            ],
-                          ).animate().fadeIn(delay: 200.ms, duration: 400.ms).slideY(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Choose Your Username',
+                                    style: GoogleFonts.outfit(
+                                      fontSize: 28,
+                                      fontWeight: FontWeight.bold,
+                                      color: primaryTextColor,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    "This will be your identity on Attendrix. We've suggest you to make "
+                                    'something cool—feel free to edit it!',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color: secondaryTextColor,
+                                      height: 1.4,
+                                    ),
+                                  ),
+                                ],
+                              )
+                              .animate()
+                              .fadeIn(delay: 200.ms, duration: 400.ms)
+                              .slideY(
                                 begin: 0.2,
                                 end: 0,
                                 curve: Curves.easeOutQuad,
@@ -203,67 +209,77 @@ class _UsernameScreenState extends State<UsernameScreen> {
 
                           // 3. Input Row
                           Row(
-                            children: [
-                              Expanded(
-                                child: TextFormField(
-                                  controller: _usernameController,
-                                  textInputAction: TextInputAction.done,
-                                  onFieldSubmitted: (_) => _submit(),
-                                  style: GoogleFonts.plusJakartaSans(
-                                    color: primaryTextColor,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                  decoration: InputDecoration(
-                                    hintText: 'Username',
-                                    hintStyle: GoogleFonts.plusJakartaSans(
-                                      color: secondaryTextColor,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                    filled: true,
-                                    fillColor: Colors.white,
-                                    contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 16,
-                                      vertical: 16,
-                                    ),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                      borderSide: BorderSide.none,
-                                    ),
-                                    enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                      borderSide: BorderSide.none,
-                                    ),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                      borderSide: const BorderSide(
-                                        color: primaryColor,
-                                        width: 2,
+                                children: [
+                                  Expanded(
+                                    child: TextFormField(
+                                      controller: _usernameController,
+                                      textInputAction: TextInputAction.done,
+                                      onFieldSubmitted: (_) => _submit(),
+                                      style: GoogleFonts.plusJakartaSans(
+                                        color: primaryTextColor,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                      decoration: InputDecoration(
+                                        hintText: 'Username',
+                                        hintStyle: GoogleFonts.plusJakartaSans(
+                                          color: secondaryTextColor,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                        filled: true,
+                                        fillColor: Colors.white,
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                              horizontal: 16,
+                                              vertical: 16,
+                                            ),
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
+                                          borderSide: BorderSide.none,
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
+                                          borderSide: BorderSide.none,
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
+                                          borderSide: const BorderSide(
+                                            color: primaryColor,
+                                            width: 2,
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              GestureDetector(
-                                onTap: _generateUsername,
-                                child: Container(
-                                  width: 52,
-                                  height: 52,
-                                  decoration: BoxDecoration(
-                                    color: primaryColor,
-                                    borderRadius: BorderRadius.circular(14),
+                                  const SizedBox(width: 12),
+                                  GestureDetector(
+                                    onTap: _generateUsername,
+                                    child: Container(
+                                      width: 52,
+                                      height: 52,
+                                      decoration: BoxDecoration(
+                                        color: primaryColor,
+                                        borderRadius: BorderRadius.circular(14),
+                                      ),
+                                      child: const Icon(
+                                        Icons.auto_fix_high,
+                                        color: Colors.white,
+                                        size: 24,
+                                      ),
+                                    ),
                                   ),
-                                  child: const Icon(
-                                    Icons.auto_fix_high,
-                                    color: Colors.white,
-                                    size: 24,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ).animate().fadeIn(delay: 320.ms, duration: 400.ms).slideY(
+                                ],
+                              )
+                              .animate()
+                              .fadeIn(delay: 320.ms, duration: 400.ms)
+                              .slideY(
                                 begin: 0.15,
                                 end: 0,
                                 curve: Curves.easeOutQuad,
@@ -302,8 +318,8 @@ class _UsernameScreenState extends State<UsernameScreen> {
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: primaryColor,
                                   foregroundColor: Colors.white,
-                                  disabledBackgroundColor:
-                                      primaryColor.withValues(alpha: 0.6),
+                                  disabledBackgroundColor: primaryColor
+                                      .withValues(alpha: 0.6),
                                   elevation: 0,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(24),

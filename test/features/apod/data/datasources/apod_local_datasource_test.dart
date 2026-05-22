@@ -30,18 +30,23 @@ void main() {
       verify(() => mockPrefs.getString('apod_latest_response')).called(1);
     });
 
-    test('getCachedApod should return ApodDto when cache contains valid data', () {
-      when(() => mockPrefs.getString('apod_latest_response'))
-          .thenReturn(jsonEncode(ApodFixtures.imageResponse));
+    test(
+      'getCachedApod should return ApodDto when cache contains valid data',
+      () {
+        when(
+          () => mockPrefs.getString('apod_latest_response'),
+        ).thenReturn(jsonEncode(ApodFixtures.imageResponse));
 
-      final cached = datasource.getCachedApod();
+        final cached = datasource.getCachedApod();
 
-      expect(cached, equals(imageDto));
-    });
+        expect(cached, equals(imageDto));
+      },
+    );
 
     test('getCachedApod should return null when cache data is corrupted', () {
-      when(() => mockPrefs.getString('apod_latest_response'))
-          .thenReturn('corrupted { json');
+      when(
+        () => mockPrefs.getString('apod_latest_response'),
+      ).thenReturn('corrupted { json');
 
       final cached = datasource.getCachedApod();
 
@@ -49,12 +54,15 @@ void main() {
     });
 
     test('cacheApod should save DTO and timestamp', () async {
-      when(() => mockPrefs.setString(any(), any()))
-          .thenAnswer((_) => Future.value(true));
+      when(
+        () => mockPrefs.setString(any(), any()),
+      ).thenAnswer((_) => Future.value(true));
 
       await datasource.cacheApod(imageDto);
 
-      verify(() => mockPrefs.setString('apod_latest_response', any())).called(1);
+      verify(
+        () => mockPrefs.setString('apod_latest_response', any()),
+      ).called(1);
       verify(() => mockPrefs.setString('apod_cached_at', any())).called(1);
     });
 
@@ -81,33 +89,44 @@ void main() {
 
     test('isCacheStale should return false when cache is for today (UTC)', () {
       final today = DateTime.now().toUtc();
-      final todayStr = '${today.year}-'
+      final todayStr =
+          '${today.year}-'
           '${today.month.toString().padLeft(2, '0')}-'
           '${today.day.toString().padLeft(2, '0')}';
-      
-      final todayResponse = Map<String, dynamic>.from(ApodFixtures.imageResponse)
-        ..['date'] = todayStr;
 
-      when(() => mockPrefs.getString('apod_latest_response'))
-          .thenReturn(jsonEncode(todayResponse));
+      final todayResponse = Map<String, dynamic>.from(
+        ApodFixtures.imageResponse,
+      )..['date'] = todayStr;
+
+      when(
+        () => mockPrefs.getString('apod_latest_response'),
+      ).thenReturn(jsonEncode(todayResponse));
 
       expect(datasource.isCacheStale(), isFalse);
     });
 
-    test('isCacheStale should return true when cache is for a different day', () {
-      final yesterday = DateTime.now().toUtc().subtract(const Duration(days: 1));
-      final yesterdayStr = '${yesterday.year}-'
-          '${yesterday.month.toString().padLeft(2, '0')}-'
-          '${yesterday.day.toString().padLeft(2, '0')}';
+    test(
+      'isCacheStale should return true when cache is for a different day',
+      () {
+        final yesterday = DateTime.now().toUtc().subtract(
+          const Duration(days: 1),
+        );
+        final yesterdayStr =
+            '${yesterday.year}-'
+            '${yesterday.month.toString().padLeft(2, '0')}-'
+            '${yesterday.day.toString().padLeft(2, '0')}';
 
-      final yesterdayResponse = Map<String, dynamic>.from(ApodFixtures.imageResponse)
-        ..['date'] = yesterdayStr;
+        final yesterdayResponse = Map<String, dynamic>.from(
+          ApodFixtures.imageResponse,
+        )..['date'] = yesterdayStr;
 
-      when(() => mockPrefs.getString('apod_latest_response'))
-          .thenReturn(jsonEncode(yesterdayResponse));
+        when(
+          () => mockPrefs.getString('apod_latest_response'),
+        ).thenReturn(jsonEncode(yesterdayResponse));
 
-      expect(datasource.isCacheStale(), isTrue);
-    });
+        expect(datasource.isCacheStale(), isTrue);
+      },
+    );
 
     test('clearCache should remove all keys', () async {
       when(() => mockPrefs.remove(any())).thenAnswer((_) => Future.value(true));
@@ -127,14 +146,16 @@ void main() {
         thumbnailUrl: 'https://img.youtube.com/vi/P3GkZe3nRQ0/0.jpg',
       );
 
-      when(() => mockPrefs.setString('apod_media_metadata', any()))
-          .thenAnswer((_) => Future.value(true));
+      when(
+        () => mockPrefs.setString('apod_media_metadata', any()),
+      ).thenAnswer((_) => Future.value(true));
 
       await datasource.cacheMediaMetadata(meta);
       verify(() => mockPrefs.setString('apod_media_metadata', any())).called(1);
 
-      when(() => mockPrefs.getString('apod_media_metadata'))
-          .thenReturn(jsonEncode(meta.toJson()));
+      when(
+        () => mockPrefs.getString('apod_media_metadata'),
+      ).thenReturn(jsonEncode(meta.toJson()));
       final cachedMeta = datasource.getCachedMediaMetadata();
       expect(cachedMeta, equals(meta));
 

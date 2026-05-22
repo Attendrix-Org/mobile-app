@@ -27,7 +27,6 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
 
   bool get _isPasswordValidLength => _passwordController.text.length >= 6;
 
-
   @override
   void initState() {
     super.initState();
@@ -109,12 +108,15 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
       child: Scaffold(
         backgroundColor: isWide ? const Color(0xFFF1F5F9) : Colors.white,
         body: SafeArea(
-          top: !isWide, // Let the peach background run behind the status bar on mobile
+          top:
+              !isWide, // Let the peach background run behind the status bar on mobile
           child: Center(
             child: SingleChildScrollView(
               child: Container(
                 width: isWide ? 480 : null,
-                margin: isWide ? const EdgeInsets.symmetric(vertical: 40) : EdgeInsets.zero,
+                margin: isWide
+                    ? const EdgeInsets.symmetric(vertical: 40)
+                    : EdgeInsets.zero,
                 decoration: isWide
                     ? BoxDecoration(
                         color: Colors.white,
@@ -129,532 +131,633 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                       )
                     : null,
                 child: ClipRRect(
-                  borderRadius: isWide ? BorderRadius.circular(24) : BorderRadius.zero,
+                  borderRadius: isWide
+                      ? BorderRadius.circular(24)
+                      : BorderRadius.zero,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       // 1. Top Illustration Area
                       AspectRatio(
-                        aspectRatio: 393 / 315,
-                        child: Stack(
-                          alignment: Alignment.center,
-                          clipBehavior: Clip.none,
-                          children: [
-                            Positioned.fill(
-                              child: ClipRRect(
-                                borderRadius: isWide
-                                    ? const BorderRadius.vertical(top: Radius.circular(24))
-                                    : BorderRadius.zero,
-                                child: Image.asset(
-                                  'assets/login_screen_background.png',
-                                  fit: BoxFit.fill,
+                            aspectRatio: 393 / 315,
+                            child: Stack(
+                              alignment: Alignment.center,
+                              clipBehavior: Clip.none,
+                              children: [
+                                Positioned.fill(
+                                  child: ClipRRect(
+                                    borderRadius: isWide
+                                        ? const BorderRadius.vertical(
+                                            top: Radius.circular(24),
+                                          )
+                                        : BorderRadius.zero,
+                                    child: Image.asset(
+                                      'assets/login_screen_background.png',
+                                      fit: BoxFit.fill,
+                                    ),
+                                  ),
                                 ),
-                              ),
+                                Positioned(
+                                  bottom:
+                                      -20, // Allow character with pen and laptop to sit correctly
+                                  child: Image.asset(
+                                    'assets/Young_Man_with_Laptop.png',
+                                    height: 240,
+                                    fit: BoxFit.contain,
+                                  ),
+                                ),
+                              ],
                             ),
-                            Positioned(
-                              bottom: -20, // Allow character with pen and laptop to sit correctly
-                              child: Image.asset(
-                                'assets/Young_Man_with_Laptop.png',
-                                height: 240,
-                                fit: BoxFit.contain,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ).animate().fadeIn(duration: 600.ms, curve: Curves.easeOut).scale(
+                          )
+                          .animate()
+                          .fadeIn(duration: 600.ms, curve: Curves.easeOut)
+                          .scale(
                             begin: const Offset(0.95, 0.95),
                             end: const Offset(1, 1),
                             curve: Curves.easeOutBack,
                           ),
-              
-              // 2. Form Content Area
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Create Your Account Heading
-                      Text(
-                        'Create Your Account',
-                        style: GoogleFonts.outfit(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          color: primaryTextColor,
+
+                      // 2. Form Content Area
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 32,
                         ),
-                      ).animate().fadeIn(delay: 200.ms, duration: 400.ms).slideY(
-                            begin: 0.2,
-                            end: 0,
-                            curve: Curves.easeOutQuad,
-                          ),
-                      const SizedBox(height: 8),
-                      // Sub-description
-                      Text(
-                        "Let's get started by filling out the form below.",
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: secondaryTextColor,
-                          height: 1.4,
-                        ),
-                      ).animate().fadeIn(delay: 260.ms, duration: 400.ms).slideY(
-                            begin: 0.2,
-                            end: 0,
-                            curve: Curves.easeOutQuad,
-                          ),
-                      const SizedBox(height: 24),
-                      
-                      // Email Field
-                      TextFormField(
-                        controller: _emailController,
-                        focusNode: _emailFocusNode,
-                        autofocus: true,
-                        autofillHints: const [AutofillHints.email],
-                        textInputAction: TextInputAction.next,
-                        style: GoogleFonts.plusJakartaSans(
-                          color: primaryTextColor,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        decoration: InputDecoration(
-                          hintText: 'Email',
-                          hintStyle: GoogleFonts.plusJakartaSans(
-                            color: secondaryTextColor,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
-                          filled: true,
-                          fillColor: inputFillColor,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 16,
-                          ),
-                          suffixIcon: const Padding(
-                            padding: EdgeInsets.only(right: 12),
-                            child: Icon(
-                              Icons.mail_outline,
-                              color: secondaryTextColor,
-                            ),
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide.none,
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide.none,
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: const BorderSide(
-                              color: primaryColor,
-                              width: 2,
-                            ),
-                          ),
-                          errorBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: const BorderSide(
-                              color: Colors.red,
-                            ),
-                          ),
-                          focusedErrorBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: const BorderSide(
-                              color: Colors.red,
-                              width: 2,
-                            ),
-                          ),
-                        ),
-                        keyboardType: TextInputType.emailAddress,
-                        validator: (v) =>
-                            (v == null || v.isEmpty) ? 'Enter email' : null,
-                      ).animate().fadeIn(delay: 320.ms, duration: 400.ms).slideY(
-                            begin: 0.15,
-                            end: 0,
-                            curve: Curves.easeOutQuad,
-                          ),
-                      const SizedBox(height: 16),
-                      
-                      // Password Field and Criteria Indicator
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          TextFormField(
-                            controller: _passwordController,
-                            focusNode: _passwordFocusNode,
-                            obscureText: _obscurePassword,
-                            autofillHints: const [AutofillHints.newPassword],
-                            textInputAction: TextInputAction.next,
-                            style: GoogleFonts.plusJakartaSans(
-                              color: primaryTextColor,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                            ),
-                            decoration: InputDecoration(
-                              hintText: 'Password',
-                              hintStyle: GoogleFonts.plusJakartaSans(
-                                color: secondaryTextColor,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                              ),
-                              filled: true,
-                              fillColor: inputFillColor,
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 16,
-                              ),
-                              suffixIcon: IconButton(
-                                icon: AnimatedSwitcher(
-                                  duration: const Duration(milliseconds: 200),
-                                  transitionBuilder: (child, animation) {
-                                    return RotationTransition(
-                                      turns: Tween<double>(begin: 0.75, end: 1)
-                                          .animate(animation),
-                                      child: FadeTransition(
-                                        opacity: animation,
-                                        child: child,
-                                      ),
-                                    );
-                                  },
-                                  child: Icon(
-                                    _obscurePassword
-                                        ? Icons.visibility_off_outlined
-                                        : Icons.visibility_outlined,
-                                    key: ValueKey<bool>(_obscurePassword),
-                                    color: secondaryTextColor,
-                                  ),
-                                ),
-                                onPressed: () {
-                                  setState(() {
-                                    _obscurePassword = !_obscurePassword;
-                                  });
-                                },
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: BorderSide.none,
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: BorderSide.none,
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: const BorderSide(
-                                  color: primaryColor,
-                                  width: 2,
-                                ),
-                              ),
-                              errorBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: const BorderSide(
-                                  color: Colors.red,
-                                ),
-                              ),
-                              focusedErrorBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: const BorderSide(
-                                  color: Colors.red,
-                                  width: 2,
-                                ),
-                              ),
-                            ),
-                            validator: (v) => (v == null || v.length < 6)
-                                ? 'Password too short'
-                                : null,
-                          ),
-                          AnimatedCrossFade(
-                            duration: const Duration(milliseconds: 300),
-                            crossFadeState: _passwordHasFocus
-                                ? CrossFadeState.showFirst
-                                : CrossFadeState.showSecond,
-                            firstChild: Padding(
-                              padding: const EdgeInsets.only(top: 8, bottom: 8),
-                              child: Row(
-                                children: [
-                                  AnimatedContainer(
-                                    duration: const Duration(milliseconds: 200),
-                                    width: 16,
-                                    height: 16,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: _isPasswordValidLength
-                                          ? Colors.green.shade100
-                                          : Colors.red.shade100,
-                                    ),
-                                    child: Icon(
-                                      _isPasswordValidLength
-                                          ? Icons.check
-                                          : Icons.close,
-                                      size: 12,
-                                      color: _isPasswordValidLength
-                                          ? Colors.green.shade800
-                                          : Colors.red.shade800,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    'At least 6 characters',
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontSize: 12,
-                                      color: _isPasswordValidLength
-                                          ? Colors.green.shade800
-                                          : Colors.red.shade800,
-                                      fontWeight: _isPasswordValidLength
-                                          ? FontWeight.bold
-                                          : FontWeight.normal,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            secondChild: const SizedBox.shrink(),
-                          ),
-                        ],
-                      ).animate().fadeIn(delay: 380.ms, duration: 400.ms).slideY(
-                            begin: 0.15,
-                            end: 0,
-                            curve: Curves.easeOutQuad,
-                          ),
-                      const SizedBox(height: 16),
- 
-                      // Confirm Password Field
-                      TextFormField(
-                        controller: _confirmPasswordController,
-                        focusNode: _confirmPasswordFocusNode,
-                        obscureText: _obscureConfirmPassword,
-                        autofillHints: const [AutofillHints.newPassword],
-                        textInputAction: TextInputAction.done,
-                        onFieldSubmitted: (_) => _submit(),
-                        style: GoogleFonts.plusJakartaSans(
-                          color: primaryTextColor,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        decoration: InputDecoration(
-                          hintText: 'Confirm Password',
-                          hintStyle: GoogleFonts.plusJakartaSans(
-                            color: secondaryTextColor,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
-                          filled: true,
-                          fillColor: inputFillColor,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 16,
-                          ),
-                          suffixIcon: IconButton(
-                            icon: AnimatedSwitcher(
-                              duration: const Duration(milliseconds: 200),
-                              transitionBuilder: (child, animation) {
-                                return RotationTransition(
-                                  turns: Tween<double>(begin: 0.75, end: 1)
-                                      .animate(animation),
-                                  child: FadeTransition(
-                                    opacity: animation,
-                                    child: child,
-                                  ),
-                                );
-                              },
-                              child: Icon(
-                                _obscureConfirmPassword
-                                    ? Icons.visibility_off_outlined
-                                    : Icons.visibility_outlined,
-                                key: ValueKey<bool>(_obscureConfirmPassword),
-                                color: secondaryTextColor,
-                              ),
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                _obscureConfirmPassword = !_obscureConfirmPassword;
-                              });
-                            },
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide.none,
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide.none,
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: const BorderSide(
-                              color: primaryColor,
-                              width: 2,
-                            ),
-                          ),
-                          errorBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: const BorderSide(
-                              color: Colors.red,
-                            ),
-                          ),
-                          focusedErrorBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: const BorderSide(
-                              color: Colors.red,
-                              width: 2,
-                            ),
-                          ),
-                        ),
-                        validator: (v) {
-                          if (v == null || v.isEmpty) {
-                            return 'Confirm password';
-                          }
-                          if (v != _passwordController.text) {
-                            return 'Passwords do not match';
-                          }
-                          return null;
-                        },
-                      ).animate().fadeIn(delay: 440.ms, duration: 400.ms).slideY(
-                            begin: 0.15,
-                            end: 0,
-                            curve: Curves.easeOutQuad,
-                          ),
-                      const SizedBox(height: 24),
-                      
-                      // Create Account Button
-                      SizedBox(
-                        width: double.infinity,
-                        height: 48,
-                        child: ElevatedButton(
-                          onPressed: _isLoading ? null : _submit,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: primaryColor,
-                            foregroundColor: Colors.white,
-                            disabledBackgroundColor: primaryColor.withValues(alpha: 0.6),
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(9999),
-                            ),
-                          ),
-                          child: _isLoading
-                              ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
-                                    strokeWidth: 2.5,
-                                  ),
-                                )
-                              : Text(
-                                  'Create Account',
-                                  style: GoogleFonts.outfit(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                        ),
-                      ).animate().fadeIn(delay: 500.ms, duration: 400.ms).slideY(
-                            begin: 0.15,
-                            end: 0,
-                            curve: Curves.easeOutQuad,
-                          ),
-                      const SizedBox(height: 16),
-                      
-                      // Divider OR
-                      Center(
-                        child: Text(
-                          '-- OR --',
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: secondaryTextColor,
-                          ),
-                        ),
-                      ).animate().fadeIn(delay: 560.ms, duration: 400.ms).slideY(
-                            begin: 0.15,
-                            end: 0,
-                            curve: Curves.easeOutQuad,
-                          ),
-                      const SizedBox(height: 16),
-                      
-                      // Continue with Google Button
-                      SizedBox(
-                        width: double.infinity,
-                        height: 48,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Google Sign-In pressed')),
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: primaryTextColor,
-                            foregroundColor: Colors.white,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(9999),
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              SvgPicture.string(
-                                googleLogoSvg,
-                                width: 20,
-                                height: 20,
-                              ),
-                              const SizedBox(width: 12),
+                              // Create Your Account Heading
                               Text(
-                                'Continue with Google',
-                                style: GoogleFonts.outfit(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
+                                    'Create Your Account',
+                                    style: GoogleFonts.outfit(
+                                      fontSize: 32,
+                                      fontWeight: FontWeight.bold,
+                                      color: primaryTextColor,
+                                    ),
+                                  )
+                                  .animate()
+                                  .fadeIn(delay: 200.ms, duration: 400.ms)
+                                  .slideY(
+                                    begin: 0.2,
+                                    end: 0,
+                                    curve: Curves.easeOutQuad,
+                                  ),
+                              const SizedBox(height: 8),
+                              // Sub-description
+                              Text(
+                                    "Let's get started by filling out the form below.",
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color: secondaryTextColor,
+                                      height: 1.4,
+                                    ),
+                                  )
+                                  .animate()
+                                  .fadeIn(delay: 260.ms, duration: 400.ms)
+                                  .slideY(
+                                    begin: 0.2,
+                                    end: 0,
+                                    curve: Curves.easeOutQuad,
+                                  ),
+                              const SizedBox(height: 24),
+
+                              // Email Field
+                              TextFormField(
+                                    controller: _emailController,
+                                    focusNode: _emailFocusNode,
+                                    autofocus: true,
+                                    autofillHints: const [AutofillHints.email],
+                                    textInputAction: TextInputAction.next,
+                                    style: GoogleFonts.plusJakartaSans(
+                                      color: primaryTextColor,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                    decoration: InputDecoration(
+                                      hintText: 'Email',
+                                      hintStyle: GoogleFonts.plusJakartaSans(
+                                        color: secondaryTextColor,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                      filled: true,
+                                      fillColor: inputFillColor,
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                            horizontal: 16,
+                                            vertical: 16,
+                                          ),
+                                      suffixIcon: const Padding(
+                                        padding: EdgeInsets.only(right: 12),
+                                        child: Icon(
+                                          Icons.mail_outline,
+                                          color: secondaryTextColor,
+                                        ),
+                                      ),
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                        borderSide: BorderSide.none,
+                                      ),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                        borderSide: BorderSide.none,
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                        borderSide: const BorderSide(
+                                          color: primaryColor,
+                                          width: 2,
+                                        ),
+                                      ),
+                                      errorBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                        borderSide: const BorderSide(
+                                          color: Colors.red,
+                                        ),
+                                      ),
+                                      focusedErrorBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                        borderSide: const BorderSide(
+                                          color: Colors.red,
+                                          width: 2,
+                                        ),
+                                      ),
+                                    ),
+                                    keyboardType: TextInputType.emailAddress,
+                                    validator: (v) => (v == null || v.isEmpty)
+                                        ? 'Enter email'
+                                        : null,
+                                  )
+                                  .animate()
+                                  .fadeIn(delay: 320.ms, duration: 400.ms)
+                                  .slideY(
+                                    begin: 0.15,
+                                    end: 0,
+                                    curve: Curves.easeOutQuad,
+                                  ),
+                              const SizedBox(height: 16),
+
+                              // Password Field and Criteria Indicator
+                              Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      TextFormField(
+                                        controller: _passwordController,
+                                        focusNode: _passwordFocusNode,
+                                        obscureText: _obscurePassword,
+                                        autofillHints: const [
+                                          AutofillHints.newPassword,
+                                        ],
+                                        textInputAction: TextInputAction.next,
+                                        style: GoogleFonts.plusJakartaSans(
+                                          color: primaryTextColor,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                        decoration: InputDecoration(
+                                          hintText: 'Password',
+                                          hintStyle:
+                                              GoogleFonts.plusJakartaSans(
+                                                color: secondaryTextColor,
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                          filled: true,
+                                          fillColor: inputFillColor,
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                horizontal: 16,
+                                                vertical: 16,
+                                              ),
+                                          suffixIcon: IconButton(
+                                            icon: AnimatedSwitcher(
+                                              duration: const Duration(
+                                                milliseconds: 200,
+                                              ),
+                                              transitionBuilder:
+                                                  (child, animation) {
+                                                    return RotationTransition(
+                                                      turns: Tween<double>(
+                                                        begin: 0.75,
+                                                        end: 1,
+                                                      ).animate(animation),
+                                                      child: FadeTransition(
+                                                        opacity: animation,
+                                                        child: child,
+                                                      ),
+                                                    );
+                                                  },
+                                              child: Icon(
+                                                _obscurePassword
+                                                    ? Icons
+                                                          .visibility_off_outlined
+                                                    : Icons.visibility_outlined,
+                                                key: ValueKey<bool>(
+                                                  _obscurePassword,
+                                                ),
+                                                color: secondaryTextColor,
+                                              ),
+                                            ),
+                                            onPressed: () {
+                                              setState(() {
+                                                _obscurePassword =
+                                                    !_obscurePassword;
+                                              });
+                                            },
+                                          ),
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                            borderSide: BorderSide.none,
+                                          ),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                            borderSide: BorderSide.none,
+                                          ),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                            borderSide: const BorderSide(
+                                              color: primaryColor,
+                                              width: 2,
+                                            ),
+                                          ),
+                                          errorBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                            borderSide: const BorderSide(
+                                              color: Colors.red,
+                                            ),
+                                          ),
+                                          focusedErrorBorder:
+                                              OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                                borderSide: const BorderSide(
+                                                  color: Colors.red,
+                                                  width: 2,
+                                                ),
+                                              ),
+                                        ),
+                                        validator: (v) =>
+                                            (v == null || v.length < 6)
+                                            ? 'Password too short'
+                                            : null,
+                                      ),
+                                      AnimatedCrossFade(
+                                        duration: const Duration(
+                                          milliseconds: 300,
+                                        ),
+                                        crossFadeState: _passwordHasFocus
+                                            ? CrossFadeState.showFirst
+                                            : CrossFadeState.showSecond,
+                                        firstChild: Padding(
+                                          padding: const EdgeInsets.only(
+                                            top: 8,
+                                            bottom: 8,
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              AnimatedContainer(
+                                                duration: const Duration(
+                                                  milliseconds: 200,
+                                                ),
+                                                width: 16,
+                                                height: 16,
+                                                decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  color: _isPasswordValidLength
+                                                      ? Colors.green.shade100
+                                                      : Colors.red.shade100,
+                                                ),
+                                                child: Icon(
+                                                  _isPasswordValidLength
+                                                      ? Icons.check
+                                                      : Icons.close,
+                                                  size: 12,
+                                                  color: _isPasswordValidLength
+                                                      ? Colors.green.shade800
+                                                      : Colors.red.shade800,
+                                                ),
+                                              ),
+                                              const SizedBox(width: 8),
+                                              Text(
+                                                'At least 6 characters',
+                                                style:
+                                                    GoogleFonts.plusJakartaSans(
+                                                      fontSize: 12,
+                                                      color:
+                                                          _isPasswordValidLength
+                                                          ? Colors
+                                                                .green
+                                                                .shade800
+                                                          : Colors.red.shade800,
+                                                      fontWeight:
+                                                          _isPasswordValidLength
+                                                          ? FontWeight.bold
+                                                          : FontWeight.normal,
+                                                    ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        secondChild: const SizedBox.shrink(),
+                                      ),
+                                    ],
+                                  )
+                                  .animate()
+                                  .fadeIn(delay: 380.ms, duration: 400.ms)
+                                  .slideY(
+                                    begin: 0.15,
+                                    end: 0,
+                                    curve: Curves.easeOutQuad,
+                                  ),
+                              const SizedBox(height: 16),
+
+                              // Confirm Password Field
+                              TextFormField(
+                                    controller: _confirmPasswordController,
+                                    focusNode: _confirmPasswordFocusNode,
+                                    obscureText: _obscureConfirmPassword,
+                                    autofillHints: const [
+                                      AutofillHints.newPassword,
+                                    ],
+                                    textInputAction: TextInputAction.done,
+                                    onFieldSubmitted: (_) => _submit(),
+                                    style: GoogleFonts.plusJakartaSans(
+                                      color: primaryTextColor,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                    decoration: InputDecoration(
+                                      hintText: 'Confirm Password',
+                                      hintStyle: GoogleFonts.plusJakartaSans(
+                                        color: secondaryTextColor,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                      filled: true,
+                                      fillColor: inputFillColor,
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                            horizontal: 16,
+                                            vertical: 16,
+                                          ),
+                                      suffixIcon: IconButton(
+                                        icon: AnimatedSwitcher(
+                                          duration: const Duration(
+                                            milliseconds: 200,
+                                          ),
+                                          transitionBuilder:
+                                              (child, animation) {
+                                                return RotationTransition(
+                                                  turns: Tween<double>(
+                                                    begin: 0.75,
+                                                    end: 1,
+                                                  ).animate(animation),
+                                                  child: FadeTransition(
+                                                    opacity: animation,
+                                                    child: child,
+                                                  ),
+                                                );
+                                              },
+                                          child: Icon(
+                                            _obscureConfirmPassword
+                                                ? Icons.visibility_off_outlined
+                                                : Icons.visibility_outlined,
+                                            key: ValueKey<bool>(
+                                              _obscureConfirmPassword,
+                                            ),
+                                            color: secondaryTextColor,
+                                          ),
+                                        ),
+                                        onPressed: () {
+                                          setState(() {
+                                            _obscureConfirmPassword =
+                                                !_obscureConfirmPassword;
+                                          });
+                                        },
+                                      ),
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                        borderSide: BorderSide.none,
+                                      ),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                        borderSide: BorderSide.none,
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                        borderSide: const BorderSide(
+                                          color: primaryColor,
+                                          width: 2,
+                                        ),
+                                      ),
+                                      errorBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                        borderSide: const BorderSide(
+                                          color: Colors.red,
+                                        ),
+                                      ),
+                                      focusedErrorBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                        borderSide: const BorderSide(
+                                          color: Colors.red,
+                                          width: 2,
+                                        ),
+                                      ),
+                                    ),
+                                    validator: (v) {
+                                      if (v == null || v.isEmpty) {
+                                        return 'Confirm password';
+                                      }
+                                      if (v != _passwordController.text) {
+                                        return 'Passwords do not match';
+                                      }
+                                      return null;
+                                    },
+                                  )
+                                  .animate()
+                                  .fadeIn(delay: 440.ms, duration: 400.ms)
+                                  .slideY(
+                                    begin: 0.15,
+                                    end: 0,
+                                    curve: Curves.easeOutQuad,
+                                  ),
+                              const SizedBox(height: 24),
+
+                              // Create Account Button
+                              SizedBox(
+                                    width: double.infinity,
+                                    height: 48,
+                                    child: ElevatedButton(
+                                      onPressed: _isLoading ? null : _submit,
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: primaryColor,
+                                        foregroundColor: Colors.white,
+                                        disabledBackgroundColor: primaryColor
+                                            .withValues(alpha: 0.6),
+                                        elevation: 0,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            9999,
+                                          ),
+                                        ),
+                                      ),
+                                      child: _isLoading
+                                          ? const SizedBox(
+                                              width: 20,
+                                              height: 20,
+                                              child: CircularProgressIndicator(
+                                                color: Colors.white,
+                                                strokeWidth: 2.5,
+                                              ),
+                                            )
+                                          : Text(
+                                              'Create Account',
+                                              style: GoogleFonts.outfit(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                    ),
+                                  )
+                                  .animate()
+                                  .fadeIn(delay: 500.ms, duration: 400.ms)
+                                  .slideY(
+                                    begin: 0.15,
+                                    end: 0,
+                                    curve: Curves.easeOutQuad,
+                                  ),
+                              const SizedBox(height: 16),
+
+                              // Divider OR
+                              Center(
+                                    child: Text(
+                                      '-- OR --',
+                                      style: GoogleFonts.plusJakartaSans(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        color: secondaryTextColor,
+                                      ),
+                                    ),
+                                  )
+                                  .animate()
+                                  .fadeIn(delay: 560.ms, duration: 400.ms)
+                                  .slideY(
+                                    begin: 0.15,
+                                    end: 0,
+                                    curve: Curves.easeOutQuad,
+                                  ),
+                              const SizedBox(height: 16),
+
+                              // Continue with Google Button
+                              SizedBox(
+                                    width: double.infinity,
+                                    height: 48,
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              'Google Sign-In pressed',
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: primaryTextColor,
+                                        foregroundColor: Colors.white,
+                                        elevation: 0,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            9999,
+                                          ),
+                                        ),
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          SvgPicture.string(
+                                            googleLogoSvg,
+                                            width: 20,
+                                            height: 20,
+                                          ),
+                                          const SizedBox(width: 12),
+                                          Text(
+                                            'Continue with Google',
+                                            style: GoogleFonts.outfit(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  )
+                                  .animate()
+                                  .fadeIn(delay: 620.ms, duration: 400.ms)
+                                  .slideY(
+                                    begin: 0.15,
+                                    end: 0,
+                                    curve: Curves.easeOutQuad,
+                                  ),
+                              const SizedBox(height: 24),
+
+                              // Sign In link
+                              Center(
+                                    child: Wrap(
+                                      alignment: WrapAlignment.center,
+                                      crossAxisAlignment:
+                                          WrapCrossAlignment.center,
+                                      children: [
+                                        Text(
+                                          'Already have an account? ',
+                                          style: GoogleFonts.plusJakartaSans(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                            color: primaryTextColor,
+                                          ),
+                                        ),
+                                        GestureDetector(
+                                          onTap: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: Text(
+                                            'Sign In here',
+                                            style: GoogleFonts.plusJakartaSans(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                              color: primaryColor,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                  .animate()
+                                  .fadeIn(delay: 680.ms, duration: 400.ms)
+                                  .slideY(
+                                    begin: 0.15,
+                                    end: 0,
+                                    curve: Curves.easeOutQuad,
+                                  ),
                             ],
                           ),
                         ),
-                      ).animate().fadeIn(delay: 620.ms, duration: 400.ms).slideY(
-                            begin: 0.15,
-                            end: 0,
-                            curve: Curves.easeOutQuad,
-                          ),
-                      const SizedBox(height: 24),
-                      
-                      // Sign In link
-                      Center(
-                        child: Wrap(
-                          alignment: WrapAlignment.center,
-                          crossAxisAlignment: WrapCrossAlignment.center,
-                          children: [
-                            Text(
-                              'Already have an account? ',
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: primaryTextColor,
-                              ),
-                            ),
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.of(context).pop();
-                              },
-                              child: Text(
-                                'Sign In here',
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                  color: primaryColor,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ).animate().fadeIn(delay: 680.ms, duration: 400.ms).slideY(
-                            begin: 0.15,
-                            end: 0,
-                            curve: Curves.easeOutQuad,
-                          ),
-                    ],
-                  ),
-                ),
-              ),
+                      ),
                     ],
                   ),
                 ),

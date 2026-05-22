@@ -1,12 +1,15 @@
 abstract final class ApodFixtures {
   static const imageResponse = <String, dynamic>{
     'date': '2024-10-24',
-    'explanation': 'These pillars of gas and dust are being sculpted from within by intense radiation from hot, young stars.',
-    'hdurl': 'https://apod.nasa.gov/apod/image/2410/PillarsOfCreation_Webb_3837.jpg',
+    'explanation':
+        'These pillars of gas and dust are being sculpted from within by intense radiation from hot, young stars.',
+    'hdurl':
+        'https://apod.nasa.gov/apod/image/2410/PillarsOfCreation_Webb_3837.jpg',
     'media_type': 'image',
     'service_version': 'v1',
     'title': 'The Pillars of Creation',
-    'url': 'https://apod.nasa.gov/apod/image/2410/PillarsOfCreation_Webb_960.jpg',
+    'url':
+        'https://apod.nasa.gov/apod/image/2410/PillarsOfCreation_Webb_960.jpg',
     'copyright': 'NASA, ESA, CSA, STScI',
   };
 

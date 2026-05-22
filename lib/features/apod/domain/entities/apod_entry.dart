@@ -3,13 +3,13 @@ import 'package:flutter/foundation.dart';
 /// Represents a NASA Astronomy Picture of the Day (APOD) entry.
 @immutable
 class ApodEntry {
-
   const ApodEntry({
     required this.date,
     required this.explanation,
     required this.title,
     required this.url,
-    required this.mediaType, this.hdurl,
+    required this.mediaType,
+    this.hdurl,
     this.copyright,
     this.resolution,
     this.creditTitle,
@@ -31,6 +31,7 @@ class ApodEntry {
       creditDescription: json['credit_description'] as String?,
     );
   }
+
   /// The date of the entry, in YYYY-MM-DD format.
   final String date;
 

@@ -4,7 +4,10 @@ import 'package:attendrix_app/features/apod/data/dto/media_metadata.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApodLocalDatasource {
-  ApodLocalDatasource(this._sharedPreferences, {this.maxHistoricalEntries = 50});
+  ApodLocalDatasource(
+    this._sharedPreferences, {
+    this.maxHistoricalEntries = 50,
+  });
 
   final SharedPreferences _sharedPreferences;
   final int maxHistoricalEntries;
@@ -58,7 +61,8 @@ class ApodLocalDatasource {
     if (cached == null) return true;
 
     final today = DateTime.now().toUtc();
-    final todayStr = '${today.year}-'
+    final todayStr =
+        '${today.year}-'
         '${today.month.toString().padLeft(2, '0')}-'
         '${today.day.toString().padLeft(2, '0')}';
 
@@ -84,7 +88,9 @@ class ApodLocalDatasource {
   Future<ApodDto?> getCachedApodForDate(DateTime date) async {
     try {
       final dateStr = _formatDate(date);
-      final jsonStr = _sharedPreferences.getString(_kApodCacheEntryPrefix + dateStr);
+      final jsonStr = _sharedPreferences.getString(
+        _kApodCacheEntryPrefix + dateStr,
+      );
       if (jsonStr == null) return null;
 
       // Update LRU access order
@@ -106,7 +112,10 @@ class ApodLocalDatasource {
   Future<void> cacheApodForDate(DateTime date, ApodDto dto) async {
     final dateStr = _formatDate(date);
     final jsonStr = jsonEncode(dto.toJson());
-    await _sharedPreferences.setString(_kApodCacheEntryPrefix + dateStr, jsonStr);
+    await _sharedPreferences.setString(
+      _kApodCacheEntryPrefix + dateStr,
+      jsonStr,
+    );
     await _sharedPreferences.setString(
       _kApodCacheTimestampPrefix + dateStr,
       DateTime.now().toUtc().toIso8601String(),

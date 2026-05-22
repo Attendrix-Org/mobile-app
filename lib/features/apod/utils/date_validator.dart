@@ -46,9 +46,17 @@ class DateValidator {
 
     // Compare date bounds
     // Normalize to date-only comparisons (midnight)
-    final normalizedStart = DateTime(_apodStartDate.year, _apodStartDate.month, _apodStartDate.day);
-    final normalizedParsed = DateTime(parsedDate.year, parsedDate.month, parsedDate.day);
-    
+    final normalizedStart = DateTime(
+      _apodStartDate.year,
+      _apodStartDate.month,
+      _apodStartDate.day,
+    );
+    final normalizedParsed = DateTime(
+      parsedDate.year,
+      parsedDate.month,
+      parsedDate.day,
+    );
+
     final now = DateTime.now();
     final normalizedToday = DateTime(now.year, now.month, now.day);
 

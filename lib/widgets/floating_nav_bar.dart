@@ -75,7 +75,9 @@ class FloatingNavBar extends StatelessWidget {
                 children: [
                   HeroIcon(
                     isSelected ? item.selectedIcon : item.icon,
-                    style: isSelected ? HeroIconStyle.solid : HeroIconStyle.outline,
+                    style: isSelected
+                        ? HeroIconStyle.solid
+                        : HeroIconStyle.outline,
                     color: isSelected ? Colors.white : inactiveColor,
                     size: 24,
                   ),

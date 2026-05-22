@@ -36,7 +36,8 @@ class ApodRemoteDatasource {
       QueuedInterceptorsWrapper(
         onError: (err, handler) async {
           final count = err.requestOptions.extra['retry_count'] as int? ?? 0;
-          final isRetryable = err.type == DioExceptionType.connectionTimeout ||
+          final isRetryable =
+              err.type == DioExceptionType.connectionTimeout ||
               err.type == DioExceptionType.sendTimeout ||
               err.type == DioExceptionType.receiveTimeout ||
               err.type == DioExceptionType.connectionError ||

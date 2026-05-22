@@ -23,7 +23,7 @@ class ApodHistoryPage extends ConsumerStatefulWidget {
 class _ApodHistoryPageState extends ConsumerState<ApodHistoryPage> {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
-  
+
   bool _isLoading = false;
   bool _showCalendar = false;
   String? _searchError;
@@ -65,7 +65,7 @@ class _ApodHistoryPageState extends ConsumerState<ApodHistoryPage> {
         await ref.read(viewedDatesProvider.notifier).addViewedDate(data.date);
         // Add to recent searches
         await ref.read(recentSearchesProvider.notifier).addSearch(data.date);
-        
+
         if (mounted) {
           _searchController.clear();
           _searchFocusNode.unfocus();
@@ -90,12 +90,20 @@ class _ApodHistoryPageState extends ConsumerState<ApodHistoryPage> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    final canvasColor = isDark ? const Color(0xFF131315) : const Color(0xFFF8FAFC);
+    final canvasColor = isDark
+        ? const Color(0xFF131315)
+        : const Color(0xFFF8FAFC);
     final surfaceColor = isDark ? const Color(0xFF201F21) : Colors.white;
-    final borderColor = isDark ? const Color(0xFF353437) : const Color(0xFFE2E8F0);
+    final borderColor = isDark
+        ? const Color(0xFF353437)
+        : const Color(0xFFE2E8F0);
     final textColor = isDark ? Colors.white : const Color(0xFF15161E);
-    final secondaryTextColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF606A85);
-    final accentColor = isDark ? const Color(0xFFC5C0FF) : const Color(0xFF6F61EF);
+    final secondaryTextColor = isDark
+        ? const Color(0xFF94A3B8)
+        : const Color(0xFF606A85);
+    final accentColor = isDark
+        ? const Color(0xFFC5C0FF)
+        : const Color(0xFF6F61EF);
 
     final isGrid = ref.watch(historyViewModeProvider);
     final recentSearches = ref.watch(recentSearchesProvider);
@@ -129,7 +137,10 @@ class _ApodHistoryPageState extends ConsumerState<ApodHistoryPage> {
               children: [
                 // 1. Search Bar & Calendar toggle
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   child: _buildSearchSection(
                     textColor: textColor,
                     secondaryTextColor: secondaryTextColor,
@@ -142,7 +153,11 @@ class _ApodHistoryPageState extends ConsumerState<ApodHistoryPage> {
                 // Inline validation messages
                 if (_searchError != null)
                   Padding(
-                    padding: const EdgeInsets.only(left: 24, right: 24, bottom: 8),
+                    padding: const EdgeInsets.only(
+                      left: 24,
+                      right: 24,
+                      bottom: 8,
+                    ),
                     child: Text(
                       _searchError!,
                       key: const Key('search_validation_error'),
@@ -157,10 +172,14 @@ class _ApodHistoryPageState extends ConsumerState<ApodHistoryPage> {
                 // Collapsible Calendar Panel
                 if (_showCalendar)
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
                     child: CalendarExplorer(
                       onDateSelected: (date) {
-                        final dateStr = '${date.year}-'
+                        final dateStr =
+                            '${date.year}-'
                             '${date.month.toString().padLeft(2, '0')}-'
                             '${date.day.toString().padLeft(2, '0')}';
                         setState(() {
@@ -205,7 +224,11 @@ class _ApodHistoryPageState extends ConsumerState<ApodHistoryPage> {
                               color: isGrid ? accentColor : secondaryTextColor,
                               size: 20,
                             ),
-                            onPressed: () => ref.read(historyViewModeProvider.notifier).state = true,
+                            onPressed: () =>
+                                ref
+                                        .read(historyViewModeProvider.notifier)
+                                        .state =
+                                    true,
                           ),
                           IconButton(
                             key: const Key('history_list_toggle'),
@@ -214,7 +237,11 @@ class _ApodHistoryPageState extends ConsumerState<ApodHistoryPage> {
                               color: !isGrid ? accentColor : secondaryTextColor,
                               size: 20,
                             ),
-                            onPressed: () => ref.read(historyViewModeProvider.notifier).state = false,
+                            onPressed: () =>
+                                ref
+                                        .read(historyViewModeProvider.notifier)
+                                        .state =
+                                    false,
                           ),
                         ],
                       ),
@@ -253,7 +280,7 @@ class _ApodHistoryPageState extends ConsumerState<ApodHistoryPage> {
                 ),
               ],
             ),
-            
+
             // Global loading spinner overlay for search api request
             if (_isLoading)
               Positioned.fill(
@@ -310,7 +337,9 @@ class _ApodHistoryPageState extends ConsumerState<ApodHistoryPage> {
               IconButton(
                 key: const Key('calendar_toggle_btn'),
                 icon: Icon(
-                  _showCalendar ? Icons.calendar_today_rounded : Icons.calendar_month_rounded,
+                  _showCalendar
+                      ? Icons.calendar_today_rounded
+                      : Icons.calendar_month_rounded,
                   color: _showCalendar ? accentColor : secondaryTextColor,
                 ),
                 onPressed: () {
@@ -322,7 +351,10 @@ class _ApodHistoryPageState extends ConsumerState<ApodHistoryPage> {
             ],
           ),
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 14,
+          ),
         ),
         onChanged: (val) {
           // Trigger rebuilding suffix icons when text changes
@@ -362,7 +394,8 @@ class _ApodHistoryPageState extends ConsumerState<ApodHistoryPage> {
                 ),
               ),
               GestureDetector(
-                onTap: () => ref.read(recentSearchesProvider.notifier).clearSearches(),
+                onTap: () =>
+                    ref.read(recentSearchesProvider.notifier).clearSearches(),
                 child: Text(
                   'Clear All',
                   style: GoogleFonts.outfit(
@@ -460,61 +493,68 @@ class _ApodHistoryPageState extends ConsumerState<ApodHistoryPage> {
     required Color secondaryTextColor,
   }) {
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 32),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.history_toggle_off_rounded, size: 64, color: secondaryTextColor.withValues(alpha: 0.4)),
-              const SizedBox(height: 16),
-              Text(
-                'No APODs viewed yet',
-                style: GoogleFonts.outfit(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white70,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                "Begin your cosmic journey by checking out today's featured Astronomy Picture of the Day.",
-                textAlign: TextAlign.center,
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 14,
-                  color: secondaryTextColor,
-                ),
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton.icon(
-                key: const Key('explore_today_btn'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: accentColor,
-                  foregroundColor: Colors.black,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.history_toggle_off_rounded,
+                    size: 64,
+                    color: secondaryTextColor.withValues(alpha: 0.4),
                   ),
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                ),
-                onPressed: () {
-                  // Navigate to today's APOD
-                  unawaited(
-                    Navigator.of(context).pushNamed(
-                      ApodDetailPage.routeName,
+                  const SizedBox(height: 16),
+                  Text(
+                    'No APODs viewed yet',
+                    style: GoogleFonts.outfit(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white70,
                     ),
-                  );
-                },
-                icon: const Icon(Icons.rocket_launch, size: 18),
-                label: Text(
-                  'Explore Today’s APOD',
-                  style: GoogleFonts.outfit(fontWeight: FontWeight.bold),
-                ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    "Begin your cosmic journey by checking out today's featured Astronomy Picture of the Day.",
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 14,
+                      color: secondaryTextColor,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton.icon(
+                    key: const Key('explore_today_btn'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: accentColor,
+                      foregroundColor: Colors.black,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 12,
+                      ),
+                    ),
+                    onPressed: () {
+                      // Navigate to today's APOD
+                      unawaited(
+                        Navigator.of(context).pushNamed(
+                          ApodDetailPage.routeName,
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.rocket_launch, size: 18),
+                    label: Text(
+                      'Explore Today’s APOD',
+                      style: GoogleFonts.outfit(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
-    )
+        )
         .animate()
         .fade(duration: 400.ms)
         .scale(begin: const Offset(0.9, 0.9), end: const Offset(1, 1));
@@ -535,7 +575,11 @@ class _ApodHistoryPageState extends ConsumerState<ApodHistoryPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.cloud_off_rounded, size: 48, color: Colors.orangeAccent.withValues(alpha: 0.8)),
+              Icon(
+                Icons.cloud_off_rounded,
+                size: 48,
+                color: Colors.orangeAccent.withValues(alpha: 0.8),
+              ),
               const SizedBox(height: 16),
               Text(
                 'Archive Sync Error',
@@ -559,8 +603,13 @@ class _ApodHistoryPageState extends ConsumerState<ApodHistoryPage> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: accentColor,
                   foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
                 ),
                 onPressed: () => ref.invalidate(historyEntriesProvider),
                 child: Text(

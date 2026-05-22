@@ -13,7 +13,10 @@ abstract class ApodRepository {
 
   Future<void> clearCache();
 
-  Future<Result<ApodEntry>> getApodForDate(DateTime date, {bool forceRefresh = false});
+  Future<Result<ApodEntry>> getApodForDate(
+    DateTime date, {
+    bool forceRefresh = false,
+  });
 
   Future<Result<ApodEntry?>> getCachedApod(DateTime date);
 

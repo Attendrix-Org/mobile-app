@@ -17,7 +17,6 @@ import 'package:skeletonizer/skeletonizer.dart';
 /// Supports shimmer loading via [Skeletonizer], custom error state screens,
 /// and responsive tablet/mobile layouts.
 class ApodDetailPage extends ConsumerStatefulWidget {
-
   const ApodDetailPage({
     super.key,
     this.entry,
@@ -54,7 +53,7 @@ class _ApodDetailPageState extends ConsumerState<ApodDetailPage> {
     super.didChangeDependencies();
     if (!_isInitialized) {
       _isInitialized = true;
-      
+
       final routeArgs = ModalRoute.of(context)?.settings.arguments;
       _currentEntry = widget.entry;
 
@@ -76,7 +75,8 @@ class _ApodDetailPageState extends ConsumerState<ApodDetailPage> {
       } else {
         // Fall back to today's date if no entry or date was provided
         final now = DateTime.now();
-        _currentDate = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+        _currentDate =
+            '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
       }
     }
   }
@@ -119,7 +119,8 @@ class _ApodDetailPageState extends ConsumerState<ApodDetailPage> {
     try {
       final date = DateTime.parse(_currentDate);
       final prevDate = date.subtract(const Duration(days: 1));
-      final prevDateStr = '${prevDate.year}-${prevDate.month.toString().padLeft(2, '0')}-${prevDate.day.toString().padLeft(2, '0')}';
+      final prevDateStr =
+          '${prevDate.year}-${prevDate.month.toString().padLeft(2, '0')}-${prevDate.day.toString().padLeft(2, '0')}';
       setState(() {
         _currentDate = prevDateStr;
       });
@@ -130,7 +131,8 @@ class _ApodDetailPageState extends ConsumerState<ApodDetailPage> {
     try {
       final date = DateTime.parse(_currentDate);
       final nextDate = date.add(const Duration(days: 1));
-      final nextDateStr = '${nextDate.year}-${nextDate.month.toString().padLeft(2, '0')}-${nextDate.day.toString().padLeft(2, '0')}';
+      final nextDateStr =
+          '${nextDate.year}-${nextDate.month.toString().padLeft(2, '0')}-${nextDate.day.toString().padLeft(2, '0')}';
       setState(() {
         _currentDate = nextDateStr;
       });
@@ -142,10 +144,15 @@ class _ApodDetailPageState extends ConsumerState<ApodDetailPage> {
       widget.onRetry!();
     } else {
       final parsedDate = DateTime.parse(_currentDate);
-      final normalizedDate = DateTime.utc(parsedDate.year, parsedDate.month, parsedDate.day);
+      final normalizedDate = DateTime.utc(
+        parsedDate.year,
+        parsedDate.month,
+        parsedDate.day,
+      );
       unawaited(ref.read(apodStateProvider(normalizedDate).notifier).refresh());
     }
   }
+
   // A mock entry to populate Skeletonizer when the real entry isn't loaded yet.
   static const ApodEntry _dummyEntry = ApodEntry(
     date: '2026-05-21',
@@ -197,16 +204,28 @@ class _ApodDetailPageState extends ConsumerState<ApodDetailPage> {
     final isDark = theme.brightness == Brightness.dark;
 
     // Resolve which colors to use based on the "Celestial Archive" spec
-    final canvasColor = isDark ? const Color(0xFF131315) : const Color(0xFFF8FAFC);
-    final accentColor = isDark ? const Color(0xFFC5C0FF) : const Color(0xFF6F61EF);
+    final canvasColor = isDark
+        ? const Color(0xFF131315)
+        : const Color(0xFFF8FAFC);
+    final accentColor = isDark
+        ? const Color(0xFFC5C0FF)
+        : const Color(0xFF6F61EF);
     final surfaceColor = isDark ? const Color(0xFF201F21) : Colors.white;
-    final borderColor = isDark ? const Color(0xFF353437) : const Color(0xFFE2E8F0);
+    final borderColor = isDark
+        ? const Color(0xFF353437)
+        : const Color(0xFFE2E8F0);
     final textColor = isDark ? Colors.white : const Color(0xFF15161E);
-    final secondaryTextColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF606A85);
+    final secondaryTextColor = isDark
+        ? const Color(0xFF94A3B8)
+        : const Color(0xFF606A85);
 
     // Watch Riverpod state
     final parsedDate = DateTime.parse(_currentDate);
-    final normalizedDate = DateTime.utc(parsedDate.year, parsedDate.month, parsedDate.day);
+    final normalizedDate = DateTime.utc(
+      parsedDate.year,
+      parsedDate.month,
+      parsedDate.day,
+    );
     final apodState = ref.watch(apodStateProvider(normalizedDate));
 
     var isLoading = widget.isLoading;
@@ -226,7 +245,8 @@ class _ApodDetailPageState extends ConsumerState<ApodDetailPage> {
         case ApodLoading():
           if (widget.entry != null && widget.entry!.date == _currentDate) {
             displayEntry = widget.entry;
-          } else if (_currentEntry != null && _currentEntry!.date == _currentDate) {
+          } else if (_currentEntry != null &&
+              _currentEntry!.date == _currentDate) {
             displayEntry = _currentEntry;
           } else {
             isLoading = true;
@@ -237,7 +257,10 @@ class _ApodDetailPageState extends ConsumerState<ApodDetailPage> {
         case ApodCached(:final entry, isRefreshing: final isRefreshingValue):
           displayEntry = entry;
           isRefreshing = isRefreshingValue;
-        case ApodOfflineFallback(:final entry, isRefreshing: final isRefreshingValue):
+        case ApodOfflineFallback(
+          :final entry,
+          isRefreshing: final isRefreshingValue,
+        ):
           displayEntry = entry;
           isOffline = true;
           isRefreshing = isRefreshingValue;
@@ -272,13 +295,17 @@ class _ApodDetailPageState extends ConsumerState<ApodDetailPage> {
             key: const Key('apod_prev_day_btn'),
             icon: const Icon(Icons.arrow_back_rounded),
             color: textColor,
-            onPressed: (isLoading || _isEarliestOrEarlier(_currentDate)) ? null : _navigateToPreviousDay,
+            onPressed: (isLoading || _isEarliestOrEarlier(_currentDate))
+                ? null
+                : _navigateToPreviousDay,
           ),
           IconButton(
             key: const Key('apod_next_day_btn'),
             icon: const Icon(Icons.arrow_forward_rounded),
             color: textColor,
-            onPressed: (isLoading || _isTodayOrLater(_currentDate)) ? null : _navigateToNextDay,
+            onPressed: (isLoading || _isTodayOrLater(_currentDate))
+                ? null
+                : _navigateToNextDay,
           ),
         ],
       ),
@@ -346,7 +373,9 @@ class _ApodDetailPageState extends ConsumerState<ApodDetailPage> {
     return LayoutBuilder(
       key: ValueKey<bool>(isLoading),
       builder: (context, constraints) {
-        print('LAYOUT BUILDER RUNNING: isTablet = ${constraints.maxWidth > 720}');
+        print(
+          'LAYOUT BUILDER RUNNING: isTablet = ${constraints.maxWidth > 720}',
+        );
         final isTablet = constraints.maxWidth > 720;
 
         if (isTablet) {
@@ -402,7 +431,11 @@ class _ApodDetailPageState extends ConsumerState<ApodDetailPage> {
     return RefreshIndicator(
       onRefresh: () async {
         final parsedDate = DateTime.parse(_currentDate);
-        final normalizedDate = DateTime.utc(parsedDate.year, parsedDate.month, parsedDate.day);
+        final normalizedDate = DateTime.utc(
+          parsedDate.year,
+          parsedDate.month,
+          parsedDate.day,
+        );
         await ref.read(apodStateProvider(normalizedDate).notifier).refresh();
       },
       child: SingleChildScrollView(
@@ -427,7 +460,7 @@ class _ApodDetailPageState extends ConsumerState<ApodDetailPage> {
                   // 2. Title & Date
                   _buildHeaderTitle(entry, textColor, secondaryTextColor),
                   const SizedBox(height: 18),
-  
+
                   // 3. Quick Info Badges (Horizontal scroll)
                   _buildQuickInfoBadges(
                     entry,
@@ -438,7 +471,7 @@ class _ApodDetailPageState extends ConsumerState<ApodDetailPage> {
                     textColor: textColor,
                   ),
                   const SizedBox(height: 24),
-  
+
                   // 4. Description section
                   _buildDescriptionSection(
                     entry,
@@ -446,7 +479,7 @@ class _ApodDetailPageState extends ConsumerState<ApodDetailPage> {
                     secondaryTextColor: secondaryTextColor,
                   ),
                   const SizedBox(height: 24),
-  
+
                   // 5. Actions Grid
                   Text(
                     'ARCHIVE ACTIONS',
@@ -463,7 +496,7 @@ class _ApodDetailPageState extends ConsumerState<ApodDetailPage> {
                     onOpenHD: () => _openHDImageViewer(context, entry),
                   ),
                   const SizedBox(height: 28),
-  
+
                   // 6. Attribution Section
                   if (entry.creditTitle != null) ...[
                     _buildAttributionSection(
@@ -477,7 +510,7 @@ class _ApodDetailPageState extends ConsumerState<ApodDetailPage> {
                     ),
                     const SizedBox(height: 24),
                   ],
-  
+
                   // 7. Related Accordions
                   _buildRelatedAccordions(
                     entry,
@@ -520,8 +553,14 @@ class _ApodDetailPageState extends ConsumerState<ApodDetailPage> {
           child: RefreshIndicator(
             onRefresh: () async {
               final parsedDate = DateTime.parse(_currentDate);
-              final normalizedDate = DateTime.utc(parsedDate.year, parsedDate.month, parsedDate.day);
-              await ref.read(apodStateProvider(normalizedDate).notifier).refresh();
+              final normalizedDate = DateTime.utc(
+                parsedDate.year,
+                parsedDate.month,
+                parsedDate.day,
+              );
+              await ref
+                  .read(apodStateProvider(normalizedDate).notifier)
+                  .refresh();
             },
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
@@ -572,8 +611,14 @@ class _ApodDetailPageState extends ConsumerState<ApodDetailPage> {
           child: RefreshIndicator(
             onRefresh: () async {
               final parsedDate = DateTime.parse(_currentDate);
-              final normalizedDate = DateTime.utc(parsedDate.year, parsedDate.month, parsedDate.day);
-              await ref.read(apodStateProvider(normalizedDate).notifier).refresh();
+              final normalizedDate = DateTime.utc(
+                parsedDate.year,
+                parsedDate.month,
+                parsedDate.day,
+              );
+              await ref
+                  .read(apodStateProvider(normalizedDate).notifier)
+                  .refresh();
             },
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
@@ -664,7 +709,9 @@ class _ApodDetailPageState extends ConsumerState<ApodDetailPage> {
       );
     }
 
-    final secondaryText = isDark ? const Color(0xFF94A3B8) : const Color(0xFF606A85);
+    final secondaryText = isDark
+        ? const Color(0xFF94A3B8)
+        : const Color(0xFF606A85);
 
     final gradientOverlay = Positioned.fill(
       child: DecoratedBox(
@@ -739,17 +786,25 @@ class _ApodDetailPageState extends ConsumerState<ApodDetailPage> {
                   imageUrl: entry.url,
                   fit: BoxFit.cover,
                   placeholder: (context, url) => ColoredBox(
-                    color: isDark ? const Color(0xFF201F21) : const Color(0xFFE2E8F0),
+                    color: isDark
+                        ? const Color(0xFF201F21)
+                        : const Color(0xFFE2E8F0),
                     child: const Center(
                       child: CircularProgressIndicator(color: Colors.white30),
                     ),
                   ),
                   errorWidget: (context, url, error) => ColoredBox(
-                    color: isDark ? const Color(0xFF201F21) : const Color(0xFFE2E8F0),
+                    color: isDark
+                        ? const Color(0xFF201F21)
+                        : const Color(0xFFE2E8F0),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.broken_image_rounded, color: secondaryText, size: 48),
+                        Icon(
+                          Icons.broken_image_rounded,
+                          color: secondaryText,
+                          size: 48,
+                        ),
                         const SizedBox(height: 8),
                         Text(
                           'Cosmic Image Unavailable Offline',
@@ -763,11 +818,11 @@ class _ApodDetailPageState extends ConsumerState<ApodDetailPage> {
                     ),
                   ),
                 ).animate().scale(
-                      begin: const Offset(1.05, 1.05),
-                      end: const Offset(1, 1),
-                      duration: 500.ms,
-                      curve: Curves.easeOutCubic,
-                    ),
+                  begin: const Offset(1.05, 1.05),
+                  end: const Offset(1, 1),
+                  duration: 500.ms,
+                  curve: Curves.easeOutCubic,
+                ),
                 gradientOverlay,
                 mediaTypeBadge,
                 // Hint to tap to view HD full-screen
@@ -779,11 +834,18 @@ class _ApodDetailPageState extends ConsumerState<ApodDetailPage> {
                     child: BackdropFilter(
                       filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
                         color: Colors.black.withValues(alpha: 0.4),
                         child: Row(
                           children: [
-                            const Icon(Icons.zoom_in, color: Colors.white70, size: 14),
+                            const Icon(
+                              Icons.zoom_in,
+                              color: Colors.white70,
+                              size: 14,
+                            ),
                             const SizedBox(width: 4),
                             Text(
                               'TAP TO EXPAND HD',
@@ -807,7 +869,11 @@ class _ApodDetailPageState extends ConsumerState<ApodDetailPage> {
     );
   }
 
-  Widget _buildHeaderTitle(ApodEntry entry, Color textColor, Color secondaryTextColor) {
+  Widget _buildHeaderTitle(
+    ApodEntry entry,
+    Color textColor,
+    Color secondaryTextColor,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -860,7 +926,9 @@ class _ApodDetailPageState extends ConsumerState<ApodDetailPage> {
         textColor: textColor,
       ),
       _buildPillBadge(
-        icon: entry.mediaType == 'video' ? Icons.videocam_outlined : Icons.photo_outlined,
+        icon: entry.mediaType == 'video'
+            ? Icons.videocam_outlined
+            : Icons.photo_outlined,
         label: entry.mediaType == 'video' ? 'Video Media' : 'Image Media',
         isDark: isDark,
         surfaceColor: surfaceColor,
@@ -940,7 +1008,11 @@ class _ApodDetailPageState extends ConsumerState<ApodDetailPage> {
       children: [
         Row(
           children: [
-            const Icon(Icons.info_outline_rounded, size: 18, color: Color(0xFF8A80FF)),
+            const Icon(
+              Icons.info_outline_rounded,
+              size: 18,
+              color: Color(0xFF8A80FF),
+            ),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
@@ -982,7 +1054,7 @@ class _ApodDetailPageState extends ConsumerState<ApodDetailPage> {
                   color: Colors.black.withValues(alpha: 0.04),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
-                )
+                ),
               ]
             : null,
       ),
@@ -994,7 +1066,9 @@ class _ApodDetailPageState extends ConsumerState<ApodDetailPage> {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: (isDark ? const Color(0xFFC5C0FF) : const Color(0xFF6F61EF)).withValues(alpha: 0.12),
+              color:
+                  (isDark ? const Color(0xFFC5C0FF) : const Color(0xFF6F61EF))
+                      .withValues(alpha: 0.12),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -1083,10 +1157,18 @@ class _ApodDetailPageState extends ConsumerState<ApodDetailPage> {
               collapsedIconColor: secondaryTextColor,
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
+                  padding: const EdgeInsets.only(
+                    left: 16,
+                    right: 16,
+                    bottom: 16,
+                  ),
                   child: Row(
                     children: [
-                      Icon(Icons.lock_person_outlined, size: 16, color: secondaryTextColor),
+                      Icon(
+                        Icons.lock_person_outlined,
+                        size: 16,
+                        color: secondaryTextColor,
+                      ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
@@ -1131,7 +1213,11 @@ class _ApodDetailPageState extends ConsumerState<ApodDetailPage> {
               collapsedIconColor: secondaryTextColor,
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
+                  padding: const EdgeInsets.only(
+                    left: 16,
+                    right: 16,
+                    bottom: 16,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -1155,7 +1241,11 @@ class _ApodDetailPageState extends ConsumerState<ApodDetailPage> {
                         const SizedBox(height: 8),
                         Row(
                           children: [
-                            Icon(Icons.link, size: 16, color: secondaryTextColor),
+                            Icon(
+                              Icons.link,
+                              size: 16,
+                              color: secondaryTextColor,
+                            ),
                             const SizedBox(width: 8),
                             Expanded(
                               child: SelectableText(
@@ -1217,15 +1307,20 @@ class _ApodDetailPageState extends ConsumerState<ApodDetailPage> {
                 alignment: Alignment.center,
                 children: [
                   Container(
-                    width: 160,
-                    height: 160,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: accentColor.withValues(alpha: 0.06),
-                    ),
-                  )
+                        width: 160,
+                        height: 160,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: accentColor.withValues(alpha: 0.06),
+                        ),
+                      )
                       .animate(onPlay: (controller) => controller.repeat())
-                      .scale(begin: const Offset(0.8, 0.8), end: const Offset(1.3, 1.3), duration: 2500.ms, curve: Curves.easeOut)
+                      .scale(
+                        begin: const Offset(0.8, 0.8),
+                        end: const Offset(1.3, 1.3),
+                        duration: 2500.ms,
+                        curve: Curves.easeOut,
+                      )
                       .fadeOut(duration: 2500.ms),
                   Container(
                     width: 120,
@@ -1236,28 +1331,31 @@ class _ApodDetailPageState extends ConsumerState<ApodDetailPage> {
                     ),
                   ),
                   Container(
-                    width: 80,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: surfaceColor,
-                      border: Border.all(color: borderColor),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        )
-                      ],
-                    ),
-                    child: Icon(
-                      Icons.satellite_alt_rounded,
-                      size: 40,
-                      color: accentColor,
-                    ),
-                  )
+                        width: 80,
+                        height: 80,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: surfaceColor,
+                          border: Border.all(color: borderColor),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(
+                                alpha: isDark ? 0.2 : 0.05,
+                              ),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          Icons.satellite_alt_rounded,
+                          size: 40,
+                          color: accentColor,
+                        ),
+                      )
                       .animate(
-                        onPlay: (controller) => controller.repeat(reverse: true),
+                        onPlay: (controller) =>
+                            controller.repeat(reverse: true),
                       )
                       .slideY(
                         begin: -0.15,
@@ -1315,13 +1413,18 @@ class _ApodDetailPageState extends ConsumerState<ApodDetailPage> {
                 child: ElevatedButton.icon(
                   key: const Key('apod_error_retry_btn'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: isDark ? const Color(0xFF8A80FF) : const Color(0xFF6F61EF),
+                    backgroundColor: isDark
+                        ? const Color(0xFF8A80FF)
+                        : const Color(0xFF6F61EF),
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
                     elevation: 0,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 12,
+                    ),
                   ),
                   onPressed: _handleRetry,
                   icon: const Icon(Icons.refresh, size: 20),
@@ -1350,7 +1453,11 @@ class _ApodDetailPageState extends ConsumerState<ApodDetailPage> {
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.security_update_warning_rounded, color: Colors.orangeAccent, size: 16),
+                        const Icon(
+                          Icons.security_update_warning_rounded,
+                          color: Colors.orangeAccent,
+                          size: 16,
+                        ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(

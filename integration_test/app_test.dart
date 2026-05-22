@@ -1,4 +1,3 @@
-// ignore_for_file: lines_longer_than_80_chars
 // Integration test — must run on a real or emulated device.
 // Run with: flutter test integration_test/app_test.dart
 //

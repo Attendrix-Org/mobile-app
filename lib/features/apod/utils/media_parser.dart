@@ -57,7 +57,9 @@ class MediaParser {
 
     // Unknown video provider — still return a result with the raw URL
     // Only if the URL looks like an embed or video URL
-    if (url.contains('embed') || url.contains('video') || url.contains('player')) {
+    if (url.contains('embed') ||
+        url.contains('video') ||
+        url.contains('player')) {
       return ParsedVideo(
         provider: VideoProvider.unknown,
         videoId: '',
@@ -75,11 +77,15 @@ class MediaParser {
   // https://youtube.com/embed/VIDEO_ID?rel=0
   static String? _extractYouTubeId(String url) {
     // embed pattern
-    final embedMatch = RegExp(r'youtube\.com/embed/([a-zA-Z0-9_-]+)').firstMatch(url);
+    final embedMatch = RegExp(
+      r'youtube\.com/embed/([a-zA-Z0-9_-]+)',
+    ).firstMatch(url);
     if (embedMatch != null) return embedMatch.group(1);
 
     // watch pattern
-    final watchMatch = RegExp(r'youtube\.com/watch\?v=([a-zA-Z0-9_-]+)').firstMatch(url);
+    final watchMatch = RegExp(
+      r'youtube\.com/watch\?v=([a-zA-Z0-9_-]+)',
+    ).firstMatch(url);
     if (watchMatch != null) return watchMatch.group(1);
 
     // short URL
@@ -93,7 +99,9 @@ class MediaParser {
   // https://vimeo.com/VIDEO_ID
   // https://player.vimeo.com/video/VIDEO_ID
   static String? _extractVimeoId(String url) {
-    final playerMatch = RegExp(r'player\.vimeo\.com/video/(\d+)').firstMatch(url);
+    final playerMatch = RegExp(
+      r'player\.vimeo\.com/video/(\d+)',
+    ).firstMatch(url);
     if (playerMatch != null) return playerMatch.group(1);
 
     final standardMatch = RegExp(r'vimeo\.com/(\d+)').firstMatch(url);

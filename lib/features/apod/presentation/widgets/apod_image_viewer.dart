@@ -7,9 +7,10 @@ import 'package:google_fonts/google_fonts.dart';
 /// An interactive full-screen image viewer supporting double tap to zoom,
 /// pinch to zoom, and toggleable head-up metadata overlays.
 class ApodImageViewer extends StatefulWidget {
-
   const ApodImageViewer({
-    required this.imageUrl, required this.title, super.key,
+    required this.imageUrl,
+    required this.title,
+    super.key,
   });
   final String imageUrl;
   final String title;
@@ -18,7 +19,8 @@ class ApodImageViewer extends StatefulWidget {
   State<ApodImageViewer> createState() => _ApodImageViewerState();
 }
 
-class _ApodImageViewerState extends State<ApodImageViewer> with SingleTickerProviderStateMixin {
+class _ApodImageViewerState extends State<ApodImageViewer>
+    with SingleTickerProviderStateMixin {
   late TransformationController _transformationController;
   late AnimationController _animationController;
   Animation<Matrix4>? _zoomAnimation;
@@ -29,14 +31,15 @@ class _ApodImageViewerState extends State<ApodImageViewer> with SingleTickerProv
   void initState() {
     super.initState();
     _transformationController = TransformationController();
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 250),
-    )..addListener(() {
-        if (_zoomAnimation != null) {
-          _transformationController.value = _zoomAnimation!.value;
-        }
-      });
+    _animationController =
+        AnimationController(
+          vsync: this,
+          duration: const Duration(milliseconds: 250),
+        )..addListener(() {
+          if (_zoomAnimation != null) {
+            _transformationController.value = _zoomAnimation!.value;
+          }
+        });
   }
 
   @override
@@ -66,12 +69,16 @@ class _ApodImageViewerState extends State<ApodImageViewer> with SingleTickerProv
       endMatrix = Matrix4.identity();
     }
 
-    _zoomAnimation = Matrix4Tween(
-      begin: _transformationController.value,
-      end: endMatrix,
-    ).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
-    );
+    _zoomAnimation =
+        Matrix4Tween(
+          begin: _transformationController.value,
+          end: endMatrix,
+        ).animate(
+          CurvedAnimation(
+            parent: _animationController,
+            curve: Curves.easeInOut,
+          ),
+        );
 
     unawaited(_animationController.forward(from: 0));
   }
@@ -109,11 +116,17 @@ class _ApodImageViewerState extends State<ApodImageViewer> with SingleTickerProv
                       errorWidget: (context, url, error) => Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Icon(Icons.broken_image_rounded, color: Colors.white38, size: 64),
+                          const Icon(
+                            Icons.broken_image_rounded,
+                            color: Colors.white38,
+                            size: 64,
+                          ),
                           const SizedBox(height: 12),
                           Text(
                             'Could not load HD image',
-                            style: GoogleFonts.plusJakartaSans(color: Colors.white70),
+                            style: GoogleFonts.plusJakartaSans(
+                              color: Colors.white70,
+                            ),
                           ),
                         ],
                       ),
@@ -145,14 +158,20 @@ class _ApodImageViewerState extends State<ApodImageViewer> with SingleTickerProv
                               shape: BoxShape.circle,
                             ),
                             child: IconButton(
-                              icon: const Icon(Icons.arrow_back, color: Colors.white),
+                              icon: const Icon(
+                                Icons.arrow_back,
+                                color: Colors.white,
+                              ),
                               onPressed: () => Navigator.of(context).pop(),
                             ),
                           ),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.black.withValues(alpha: 0.5),
                                 borderRadius: BorderRadius.circular(20),
@@ -171,7 +190,9 @@ class _ApodImageViewerState extends State<ApodImageViewer> with SingleTickerProv
                             ),
                           ),
                           const SizedBox(width: 8),
-                          const SizedBox(width: 48), // Spacer to balance back button
+                          const SizedBox(
+                            width: 48,
+                          ), // Spacer to balance back button
                         ],
                       ),
                     ),

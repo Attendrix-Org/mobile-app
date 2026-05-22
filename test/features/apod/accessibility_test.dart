@@ -1,4 +1,3 @@
-// ignore_for_file: lines_longer_than_80_chars
 import 'dart:convert';
 import 'dart:io';
 
@@ -15,10 +14,15 @@ import 'package:mocktail/mocktail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MockApodRepository extends Mock implements ApodRepository {}
+
 class MockSharedPreferences extends Mock implements SharedPreferences {}
+
 class MockHttpClient extends Mock implements HttpClient {}
+
 class MockHttpClientRequest extends Mock implements HttpClientRequest {}
+
 class MockHttpClientResponse extends Mock implements HttpClientResponse {}
+
 class MockHttpHeaders extends Mock implements HttpHeaders {}
 
 class _TestHttpOverrides extends HttpOverrides {
@@ -31,7 +35,8 @@ class _TestHttpOverrides extends HttpOverrides {
 const _testEntry = ApodEntry(
   date: '2026-05-21',
   title: 'The Pillars of Creation',
-  explanation: 'Giant columns of gas and dust photographed by the Hubble Space Telescope.',
+  explanation:
+      'Giant columns of gas and dust photographed by the Hubble Space Telescope.',
   url: 'https://apod.nasa.gov/apod/image/2605/pillar.jpg',
   hdurl: 'https://apod.nasa.gov/apod/image/2605/pillar_hd.jpg',
   mediaType: 'image',
@@ -51,14 +56,21 @@ void main() {
     MockApodRepository? repo,
   }) {
     final mockRepo = repo ?? MockApodRepository();
-    when(() => mockRepo.getCachedApod(any()))
-        .thenAnswer((_) async => const Success<ApodEntry?>(null));
-    when(() => mockRepo.getApodForDate(any(), forceRefresh: any(named: 'forceRefresh')))
-        .thenAnswer((_) async => Success(entry));
+    when(
+      () => mockRepo.getCachedApod(any()),
+    ).thenAnswer((_) async => const Success<ApodEntry?>(null));
+    when(
+      () => mockRepo.getApodForDate(
+        any(),
+        forceRefresh: any(named: 'forceRefresh'),
+      ),
+    ).thenAnswer((_) async => Success(entry));
 
     final mockPrefs = MockSharedPreferences();
     when(() => mockPrefs.getStringList(any())).thenReturn(null);
-    when(() => mockPrefs.setStringList(any(), any())).thenAnswer((_) async => true);
+    when(
+      () => mockPrefs.setStringList(any(), any()),
+    ).thenAnswer((_) async => true);
     when(() => mockPrefs.remove(any())).thenAnswer((_) async => true);
 
     return ProviderScope(
@@ -93,20 +105,30 @@ void main() {
       'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
     );
 
-    when(() => mockHttpClient.getUrl(any())).thenAnswer((_) async => mockHttpClientRequest);
+    when(
+      () => mockHttpClient.getUrl(any()),
+    ).thenAnswer((_) async => mockHttpClientRequest);
     when(() => mockHttpClientRequest.headers).thenReturn(mockHttpHeaders);
-    when(() => mockHttpClientRequest.close()).thenAnswer((_) async => mockHttpClientResponse);
+    when(
+      () => mockHttpClientRequest.close(),
+    ).thenAnswer((_) async => mockHttpClientResponse);
     when(() => mockHttpClientResponse.statusCode).thenReturn(200);
-    when(() => mockHttpClientResponse.contentLength).thenReturn(transparentPng.length);
-    when(() => mockHttpClientResponse.listen(
-          any(),
-          cancelOnError: any(named: 'cancelOnError'),
-          onDone: any(named: 'onDone'),
-          onError: any(named: 'onError'),
-        )).thenAnswer((inv) {
+    when(
+      () => mockHttpClientResponse.contentLength,
+    ).thenReturn(transparentPng.length);
+    when(
+      () => mockHttpClientResponse.listen(
+        any(),
+        cancelOnError: any(named: 'cancelOnError'),
+        onDone: any(named: 'onDone'),
+        onError: any(named: 'onError'),
+      ),
+    ).thenAnswer((inv) {
       final onData = inv.positionalArguments[0] as void Function(List<int>);
       final onDone = inv.namedArguments[#onDone] as void Function()?;
-      return Stream<List<int>>.fromIterable([transparentPng]).listen(onData, onDone: onDone);
+      return Stream<List<int>>.fromIterable([
+        transparentPng,
+      ]).listen(onData, onDone: onDone);
     });
 
     HttpOverrides.global = _TestHttpOverrides(mockHttpClient);
@@ -118,7 +140,9 @@ void main() {
   // GROUP 1: Semantics Tree Validation
   // ─────────────────────────────────────────────────────────────────────────
   group('Semantics Tree Validation', () {
-    testWidgets('Hero image banner has descriptive semantics label', (tester) async {
+    testWidgets('Hero image banner has descriptive semantics label', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() {
@@ -131,12 +155,14 @@ void main() {
 
       // The hero banner Semantics node should contain the entry title
       final semanticsFinder = find.bySemanticsLabel(
-        RegExp(r'NASA APOD Image hero banner:'),
+        RegExp('NASA APOD Image hero banner:'),
       );
       expect(semanticsFinder, findsOneWidget);
     });
 
-    testWidgets('Action buttons are marked as buttons in semantics', (tester) async {
+    testWidgets('Action buttons are marked as buttons in semantics', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() {
@@ -159,7 +185,9 @@ void main() {
       expect(downloadSemantics.flagsCollection.isButton, isTrue);
     });
 
-    testWidgets('App bar back button is tappable and has icon semantics', (tester) async {
+    testWidgets('App bar back button is tappable and has icon semantics', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() {
@@ -185,19 +213,24 @@ void main() {
   // ─────────────────────────────────────────────────────────────────────────
   group('Large Text / Text Scale Accessibility', () {
     for (final scale in [1.0, 1.25, 1.5, 2.0]) {
-      testWidgets('Renders without overflow at ${(scale * 100).toInt()}% text scale', (tester) async {
-        tester.view.physicalSize = const Size(390, 844);
-        tester.view.devicePixelRatio = 1.0;
-        addTearDown(() {
-          tester.view.resetPhysicalSize();
-          tester.view.resetDevicePixelRatio();
-        });
+      testWidgets(
+        'Renders without overflow at ${(scale * 100).toInt()}% text scale',
+        (tester) async {
+          tester.view.physicalSize = const Size(390, 844);
+          tester.view.devicePixelRatio = 1.0;
+          addTearDown(() {
+            tester.view.resetPhysicalSize();
+            tester.view.resetDevicePixelRatio();
+          });
 
-        await tester.pumpWidget(buildPage(entry: _testEntry, textScale: scale));
-        await tester.pump(const Duration(milliseconds: 600));
-        expect(tester.takeException(), isNull);
-        expect(find.text(_testEntry.title), findsOneWidget);
-      });
+          await tester.pumpWidget(
+            buildPage(entry: _testEntry, textScale: scale),
+          );
+          await tester.pump(const Duration(milliseconds: 600));
+          expect(tester.takeException(), isNull);
+          expect(find.text(_testEntry.title), findsOneWidget);
+        },
+      );
     }
   });
 
@@ -205,7 +238,9 @@ void main() {
   // GROUP 3: Touch Target Sizes
   // ─────────────────────────────────────────────────────────────────────────
   group('Touch Target Size Validation (≥ 48x48dp)', () {
-    testWidgets('Action bar buttons meet minimum touch target size', (tester) async {
+    testWidgets('Action bar buttons meet minimum touch target size', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() {
@@ -220,14 +255,18 @@ void main() {
       expect(find.byType(ApodActionBar), findsOneWidget);
 
       // Measure the Share InkWell tap target
-      final shareRenderBox = tester.renderObject(
-        find.widgetWithText(InkWell, 'Share').first,
-      ) as RenderBox;
+      final shareRenderBox =
+          tester.renderObject(
+                find.widgetWithText(InkWell, 'Share').first,
+              )
+              as RenderBox;
       // Button height should be at least 48 logical pixels per WCAG 2.5.5
       expect(shareRenderBox.size.height, greaterThanOrEqualTo(48.0));
     });
 
-    testWidgets('AppBar navigation buttons meet minimum touch target', (tester) async {
+    testWidgets('AppBar navigation buttons meet minimum touch target', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() {
@@ -250,7 +289,9 @@ void main() {
   // GROUP 4: Focus Traversal Validation
   // ─────────────────────────────────────────────────────────────────────────
   group('Focus Traversal', () {
-    testWidgets('Focus can reach action bar buttons via traversal', (tester) async {
+    testWidgets('Focus can reach action bar buttons via traversal', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() {
@@ -294,7 +335,9 @@ void main() {
           tester.view.resetDevicePixelRatio();
         });
 
-        await tester.pumpWidget(buildPage(entry: _testEntry, size: entry.value));
+        await tester.pumpWidget(
+          buildPage(entry: _testEntry, size: entry.value),
+        );
         await tester.pump(const Duration(milliseconds: 600));
 
         expect(tester.takeException(), isNull);

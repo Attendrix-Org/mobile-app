@@ -17,31 +17,44 @@ void main() {
   }
 
   group('LoginScreen Tests', () {
-    testWidgets('Initial State - renders headings, fields, buttons and focuses email', (tester) async {
-      await tester.pumpWidget(buildTestWidget());
-      await tester.pumpAndSettle();
+    testWidgets(
+      'Initial State - renders headings, fields, buttons and focuses email',
+      (tester) async {
+        await tester.pumpWidget(buildTestWidget());
+        await tester.pumpAndSettle();
 
-      // Check title and description
-      expect(find.text('Welcome Back!'), findsOneWidget);
-      expect(
-        find.text("Log in and pick up right where you left off. We've been saving your seat."),
-        findsOneWidget,
-      );
+        // Check title and description
+        expect(find.text('Welcome Back!'), findsOneWidget);
+        expect(
+          find.text(
+            "Log in and pick up right where you left off. We've been saving your seat.",
+          ),
+          findsOneWidget,
+        );
 
-      // Check fields
-      expect(find.widgetWithText(TextFormField, 'Email'), findsOneWidget);
-      expect(find.widgetWithText(TextFormField, 'Password'), findsOneWidget);
+        // Check fields
+        expect(find.widgetWithText(TextFormField, 'Email'), findsOneWidget);
+        expect(find.widgetWithText(TextFormField, 'Password'), findsOneWidget);
 
-      // Check buttons
-      expect(find.widgetWithText(ElevatedButton, 'Login'), findsOneWidget);
-      expect(find.widgetWithText(ElevatedButton, 'Continue with Google'), findsOneWidget);
+        // Check buttons
+        expect(find.widgetWithText(ElevatedButton, 'Login'), findsOneWidget);
+        expect(
+          find.widgetWithText(ElevatedButton, 'Continue with Google'),
+          findsOneWidget,
+        );
 
-      // Verify email field is autofocused
-      final emailField = getTextField(tester, find.widgetWithText(TextFormField, 'Email'));
-      expect(emailField.focusNode?.hasFocus, isTrue);
-    });
+        // Verify email field is autofocused
+        final emailField = getTextField(
+          tester,
+          find.widgetWithText(TextFormField, 'Email'),
+        );
+        expect(emailField.focusNode?.hasFocus, isTrue);
+      },
+    );
 
-    testWidgets('Form Validation - shows errors on invalid inputs', (tester) async {
+    testWidgets('Form Validation - shows errors on invalid inputs', (
+      tester,
+    ) async {
       await tester.pumpWidget(buildTestWidget());
       await tester.pumpAndSettle();
 
@@ -56,9 +69,15 @@ void main() {
       expect(find.text('Password too short'), findsOneWidget);
 
       // Fill in invalid email but short password
-      await tester.enterText(find.widgetWithText(TextFormField, 'Email'), 'test@example.com');
-      await tester.enterText(find.widgetWithText(TextFormField, 'Password'), '123');
-      
+      await tester.enterText(
+        find.widgetWithText(TextFormField, 'Email'),
+        'test@example.com',
+      );
+      await tester.enterText(
+        find.widgetWithText(TextFormField, 'Password'),
+        '123',
+      );
+
       await tester.ensureVisible(loginBtn);
       await tester.tap(loginBtn);
       await tester.pumpAndSettle();
@@ -68,12 +87,17 @@ void main() {
       expect(find.text('Password too short'), findsOneWidget);
     });
 
-    testWidgets('Interactive State - toggles password visibility', (tester) async {
+    testWidgets('Interactive State - toggles password visibility', (
+      tester,
+    ) async {
       await tester.pumpWidget(buildTestWidget());
       await tester.pumpAndSettle();
 
       final passwordFinder = find.widgetWithText(TextFormField, 'Password');
-      final obscureTextInitial = getTextField(tester, passwordFinder).obscureText;
+      final obscureTextInitial = getTextField(
+        tester,
+        passwordFinder,
+      ).obscureText;
       expect(obscureTextInitial, isTrue);
 
       // Find the toggle button (it's the suffix icon of the password field)
@@ -84,20 +108,31 @@ void main() {
       await tester.tap(visibilityIcon);
       await tester.pumpAndSettle();
 
-      final obscureTextToggled = getTextField(tester, passwordFinder).obscureText;
+      final obscureTextToggled = getTextField(
+        tester,
+        passwordFinder,
+      ).obscureText;
       expect(obscureTextToggled, isFalse);
 
       // Now icon should be visibility_outlined
       expect(find.byIcon(Icons.visibility_outlined), findsOneWidget);
     });
 
-    testWidgets('Form Submission - redirects to dashboard on success', (tester) async {
+    testWidgets('Form Submission - redirects to dashboard on success', (
+      tester,
+    ) async {
       await tester.pumpWidget(buildTestWidget());
       await tester.pumpAndSettle();
 
       // Enter valid email and password
-      await tester.enterText(find.widgetWithText(TextFormField, 'Email'), 'test@example.com');
-      await tester.enterText(find.widgetWithText(TextFormField, 'Password'), 'password123');
+      await tester.enterText(
+        find.widgetWithText(TextFormField, 'Email'),
+        'test@example.com',
+      );
+      await tester.enterText(
+        find.widgetWithText(TextFormField, 'Password'),
+        'password123',
+      );
 
       // Tap login
       final loginBtn = find.widgetWithText(ElevatedButton, 'Login');

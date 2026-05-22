@@ -7,16 +7,21 @@ void main() {
   Widget buildTestWidget() {
     return MaterialApp(
       routes: <String, WidgetBuilder>{
-        '/': (BuildContext context) => const Scaffold(body: Text('Login Screen')),
-        DashboardScreen.routeName: (BuildContext context) => const DashboardScreen(),
-        '/apod-detail': (BuildContext context) => const Scaffold(body: Text('Apod Detail Page')),
+        '/': (BuildContext context) =>
+            const Scaffold(body: Text('Login Screen')),
+        DashboardScreen.routeName: (BuildContext context) =>
+            const DashboardScreen(),
+        '/apod-detail': (BuildContext context) =>
+            const Scaffold(body: Text('Apod Detail Page')),
       },
       initialRoute: DashboardScreen.routeName,
     );
   }
 
   group('DashboardScreen Tests', () {
-    testWidgets('Streak count - renders streak counter with correct value', (tester) async {
+    testWidgets('Streak count - renders streak counter with correct value', (
+      tester,
+    ) async {
       await tester.pumpWidget(buildTestWidget());
       await tester.pumpAndSettle();
 
@@ -25,23 +30,34 @@ void main() {
       expect(find.text('🔥'), findsOneWidget);
     });
 
-    testWidgets('Crystal rewards - renders the rewards gif or fallback star icon', (tester) async {
-      await tester.pumpWidget(buildTestWidget());
-      await tester.pumpAndSettle();
+    testWidgets(
+      'Crystal rewards - renders the rewards gif or fallback star icon',
+      (tester) async {
+        await tester.pumpWidget(buildTestWidget());
+        await tester.pumpAndSettle();
 
-      // Find the Image widget or the fallback star icon
-      final gifFinder = find.byType(Image);
-      final fallbackIconFinder = find.byIcon(Icons.stars);
-      
-      expect(gifFinder.evaluate().isNotEmpty || fallbackIconFinder.evaluate().isNotEmpty, isTrue);
-    });
+        // Find the Image widget or the fallback star icon
+        final gifFinder = find.byType(Image);
+        final fallbackIconFinder = find.byIcon(Icons.stars);
 
-    testWidgets('Astronomy banner - renders banner and reacts to tap', (tester) async {
+        expect(
+          gifFinder.evaluate().isNotEmpty ||
+              fallbackIconFinder.evaluate().isNotEmpty,
+          isTrue,
+        );
+      },
+    );
+
+    testWidgets('Astronomy banner - renders banner and reacts to tap', (
+      tester,
+    ) async {
       await tester.pumpWidget(buildTestWidget());
       await tester.pumpAndSettle();
 
       // Find astronomy banner text
-      final bannerTextFinder = find.text("View Today's Astronomy Picture of the Day");
+      final bannerTextFinder = find.text(
+        "View Today's Astronomy Picture of the Day",
+      );
       expect(bannerTextFinder, findsOneWidget);
 
       // Tap the banner
@@ -54,7 +70,10 @@ void main() {
       expect(find.text('Explore More'), findsOneWidget);
 
       // Close the Dialog
-      final closeButtonFinder = find.widgetWithText(ElevatedButton, 'Explore More');
+      final closeButtonFinder = find.widgetWithText(
+        ElevatedButton,
+        'Explore More',
+      );
       await tester.ensureVisible(closeButtonFinder);
       await tester.tap(closeButtonFinder);
       await tester.pumpAndSettle();
@@ -63,7 +82,9 @@ void main() {
       expect(find.byType(Dialog), findsNothing);
     });
 
-    testWidgets('Drawer trigger - opens drawer and handles links/logout', (tester) async {
+    testWidgets('Drawer trigger - opens drawer and handles links/logout', (
+      tester,
+    ) async {
       await tester.pumpWidget(buildTestWidget());
       await tester.pumpAndSettle();
 
@@ -95,13 +116,18 @@ void main() {
       expect(find.text('Login Screen'), findsOneWidget);
     });
 
-    testWidgets('Today/upcoming tabs switcher - switches tabs correctly', (tester) async {
+    testWidgets('Today/upcoming tabs switcher - switches tabs correctly', (
+      tester,
+    ) async {
       await tester.pumpWidget(buildTestWidget());
       await tester.pumpAndSettle();
 
       // Initially on 'Today' tab
       expect(find.text("TODAY'S CLASSES (2)"), findsOneWidget);
-      expect(find.byType(ClassBlock_primary), findsNWidgets(3)); // 3 today's classes
+      expect(
+        find.byType(ClassBlock_primary),
+        findsNWidgets(3),
+      ); // 3 today's classes
       expect(find.byType(ClassBlock_upcoming), findsNothing);
 
       // Tap 'Upcoming' tab button
@@ -128,70 +154,96 @@ void main() {
       expect(find.byType(ClassBlock_primary), findsNWidgets(3));
     });
 
-    testWidgets('Attendance checkmark toggle - toggles marked status on active today classes', (tester) async {
-      await tester.pumpWidget(buildTestWidget());
-      await tester.pumpAndSettle();
+    testWidgets(
+      'Attendance checkmark toggle - toggles marked status on active today classes',
+      (tester) async {
+        await tester.pumpWidget(buildTestWidget());
+        await tester.pumpAndSettle();
 
-      final primaryBlocks = tester.widgetList<ClassBlock_primary>(find.byType(ClassBlock_primary));
-      for (final block in primaryBlocks) {
-        print('FOUND ClassBlock_primary with courseId: "${block.courseId}"');
-      }
+        final primaryBlocks = tester.widgetList<ClassBlock_primary>(
+          find.byType(ClassBlock_primary),
+        );
+        for (final block in primaryBlocks) {
+          print('FOUND ClassBlock_primary with courseId: "${block.courseId}"');
+        }
 
-      // First class (Mathematics III) is c1, initially isMarked is false
-      final firstClassFinder = find.byWidgetPredicate(
-        (widget) => widget is ClassBlock_primary && widget.courseId == 'Mathematics III',
-      );
-      expect(firstClassFinder, findsOneWidget);
-      expect(
-        find.descendant(of: firstClassFinder, matching: find.byIcon(Icons.check)),
-        findsNothing,
-      );
+        // First class (Mathematics III) is c1, initially isMarked is false
+        final firstClassFinder = find.byWidgetPredicate(
+          (widget) =>
+              widget is ClassBlock_primary &&
+              widget.courseId == 'Mathematics III',
+        );
+        expect(firstClassFinder, findsOneWidget);
+        expect(
+          find.descendant(
+            of: firstClassFinder,
+            matching: find.byIcon(Icons.check),
+          ),
+          findsNothing,
+        );
 
-      // Second class (Data Structures) is c2, initially isMarked is true
-      final secondClassFinder = find.byWidgetPredicate(
-        (widget) => widget is ClassBlock_primary && widget.courseId == 'Data Structures',
-      );
-      expect(secondClassFinder, findsOneWidget);
-      expect(
-        find.descendant(of: secondClassFinder, matching: find.byIcon(Icons.check)),
-        findsOneWidget,
-      );
+        // Second class (Data Structures) is c2, initially isMarked is true
+        final secondClassFinder = find.byWidgetPredicate(
+          (widget) =>
+              widget is ClassBlock_primary &&
+              widget.courseId == 'Data Structures',
+        );
+        expect(secondClassFinder, findsOneWidget);
+        expect(
+          find.descendant(
+            of: secondClassFinder,
+            matching: find.byIcon(Icons.check),
+          ),
+          findsOneWidget,
+        );
 
-      // Third class (Database Management) is c3, which is cancelled, so checkmark doesn't exist
-      final thirdClassFinder = find.byWidgetPredicate(
-        (widget) => widget is ClassBlock_primary && widget.courseId == 'Database Management',
-      );
-      expect(thirdClassFinder, findsOneWidget);
-      expect(
-        find.descendant(of: thirdClassFinder, matching: find.byType(GestureDetector)),
-        findsNothing,
-      );
+        // Third class (Database Management) is c3, which is cancelled, so checkmark doesn't exist
+        final thirdClassFinder = find.byWidgetPredicate(
+          (widget) =>
+              widget is ClassBlock_primary &&
+              widget.courseId == 'Database Management',
+        );
+        expect(thirdClassFinder, findsOneWidget);
+        expect(
+          find.descendant(
+            of: thirdClassFinder,
+            matching: find.byType(GestureDetector),
+          ),
+          findsNothing,
+        );
 
-      // Find first class checkmark detector and tap it to check
-      final firstClassCheckmark = find.descendant(
-        of: firstClassFinder,
-        matching: find.byType(GestureDetector),
-      );
-      await tester.ensureVisible(firstClassCheckmark);
-      await tester.tap(firstClassCheckmark);
-      await tester.pumpAndSettle();
+        // Find first class checkmark detector and tap it to check
+        final firstClassCheckmark = find.descendant(
+          of: firstClassFinder,
+          matching: find.byType(GestureDetector),
+        );
+        await tester.ensureVisible(firstClassCheckmark);
+        await tester.tap(firstClassCheckmark);
+        await tester.pumpAndSettle();
 
-      // Mathematics III should now be checked
-      expect(
-        find.descendant(of: firstClassFinder, matching: find.byIcon(Icons.check)),
-        findsOneWidget,
-      );
+        // Mathematics III should now be checked
+        expect(
+          find.descendant(
+            of: firstClassFinder,
+            matching: find.byIcon(Icons.check),
+          ),
+          findsOneWidget,
+        );
 
-      // Tap first class checkmark again to uncheck
-      await tester.ensureVisible(firstClassCheckmark);
-      await tester.tap(firstClassCheckmark);
-      await tester.pumpAndSettle();
+        // Tap first class checkmark again to uncheck
+        await tester.ensureVisible(firstClassCheckmark);
+        await tester.tap(firstClassCheckmark);
+        await tester.pumpAndSettle();
 
-      // Mathematics III should now be unchecked again
-      expect(
-        find.descendant(of: firstClassFinder, matching: find.byIcon(Icons.check)),
-        findsNothing,
-      );
-    });
+        // Mathematics III should now be unchecked again
+        expect(
+          find.descendant(
+            of: firstClassFinder,
+            matching: find.byIcon(Icons.check),
+          ),
+          findsNothing,
+        );
+      },
+    );
   });
 }

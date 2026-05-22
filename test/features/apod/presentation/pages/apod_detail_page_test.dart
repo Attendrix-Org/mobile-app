@@ -18,10 +18,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 // Mocks for HTTP overrides
 class MockHttpClient extends Mock implements HttpClient {}
+
 class MockHttpClientRequest extends Mock implements HttpClientRequest {}
+
 class MockHttpClientResponse extends Mock implements HttpClientResponse {}
+
 class MockHttpHeaders extends Mock implements HttpHeaders {}
+
 class MockApodRepository extends Mock implements ApodRepository {}
+
 class MockSharedPreferences extends Mock implements SharedPreferences {}
 
 class TestHttpOverrides extends HttpOverrides {
@@ -41,7 +46,8 @@ void main() {
   const testEntry = ApodEntry(
     date: '2026-05-21',
     title: 'Glowing Cosmic Pillars',
-    explanation: 'A gorgeous view of stellar columns composed of gas and dust clouds spanning across light years.',
+    explanation:
+        'A gorgeous view of stellar columns composed of gas and dust clouds spanning across light years.',
     url: 'https://example.com/standard.jpg',
     hdurl: 'https://example.com/hd.jpg',
     mediaType: 'image',
@@ -59,24 +65,36 @@ void main() {
 
     // 1x1 transparent PNG bytes
     final transparentPng = base64Decode(
-        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==');
+      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+    );
 
     registerFallbackValue(Uri());
 
-    when(() => mockHttpClient.getUrl(any())).thenAnswer((_) async => mockHttpClientRequest);
+    when(
+      () => mockHttpClient.getUrl(any()),
+    ).thenAnswer((_) async => mockHttpClientRequest);
     when(() => mockHttpClientRequest.headers).thenReturn(mockHttpHeaders);
-    when(() => mockHttpClientRequest.close()).thenAnswer((_) async => mockHttpClientResponse);
+    when(
+      () => mockHttpClientRequest.close(),
+    ).thenAnswer((_) async => mockHttpClientResponse);
     when(() => mockHttpClientResponse.statusCode).thenReturn(200);
-    when(() => mockHttpClientResponse.contentLength).thenReturn(transparentPng.length);
-    when(() => mockHttpClientResponse.listen(
-          any(),
-          cancelOnError: any(named: 'cancelOnError'),
-          onDone: any(named: 'onDone'),
-          onError: any(named: 'onError'),
-        )).thenAnswer((invocation) {
-      final onData = invocation.positionalArguments[0] as void Function(List<int>);
+    when(
+      () => mockHttpClientResponse.contentLength,
+    ).thenReturn(transparentPng.length);
+    when(
+      () => mockHttpClientResponse.listen(
+        any(),
+        cancelOnError: any(named: 'cancelOnError'),
+        onDone: any(named: 'onDone'),
+        onError: any(named: 'onError'),
+      ),
+    ).thenAnswer((invocation) {
+      final onData =
+          invocation.positionalArguments[0] as void Function(List<int>);
       final onDone = invocation.namedArguments[#onDone] as void Function()?;
-      return Stream<List<int>>.fromIterable([transparentPng]).listen(onData, onDone: onDone);
+      return Stream<List<int>>.fromIterable([
+        transparentPng,
+      ]).listen(onData, onDone: onDone);
     });
 
     HttpOverrides.global = TestHttpOverrides(mockHttpClient);
@@ -97,16 +115,23 @@ void main() {
   }) {
     final mockRepo = repository ?? MockApodRepository();
     registerFallbackValue(DateTime(2026, 5, 21));
-    when(() => mockRepo.getCachedApod(any()))
-        .thenAnswer((_) async => const Success<ApodEntry?>(null));
+    when(
+      () => mockRepo.getCachedApod(any()),
+    ).thenAnswer((_) async => const Success<ApodEntry?>(null));
     if (repository == null) {
-      when(() => mockRepo.getApodForDate(any(), forceRefresh: any(named: 'forceRefresh')))
-          .thenAnswer((_) async => const Success(testEntry));
+      when(
+        () => mockRepo.getApodForDate(
+          any(),
+          forceRefresh: any(named: 'forceRefresh'),
+        ),
+      ).thenAnswer((_) async => const Success(testEntry));
     }
 
     final mockPrefs = MockSharedPreferences();
     when(() => mockPrefs.getStringList(any())).thenReturn(null);
-    when(() => mockPrefs.setStringList(any(), any())).thenAnswer((_) async => true);
+    when(
+      () => mockPrefs.setStringList(any(), any()),
+    ).thenAnswer((_) async => true);
     when(() => mockPrefs.remove(any())).thenAnswer((_) async => true);
 
     return ProviderScope(
@@ -136,7 +161,9 @@ void main() {
   }
 
   group('ApodDetailPage Widget Rendering Tests', () {
-    testWidgets('Renders detail page with loaded data successfully', (tester) async {
+    testWidgets('Renders detail page with loaded data successfully', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(375, 812);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() {
@@ -148,7 +175,10 @@ void main() {
       await tester.pump(const Duration(milliseconds: 600));
 
       // Check header titles and date
-      expect(find.text('GLOWING COSMIC PILLARS'), findsNothing); // Checks matching case-sensitivity
+      expect(
+        find.text('GLOWING COSMIC PILLARS'),
+        findsNothing,
+      ); // Checks matching case-sensitivity
       expect(find.text('Glowing Cosmic Pillars'), findsOneWidget);
       expect(find.text('2026-05-21'), findsWidgets); // Badges and titles
 
@@ -167,10 +197,15 @@ void main() {
       // Check attribution card
       expect(find.text('PARTNER CREDIT'), findsOneWidget);
       expect(find.text('James Webb Space Telescope'), findsOneWidget);
-      expect(find.text('The Webb telescope is a premier space observatory.'), findsOneWidget);
+      expect(
+        find.text('The Webb telescope is a premier space observatory.'),
+        findsOneWidget,
+      );
     });
 
-    testWidgets('Renders page in loading state (Skeletonizer active)', (tester) async {
+    testWidgets('Renders page in loading state (Skeletonizer active)', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(375, 812);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() {
@@ -179,7 +214,9 @@ void main() {
       });
 
       await tester.pumpWidget(buildTestWidget(isLoading: true));
-      await tester.pump(const Duration(milliseconds: 600)); // Pump to allow timers/microtasks to resolve
+      await tester.pump(
+        const Duration(milliseconds: 600),
+      ); // Pump to allow timers/microtasks to resolve
 
       // Skeletonizer should wrap contents
       expect(find.byKey(const Key('apod_skeletonizer')), findsWidgets);
@@ -188,7 +225,9 @@ void main() {
       await tester.pumpAndSettle();
     });
 
-    testWidgets('Renders page in error state with retry button', (tester) async {
+    testWidgets('Renders page in error state with retry button', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(375, 812);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() {
@@ -208,7 +247,10 @@ void main() {
 
       // Check "Lost in Space" UI elements
       expect(find.text('Lost in Space'), findsOneWidget);
-      expect(find.text('Server handshake failed. Timeout after 15000ms.'), findsOneWidget);
+      expect(
+        find.text('Server handshake failed. Timeout after 15000ms.'),
+        findsOneWidget,
+      );
       expect(find.byIcon(Icons.satellite_alt_rounded), findsOneWidget);
       expect(find.byIcon(Icons.signal_wifi_off_rounded), findsOneWidget);
       expect(find.text('SYSTEM DIAGNOSTICS'), findsOneWidget);
@@ -226,48 +268,56 @@ void main() {
   });
 
   group('A11y and Dynamic Text Scaling Tests', () {
-    testWidgets('Checks semantic labels and descriptions for standard widgets', (tester) async {
-      tester.view.physicalSize = const Size(375, 812);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(() {
-        tester.view.resetPhysicalSize();
-        tester.view.resetDevicePixelRatio();
-      });
+    testWidgets(
+      'Checks semantic labels and descriptions for standard widgets',
+      (tester) async {
+        tester.view.physicalSize = const Size(375, 812);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(() {
+          tester.view.resetPhysicalSize();
+          tester.view.resetDevicePixelRatio();
+        });
 
-      await tester.pumpWidget(buildTestWidget(entry: testEntry));
-      await tester.pump(const Duration(milliseconds: 600));
+        await tester.pumpWidget(buildTestWidget(entry: testEntry));
+        await tester.pump(const Duration(milliseconds: 600));
 
-      // Verify buttons have button semantics
-      final shareButtonSemantics = tester.semantics.find(
-        find.widgetWithText(InkWell, 'Share'),
-      );
-      expect(shareButtonSemantics.flagsCollection.isButton, isTrue);
+        // Verify buttons have button semantics
+        final shareButtonSemantics = tester.semantics.find(
+          find.widgetWithText(InkWell, 'Share'),
+        );
+        expect(shareButtonSemantics.flagsCollection.isButton, isTrue);
 
-      final openHdButtonSemantics = tester.semantics.find(
-        find.widgetWithText(InkWell, 'Open HD'),
-      );
-      expect(openHdButtonSemantics.flagsCollection.isButton, isTrue);
-    });
+        final openHdButtonSemantics = tester.semantics.find(
+          find.widgetWithText(InkWell, 'Open HD'),
+        );
+        expect(openHdButtonSemantics.flagsCollection.isButton, isTrue);
+      },
+    );
 
-    testWidgets('Handles double scale text factors without crash or exceptions', (tester) async {
-      tester.view.physicalSize = const Size(375, 812);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(() {
-        tester.view.resetPhysicalSize();
-        tester.view.resetDevicePixelRatio();
-      });
+    testWidgets(
+      'Handles double scale text factors without crash or exceptions',
+      (tester) async {
+        tester.view.physicalSize = const Size(375, 812);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(() {
+          tester.view.resetPhysicalSize();
+          tester.view.resetDevicePixelRatio();
+        });
 
-      // High text scale factor (2.0)
-      await tester.pumpWidget(buildTestWidget(
-        entry: testEntry,
-        textScaleFactor: 2,
-      ));
-      await tester.pump(const Duration(milliseconds: 600));
+        // High text scale factor (2.0)
+        await tester.pumpWidget(
+          buildTestWidget(
+            entry: testEntry,
+            textScaleFactor: 2,
+          ),
+        );
+        await tester.pump(const Duration(milliseconds: 600));
 
-      // Verification that no exception has occurred
-      expect(tester.takeException(), isNull);
-      expect(find.text('Glowing Cosmic Pillars'), findsOneWidget);
-    });
+        // Verification that no exception has occurred
+        expect(tester.takeException(), isNull);
+        expect(find.text('Glowing Cosmic Pillars'), findsOneWidget);
+      },
+    );
   });
 
   group('Responsive Layout Layout Tests', () {
@@ -280,14 +330,18 @@ void main() {
       });
 
       // Small screen size (mobile)
-      await tester.pumpWidget(buildTestWidget(
-        entry: testEntry,
-      ));
+      await tester.pumpWidget(
+        buildTestWidget(
+          entry: testEntry,
+        ),
+      );
       await tester.pump(const Duration(milliseconds: 600));
 
       // Mobile layout uses single scroll, which has image banner edge-to-edge
       // (Aspect ratio height ~45% of height, which is ~365)
-      final heroBannerFinder = find.bySemanticsLabel(RegExp('NASA APOD Image hero banner'));
+      final heroBannerFinder = find.bySemanticsLabel(
+        RegExp('NASA APOD Image hero banner'),
+      );
       expect(heroBannerFinder, findsOneWidget);
 
       // Mobile columns: metadata is vertically stacked overall
@@ -295,7 +349,9 @@ void main() {
       expect(find.byType(SingleChildScrollView), findsWidgets);
     });
 
-    testWidgets('Loads tablet split layout when screen width > 720', (tester) async {
+    testWidgets('Loads tablet split layout when screen width > 720', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(1024, 768);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() {
@@ -304,15 +360,17 @@ void main() {
       });
 
       // Large screen size (tablet)
-      await tester.pumpWidget(buildTestWidget(
-        entry: testEntry,
-        size: const Size(1024, 768),
-      ));
+      await tester.pumpWidget(
+        buildTestWidget(
+          entry: testEntry,
+          size: const Size(1024, 768),
+        ),
+      );
       await tester.pump(const Duration(milliseconds: 600));
 
       // Tablet layout uses a Row split.
       expect(find.byType(Row), findsWidgets);
-      
+
       // Verification of layout contents
       expect(find.text('Glowing Cosmic Pillars'), findsOneWidget);
       expect(find.byType(ApodActionBar), findsOneWidget);
@@ -320,37 +378,57 @@ void main() {
   });
 
   group('Interactive Actions and Expansion Tests', () {
-    testWidgets('Toggles accordion sections for copyright and metadata details', (tester) async {
-      tester.view.physicalSize = const Size(375, 812);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(() {
-        tester.view.resetPhysicalSize();
-        tester.view.resetDevicePixelRatio();
-      });
+    testWidgets(
+      'Toggles accordion sections for copyright and metadata details',
+      (tester) async {
+        tester.view.physicalSize = const Size(375, 812);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(() {
+          tester.view.resetPhysicalSize();
+          tester.view.resetDevicePixelRatio();
+        });
 
-      await tester.pumpWidget(buildTestWidget(entry: testEntry));
-      await tester.pump(const Duration(milliseconds: 600));
+        await tester.pumpWidget(buildTestWidget(entry: testEntry));
+        await tester.pump(const Duration(milliseconds: 600));
 
-      // Initially closed copyright details accordion
-      expect(find.textContaining('© All rights reserved to Stellar Observatory Partner'), findsNothing);
+        // Initially closed copyright details accordion
+        expect(
+          find.textContaining(
+            '© All rights reserved to Stellar Observatory Partner',
+          ),
+          findsNothing,
+        );
 
-      // Tap to expand copyright accordion
-      final copyrightAccordion = find.byKey(const Key('copyright_accordion'));
-      await tester.ensureVisible(copyrightAccordion);
-      await tester.tap(copyrightAccordion);
-      await tester.pump(const Duration(milliseconds: 600));
+        // Tap to expand copyright accordion
+        final copyrightAccordion = find.byKey(const Key('copyright_accordion'));
+        await tester.ensureVisible(copyrightAccordion);
+        await tester.tap(copyrightAccordion);
+        await tester.pump(const Duration(milliseconds: 600));
 
-      // Now copyright text is visible
-      expect(find.textContaining('© All rights reserved to Stellar Observatory Partner'), findsOneWidget);
+        // Now copyright text is visible
+        expect(
+          find.textContaining(
+            '© All rights reserved to Stellar Observatory Partner',
+          ),
+          findsOneWidget,
+        );
 
-      // Tap to close copyright accordion
-      await tester.tap(copyrightAccordion);
-      await tester.pump(const Duration(milliseconds: 600));
+        // Tap to close copyright accordion
+        await tester.tap(copyrightAccordion);
+        await tester.pump(const Duration(milliseconds: 600));
 
-      expect(find.textContaining('© All rights reserved to Stellar Observatory Partner'), findsNothing);
-    });
+        expect(
+          find.textContaining(
+            '© All rights reserved to Stellar Observatory Partner',
+          ),
+          findsNothing,
+        );
+      },
+    );
 
-    testWidgets('Opens full screen image viewer on banner or Open HD tap', (tester) async {
+    testWidgets('Opens full screen image viewer on banner or Open HD tap', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(375, 812);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() {
@@ -385,151 +463,188 @@ void main() {
   });
 
   group('Previous/Next Navigation and Dynamic Loading Tests', () {
-    testWidgets('Loads dynamically when only date is passed via route arguments', (tester) async {
-      tester.view.physicalSize = const Size(375, 812);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(() {
-        tester.view.resetPhysicalSize();
-        tester.view.resetDevicePixelRatio();
-      });
+    testWidgets(
+      'Loads dynamically when only date is passed via route arguments',
+      (tester) async {
+        tester.view.physicalSize = const Size(375, 812);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(() {
+          tester.view.resetPhysicalSize();
+          tester.view.resetDevicePixelRatio();
+        });
 
-      final mockRepo = MockApodRepository();
-      registerFallbackValue(DateTime(2026, 5, 21));
-      when(() => mockRepo.getCachedApod(any()))
-          .thenAnswer((_) async => const Success<ApodEntry?>(null));
-      final completer = Completer<Result<ApodEntry>>();
-      when(() => mockRepo.getApodForDate(DateTime.utc(2026, 5, 20), forceRefresh: any(named: 'forceRefresh')))
-          .thenAnswer((_) => completer.future);
+        final mockRepo = MockApodRepository();
+        registerFallbackValue(DateTime(2026, 5, 21));
+        when(
+          () => mockRepo.getCachedApod(any()),
+        ).thenAnswer((_) async => const Success<ApodEntry?>(null));
+        final completer = Completer<Result<ApodEntry>>();
+        when(
+          () => mockRepo.getApodForDate(
+            DateTime.utc(2026, 5, 20),
+            forceRefresh: any(named: 'forceRefresh'),
+          ),
+        ).thenAnswer((_) => completer.future);
 
-      final mockPrefs = MockSharedPreferences();
-      when(() => mockPrefs.getStringList(any())).thenReturn(null);
-      when(() => mockPrefs.setStringList(any(), any())).thenAnswer((_) async => true);
-      when(() => mockPrefs.remove(any())).thenAnswer((_) async => true);
+        final mockPrefs = MockSharedPreferences();
+        when(() => mockPrefs.getStringList(any())).thenReturn(null);
+        when(
+          () => mockPrefs.setStringList(any(), any()),
+        ).thenAnswer((_) async => true);
+        when(() => mockPrefs.remove(any())).thenAnswer((_) async => true);
 
-      // Pump materials with a routing setup that passes date argument
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            sharedPreferencesProvider.overrideWithValue(mockPrefs),
-            apodRepositoryProvider.overrideWithValue(mockRepo),
-          ],
-          child: MaterialApp(
-            routes: {
-              ApodDetailPage.routeName: (context) => const ApodDetailPage(),
-            },
-            home: Builder(
-              builder: (context) => ElevatedButton(
-                onPressed: () => Navigator.of(context).pushNamed(
-                  ApodDetailPage.routeName,
-                  arguments: '2026-05-20',
+        // Pump materials with a routing setup that passes date argument
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              sharedPreferencesProvider.overrideWithValue(mockPrefs),
+              apodRepositoryProvider.overrideWithValue(mockRepo),
+            ],
+            child: MaterialApp(
+              routes: {
+                ApodDetailPage.routeName: (context) => const ApodDetailPage(),
+              },
+              home: Builder(
+                builder: (context) => ElevatedButton(
+                  onPressed: () => Navigator.of(context).pushNamed(
+                    ApodDetailPage.routeName,
+                    arguments: '2026-05-20',
+                  ),
+                  child: const Text('Go'),
                 ),
-                child: const Text('Go'),
               ),
             ),
           ),
-        ),
-      );
+        );
 
-      // Tap Go to navigate
-      await tester.tap(find.text('Go'));
-      await tester.pump(); // Start navigation
-      await tester.pump(const Duration(milliseconds: 350)); // Finish navigation transition
-      await tester.pump(); // Build detail page didChangeDependencies and trigger fetch
+        // Tap Go to navigate
+        await tester.tap(find.text('Go'));
+        await tester.pump(); // Start navigation
+        await tester.pump(
+          const Duration(milliseconds: 350),
+        ); // Finish navigation transition
+        await tester
+            .pump(); // Build detail page didChangeDependencies and trigger fetch
 
-      // Verify skeleton is showing first
-      expect(find.byKey(const Key('apod_skeletonizer')), findsOneWidget);
+        // Verify skeleton is showing first
+        expect(find.byKey(const Key('apod_skeletonizer')), findsOneWidget);
 
-      // Complete the future
-      completer.complete(const Success(ApodEntry(
-        date: '2026-05-20',
-        title: 'Dynamic Loaded Entry',
-        explanation: 'This was loaded dynamically by date.',
-        url: 'https://example.com/standard.jpg',
-        mediaType: 'image',
-      )));
+        // Complete the future
+        completer.complete(
+          const Success(
+            ApodEntry(
+              date: '2026-05-20',
+              title: 'Dynamic Loaded Entry',
+              explanation: 'This was loaded dynamically by date.',
+              url: 'https://example.com/standard.jpg',
+              mediaType: 'image',
+            ),
+          ),
+        );
 
-      await tester.pump(); // Allow Future to complete and trigger rebuild
-      await tester.pump(const Duration(milliseconds: 350)); // Finish AnimatedSwitcher transition
-      await tester.pump(); // Final build
+        await tester.pump(); // Allow Future to complete and trigger rebuild
+        await tester.pump(
+          const Duration(milliseconds: 350),
+        ); // Finish AnimatedSwitcher transition
+        await tester.pump(); // Final build
 
-      // Verify loaded entry content is displayed
-      expect(find.text('Dynamic Loaded Entry'), findsOneWidget);
-      expect(find.text('2026-05-20'), findsWidgets);
-    });
+        // Verify loaded entry content is displayed
+        expect(find.text('Dynamic Loaded Entry'), findsOneWidget);
+        expect(find.text('2026-05-20'), findsWidgets);
+      },
+    );
 
-    testWidgets('Prev and Next buttons update date and load entries dynamically', (tester) async {
-      tester.view.physicalSize = const Size(375, 812);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(() {
-        tester.view.resetPhysicalSize();
-        tester.view.resetDevicePixelRatio();
-      });
+    testWidgets(
+      'Prev and Next buttons update date and load entries dynamically',
+      (tester) async {
+        tester.view.physicalSize = const Size(375, 812);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(() {
+          tester.view.resetPhysicalSize();
+          tester.view.resetDevicePixelRatio();
+        });
 
-      final mockRepo = MockApodRepository();
-      
-      // Stub for 2026-05-21 (initial)
-      final initialEntry = testEntry.copyWith(date: '2026-05-21', title: 'Initial 21st');
-      // Stub for 2026-05-20 (previous)
-      final prevEntry = testEntry.copyWith(date: '2026-05-20', title: 'Previous 20th');
-      // Stub for 2026-05-22 (next)
-      final nextEntry = testEntry.copyWith(date: '2026-05-22', title: 'Next 22nd');
+        final mockRepo = MockApodRepository();
 
-      registerFallbackValue(DateTime(2026, 5, 21));
-      when(() => mockRepo.getApodForDate(any(), forceRefresh: any(named: 'forceRefresh')))
-          .thenAnswer((invocation) async {
-            final date = invocation.positionalArguments[0] as DateTime;
-            if (date.year == 2026 && date.month == 5 && date.day == 21) {
-              return Success(initialEntry);
-            } else if (date.year == 2026 && date.month == 5 && date.day == 20) {
-              return Success(prevEntry);
-            } else if (date.year == 2026 && date.month == 5 && date.day == 22) {
-              return Success(nextEntry);
-            }
-             return const Failure(ApodUnknownFailure('Date not stubbed'));
-          });
+        // Stub for 2026-05-21 (initial)
+        final initialEntry = testEntry.copyWith(
+          date: '2026-05-21',
+          title: 'Initial 21st',
+        );
+        // Stub for 2026-05-20 (previous)
+        final prevEntry = testEntry.copyWith(
+          date: '2026-05-20',
+          title: 'Previous 20th',
+        );
+        // Stub for 2026-05-22 (next)
+        final nextEntry = testEntry.copyWith(
+          date: '2026-05-22',
+          title: 'Next 22nd',
+        );
 
-      await tester.pumpWidget(
-        buildTestWidget(
-          entry: initialEntry,
-          repository: mockRepo,
-        ),
-      );
-      await tester.pump(const Duration(milliseconds: 600));
+        registerFallbackValue(DateTime(2026, 5, 21));
+        when(
+          () => mockRepo.getApodForDate(
+            any(),
+            forceRefresh: any(named: 'forceRefresh'),
+          ),
+        ).thenAnswer((invocation) async {
+          final date = invocation.positionalArguments[0] as DateTime;
+          if (date.year == 2026 && date.month == 5 && date.day == 21) {
+            return Success(initialEntry);
+          } else if (date.year == 2026 && date.month == 5 && date.day == 20) {
+            return Success(prevEntry);
+          } else if (date.year == 2026 && date.month == 5 && date.day == 22) {
+            return Success(nextEntry);
+          }
+          return const Failure(ApodUnknownFailure('Date not stubbed'));
+        });
 
-      expect(find.text('Initial 21st'), findsOneWidget);
+        await tester.pumpWidget(
+          buildTestWidget(
+            entry: initialEntry,
+            repository: mockRepo,
+          ),
+        );
+        await tester.pump(const Duration(milliseconds: 600));
 
-      // Verify buttons exist
-      final prevBtn = find.byKey(const Key('apod_prev_day_btn'));
-      final nextBtn = find.byKey(const Key('apod_next_day_btn'));
-      expect(prevBtn, findsOneWidget);
-      expect(nextBtn, findsOneWidget);
+        expect(find.text('Initial 21st'), findsOneWidget);
 
-      // Tap prev day button
-      await tester.tap(prevBtn);
-      await tester.pump(); // Starts loading state
-      await tester.pump(const Duration(milliseconds: 50)); // Resolves Future
-      await tester.pump(const Duration(milliseconds: 350)); // Finish AnimatedSwitcher transition
-      await tester.pump(); // Build the new page with new entry
+        // Verify buttons exist
+        final prevBtn = find.byKey(const Key('apod_prev_day_btn'));
+        final nextBtn = find.byKey(const Key('apod_next_day_btn'));
+        expect(prevBtn, findsOneWidget);
+        expect(nextBtn, findsOneWidget);
 
-      expect(find.text('Previous 20th'), findsOneWidget);
+        // Tap prev day button
+        await tester.tap(prevBtn);
+        await tester.pump(); // Starts loading state
+        await tester.pump(const Duration(milliseconds: 50)); // Resolves Future
+        await tester.pump(
+          const Duration(milliseconds: 350),
+        ); // Finish AnimatedSwitcher transition
+        await tester.pump(); // Build the new page with new entry
 
-      // Tap next day button (should load 2026-05-21)
-      await tester.tap(nextBtn);
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 50));
-      await tester.pump(const Duration(milliseconds: 350));
-      await tester.pump();
+        expect(find.text('Previous 20th'), findsOneWidget);
 
-      expect(find.text('Initial 21st'), findsOneWidget);
+        // Tap next day button (should load 2026-05-21)
+        await tester.tap(nextBtn);
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 50));
+        await tester.pump(const Duration(milliseconds: 350));
+        await tester.pump();
 
-      // Tap next day button again (should load 2026-05-22)
-      await tester.tap(nextBtn);
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 50));
-      await tester.pump(const Duration(milliseconds: 350));
-      await tester.pump();
+        expect(find.text('Initial 21st'), findsOneWidget);
 
-      expect(find.text('Next 22nd'), findsOneWidget);
-    });
+        // Tap next day button again (should load 2026-05-22)
+        await tester.tap(nextBtn);
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 50));
+        await tester.pump(const Duration(milliseconds: 350));
+        await tester.pump();
+
+        expect(find.text('Next 22nd'), findsOneWidget);
+      },
+    );
   });
 }

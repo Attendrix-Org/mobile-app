@@ -13,8 +13,8 @@ class ApodRepositoryImpl implements ApodRepository {
   ApodRepositoryImpl({
     required ApodRemoteDatasource remoteDatasource,
     required ApodLocalDatasource localDatasource,
-  })  : _remoteDatasource = remoteDatasource,
-        _localDatasource = localDatasource;
+  }) : _remoteDatasource = remoteDatasource,
+       _localDatasource = localDatasource;
 
   final ApodRemoteDatasource _remoteDatasource;
   final ApodLocalDatasource _localDatasource;
@@ -37,7 +37,8 @@ class ApodRepositoryImpl implements ApodRepository {
 
       // Cache if we are fetching today's (or if date matches today's or is null)
       final today = DateTime.now().toUtc();
-      final todayStr = '${today.year}-'
+      final todayStr =
+          '${today.year}-'
           '${today.month.toString().padLeft(2, '0')}-'
           '${today.day.toString().padLeft(2, '0')}';
 
@@ -120,7 +121,8 @@ class ApodRepositoryImpl implements ApodRepository {
       return Success(ApodMapper.fromDto(cached));
     }
 
-    final dateStr = '${date.year}-'
+    final dateStr =
+        '${date.year}-'
         '${date.month.toString().padLeft(2, '0')}-'
         '${date.day.toString().padLeft(2, '0')}';
 

@@ -12,7 +12,9 @@ void main() {
     expect(find.text('Login'), findsOneWidget);
   });
 
-  testWidgets('can navigate between login and create account screens', (tester) async {
+  testWidgets('can navigate between login and create account screens', (
+    tester,
+  ) async {
     await tester.pumpWidget(const MyApp());
 
     // Verify initially on Login Screen
@@ -27,7 +29,10 @@ void main() {
 
     // Verify we are now on Create Account Screen
     expect(find.text('Create Your Account'), findsOneWidget);
-    expect(find.byType(TextFormField), findsNWidgets(3)); // Email, Password, Confirm Password
+    expect(
+      find.byType(TextFormField),
+      findsNWidgets(3),
+    ); // Email, Password, Confirm Password
     expect(find.text('Create Account'), findsOneWidget);
 
     // Find, ensure visible, and tap on 'Sign In here' to navigate back to Login

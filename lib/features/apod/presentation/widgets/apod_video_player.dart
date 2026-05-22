@@ -27,32 +27,34 @@ class _ApodVideoPlayerState extends State<ApodVideoPlayer> {
     super.initState();
     final controller = WebViewController();
     unawaited(controller.setJavaScriptMode(JavaScriptMode.unrestricted));
-    unawaited(controller.setNavigationDelegate(
-      NavigationDelegate(
-        onPageStarted: (url) {
-          if (mounted) {
-            setState(() {
-              _isLoading = true;
-            });
-          }
-        },
-        onPageFinished: (url) {
-          if (mounted) {
-            setState(() {
-              _isLoading = false;
-            });
-          }
-        },
-        onWebResourceError: (error) {
-          if (mounted) {
-            setState(() {
-              _error = error.description;
-              _isLoading = false;
-            });
-          }
-        },
+    unawaited(
+      controller.setNavigationDelegate(
+        NavigationDelegate(
+          onPageStarted: (url) {
+            if (mounted) {
+              setState(() {
+                _isLoading = true;
+              });
+            }
+          },
+          onPageFinished: (url) {
+            if (mounted) {
+              setState(() {
+                _isLoading = false;
+              });
+            }
+          },
+          onWebResourceError: (error) {
+            if (mounted) {
+              setState(() {
+                _error = error.description;
+                _isLoading = false;
+              });
+            }
+          },
+        ),
       ),
-    ));
+    );
     _controller = controller;
 
     _loadVideo();
@@ -67,16 +69,19 @@ class _ApodVideoPlayerState extends State<ApodVideoPlayer> {
 
     var embedUrl = '';
     if (parsed.provider == VideoProvider.youtube) {
-      embedUrl = 'https://www.youtube.com/embed/${parsed.videoId}?autoplay=1&mute=1&playsinline=1';
+      embedUrl =
+          'https://www.youtube.com/embed/${parsed.videoId}?autoplay=1&mute=1&playsinline=1';
     } else if (parsed.provider == VideoProvider.vimeo) {
-      embedUrl = 'https://player.vimeo.com/video/${parsed.videoId}?autoplay=1&muted=1&playsinline=1';
+      embedUrl =
+          'https://player.vimeo.com/video/${parsed.videoId}?autoplay=1&muted=1&playsinline=1';
     } else {
       unawaited(_controller.loadRequest(Uri.parse(widget.videoUrl)));
       return;
     }
 
     // Wrap in responsive HTML body with security sandbox attributes on the iframe
-    final html = '''
+    final html =
+        '''
 <!DOCTYPE html>
 <html>
 <head>
@@ -135,7 +140,11 @@ class _ApodVideoPlayerState extends State<ApodVideoPlayer> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.error_outline, color: Colors.redAccent, size: 40),
+                    const Icon(
+                      Icons.error_outline,
+                      color: Colors.redAccent,
+                      size: 40,
+                    ),
                     const SizedBox(height: 8),
                     Text(
                       'Failed to load video:\n$_error',

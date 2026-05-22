@@ -33,9 +33,16 @@ void main() {
     }
 
     for (final url in dangerousSchemes) {
-      test('Rejects dangerous URL: ${url.substring(0, url.length.clamp(0, 40))}', () {
-        expect(isSafeUrl(url), isFalse, reason: 'URL "$url" should be rejected');
-      });
+      test(
+        'Rejects dangerous URL: ${url.substring(0, url.length.clamp(0, 40))}',
+        () {
+          expect(
+            isSafeUrl(url),
+            isFalse,
+            reason: 'URL "$url" should be rejected',
+          );
+        },
+      );
     }
 
     test('Accepts valid HTTPS APOD URLs', () {
@@ -53,7 +60,10 @@ void main() {
     test('Rejects plain HTTP URLs (cleartext)', () {
       // Given usesCleartextTraffic=false in manifest, HTTP should not be allowed
       // through url_launcher for external content either.
-      expect(isSafeUrl('http://apod.nasa.gov/image.jpg'), isTrue); // HTTP is technically parseable
+      expect(
+        isSafeUrl('http://apod.nasa.gov/image.jpg'),
+        isTrue,
+      ); // HTTP is technically parseable
       // But we test that our manifest enforces HTTPS at the OS level —
       // document this expectation in comments for auditors.
       // The following verifies our scheme checker correctly identifies http vs https.
@@ -72,23 +82,26 @@ void main() {
 
     test('Rejects malformed date strings', () {
       final malformedInputs = [
-        '2026-99-01',       // Month out of range
-        '2026-01-99',       // Day out of range
-        'not-a-date',       // Non-numeric
-        '2026/05/21',       // Wrong delimiter
-        '05-21-2026',       // Wrong order
+        '2026-99-01', // Month out of range
+        '2026-01-99', // Day out of range
+        'not-a-date', // Non-numeric
+        '2026/05/21', // Wrong delimiter
+        '05-21-2026', // Wrong order
         '2026-05-21T00:00', // ISO datetime with time
         '<script>alert(1)</script>',
         "'; DROP TABLE apods; --",
         '../../etc/passwd',
         '0000-00-00',
-        '9999-12-31',       // Far future
+        '9999-12-31', // Far future
         '',
       ];
       for (final input in malformedInputs) {
         final error = DateValidator.getValidationError(input);
-        expect(error, isNotNull,
-            reason: '"$input" should be rejected by DateValidator');
+        expect(
+          error,
+          isNotNull,
+          reason: '"$input" should be rejected by DateValidator',
+        );
       }
     });
 
@@ -114,19 +127,25 @@ void main() {
   // ─────────────────────────────────────────────────────────────────────────
   group('Malformed API Response Handling', () {
     test('ApodDto.fromJson throws on completely empty JSON object', () {
-      expect(() => ApodDto.fromJson(<String, dynamic>{}), throwsA(isA<TypeError>()));
+      expect(
+        () => ApodDto.fromJson(const <String, dynamic>{}),
+        throwsA(isA<TypeError>()),
+      );
     });
 
-    test('ApodDto.fromJson throws when required field has wrong type (date is int)', () {
-      final json = <String, dynamic>{
-        'date': 20260521, // Wrong type: int instead of String
-        'title': 'Title',
-        'explanation': 'Exp',
-        'media_type': 'image',
-        'url': 'https://x.com',
-      };
-      expect(() => ApodDto.fromJson(json), throwsA(isA<TypeError>()));
-    });
+    test(
+      'ApodDto.fromJson throws when required field has wrong type (date is int)',
+      () {
+        final json = <String, dynamic>{
+          'date': 20260521, // Wrong type: int instead of String
+          'title': 'Title',
+          'explanation': 'Exp',
+          'media_type': 'image',
+          'url': 'https://x.com',
+        };
+        expect(() => ApodDto.fromJson(json), throwsA(isA<TypeError>()));
+      },
+    );
 
     test('ApodDto.fromJson does not throw when optional fields are null', () {
       final json = <String, dynamic>{
@@ -143,18 +162,21 @@ void main() {
       expect(() => ApodDto.fromJson(json), returnsNormally);
     });
 
-    test('ApodDto.fromJson does not throw when extra unknown fields are present', () {
-      final json = <String, dynamic>{
-        'date': '2026-05-21',
-        'title': 'T',
-        'explanation': 'E',
-        'media_type': 'image',
-        'url': 'https://x.com',
-        'unknown_future_field': 'some_value',
-        'another_field': 42,
-      };
-      expect(() => ApodDto.fromJson(json), returnsNormally);
-    });
+    test(
+      'ApodDto.fromJson does not throw when extra unknown fields are present',
+      () {
+        final json = <String, dynamic>{
+          'date': '2026-05-21',
+          'title': 'T',
+          'explanation': 'E',
+          'media_type': 'image',
+          'url': 'https://x.com',
+          'unknown_future_field': 'some_value',
+          'another_field': 42,
+        };
+        expect(() => ApodDto.fromJson(json), returnsNormally);
+      },
+    );
 
     test('Oversized explanation field does not cause crash (100KB string)', () {
       final hugeExplanation = 'A' * 100000;
@@ -188,7 +210,9 @@ void main() {
         },
       ]);
       final decoded = jsonDecode(jsonList) as List<dynamic>;
-      final dtos = decoded.map((e) => ApodDto.fromJson(e as Map<String, dynamic>)).toList();
+      final dtos = decoded
+          .map((e) => ApodDto.fromJson(e as Map<String, dynamic>))
+          .toList();
       expect(dtos.length, equals(2));
       expect(dtos[0].title, equals('A'));
       expect(dtos[1].mediaType, equals('video'));
@@ -219,7 +243,9 @@ void main() {
     });
 
     test('MediaParser does not identify data: URL as a video', () {
-      final result = MediaParser.parseVideoUrl('data:text/html,<script>alert(1)</script>');
+      final result = MediaParser.parseVideoUrl(
+        'data:text/html,<script>alert(1)</script>',
+      );
       expect(result, isNull);
     });
 
@@ -229,26 +255,34 @@ void main() {
     });
 
     test('MediaParser correctly identifies YouTube embed URL', () {
-      final result = MediaParser.parseVideoUrl('https://www.youtube.com/embed/dQw4w9WgXcQ');
+      final result = MediaParser.parseVideoUrl(
+        'https://www.youtube.com/embed/dQw4w9WgXcQ',
+      );
       expect(result, isNotNull);
       expect(result!.provider, equals(VideoProvider.youtube));
       expect(result.videoId, equals('dQw4w9WgXcQ'));
     });
 
     test('MediaParser thumbnail URL uses HTTPS for YouTube', () {
-      final result = MediaParser.parseVideoUrl('https://www.youtube.com/embed/dQw4w9WgXcQ');
+      final result = MediaParser.parseVideoUrl(
+        'https://www.youtube.com/embed/dQw4w9WgXcQ',
+      );
       expect(result!.thumbnailUrl, startsWith('https://'));
     });
 
     test('MediaParser correctly identifies Vimeo player URL', () {
-      final result = MediaParser.parseVideoUrl('https://player.vimeo.com/video/123456789');
+      final result = MediaParser.parseVideoUrl(
+        'https://player.vimeo.com/video/123456789',
+      );
       expect(result, isNotNull);
       expect(result!.provider, equals(VideoProvider.vimeo));
       expect(result.videoId, equals('123456789'));
     });
 
     test('MediaParser returns null for arbitrary image URL', () {
-      final result = MediaParser.parseVideoUrl('https://apod.nasa.gov/apod/image.jpg');
+      final result = MediaParser.parseVideoUrl(
+        'https://apod.nasa.gov/apod/image.jpg',
+      );
       expect(result, isNull);
     });
   });
@@ -278,11 +312,17 @@ void main() {
     }
 
     test('Allows apod.nasa.gov HTTPS URL in WebView', () {
-      expect(isAllowedInWebView('https://apod.nasa.gov/apod/image.jpg'), isTrue);
+      expect(
+        isAllowedInWebView('https://apod.nasa.gov/apod/image.jpg'),
+        isTrue,
+      );
     });
 
     test('Allows YouTube embed URL in WebView', () {
-      expect(isAllowedInWebView('https://www.youtube.com/embed/abc123'), isTrue);
+      expect(
+        isAllowedInWebView('https://www.youtube.com/embed/abc123'),
+        isTrue,
+      );
     });
 
     test('Blocks untrusted domain in WebView', () {
@@ -302,7 +342,10 @@ void main() {
     });
 
     test('Blocks HTTP (non-HTTPS) trusted domain in WebView', () {
-      expect(isAllowedInWebView('http://apod.nasa.gov/apod/image.jpg'), isFalse);
+      expect(
+        isAllowedInWebView('http://apod.nasa.gov/apod/image.jpg'),
+        isFalse,
+      );
     });
   });
 
@@ -314,7 +357,9 @@ void main() {
     // verify that injecting control characters and long strings does not
     // cause the UI to crash.
 
-    testWidgets('Search field widget accepts and trims long input gracefully', (tester) async {
+    testWidgets('Search field widget accepts and trims long input gracefully', (
+      tester,
+    ) async {
       final controller = TextEditingController();
       await tester.pumpWidget(
         MaterialApp(
@@ -336,13 +381,16 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    test('Trimmed search query does not contain leading/trailing whitespace', () {
-      const rawInput = '   Nebula   ';
-      final trimmed = rawInput.trim();
-      expect(trimmed, equals('Nebula'));
-      expect(trimmed.startsWith(' '), isFalse);
-      expect(trimmed.endsWith(' '), isFalse);
-    });
+    test(
+      'Trimmed search query does not contain leading/trailing whitespace',
+      () {
+        const rawInput = '   Nebula   ';
+        final trimmed = rawInput.trim();
+        expect(trimmed, equals('Nebula'));
+        expect(trimmed.startsWith(' '), isFalse);
+        expect(trimmed.endsWith(' '), isFalse);
+      },
+    );
 
     test('Empty search string is handled without error', () {
       const query = '';

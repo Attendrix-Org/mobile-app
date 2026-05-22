@@ -203,60 +203,64 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
                           // 3. What should we call you?
                           Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'What should we call you?',
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 14,
-                                  color: primaryTextColor,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              TextFormField(
-                                controller: _displayNameController,
-                                style: GoogleFonts.plusJakartaSans(
-                                  color: primaryTextColor,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                                decoration: InputDecoration(
-                                  hintText: '[Display Name]',
-                                  hintStyle: GoogleFonts.plusJakartaSans(
-                                    color: secondaryTextColor,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                  filled: true,
-                                  fillColor: inputFillColor,
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 16,
-                                  ),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide.none,
-                                  ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide.none,
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: const BorderSide(
-                                      color: primaryColor,
-                                      width: 2,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'What should we call you?',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 14,
+                                      color: primaryTextColor,
                                     ),
                                   ),
-                                ),
-                                validator: (value) =>
-                                    (value == null || value.trim().isEmpty)
+                                  const SizedBox(height: 8),
+                                  TextFormField(
+                                    controller: _displayNameController,
+                                    style: GoogleFonts.plusJakartaSans(
+                                      color: primaryTextColor,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                    decoration: InputDecoration(
+                                      hintText: '[Display Name]',
+                                      hintStyle: GoogleFonts.plusJakartaSans(
+                                        color: secondaryTextColor,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                      filled: true,
+                                      fillColor: inputFillColor,
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                            horizontal: 16,
+                                            vertical: 16,
+                                          ),
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                        borderSide: BorderSide.none,
+                                      ),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                        borderSide: BorderSide.none,
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                        borderSide: const BorderSide(
+                                          color: primaryColor,
+                                          width: 2,
+                                        ),
+                                      ),
+                                    ),
+                                    validator: (value) =>
+                                        (value == null || value.trim().isEmpty)
                                         ? 'Please enter your name'
                                         : null,
-                              ),
-                            ],
-                          ).animate().fadeIn(delay: 100.ms, duration: 400.ms).slideY(
+                                  ),
+                                ],
+                              )
+                              .animate()
+                              .fadeIn(delay: 100.ms, duration: 400.ms)
+                              .slideY(
                                 begin: 0.1,
                                 end: 0,
                                 curve: Curves.easeOutQuad,
@@ -265,75 +269,81 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
                           // 4. What's your current semester?
                           Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "What's your current semester?",
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 14,
-                                  color: primaryTextColor,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              DropdownButtonFormField<int>(
-                                isExpanded: true,
-                                initialValue: _selectedSemester,
-                                hint: Text(
-                                  'Semester',
-                                  style: GoogleFonts.plusJakartaSans(
-                                    color: secondaryTextColor,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "What's your current semester?",
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 14,
+                                      color: primaryTextColor,
+                                    ),
                                   ),
-                                ),
-                                items: List.generate(8, (i) => i + 1).map((i) {
-                                  return DropdownMenuItem<int>(
-                                    value: i,
-                                    child: Text(
-                                      'Semester $i',
+                                  const SizedBox(height: 8),
+                                  DropdownButtonFormField<int>(
+                                    isExpanded: true,
+                                    initialValue: _selectedSemester,
+                                    hint: Text(
+                                      'Semester',
                                       style: GoogleFonts.plusJakartaSans(
-                                        color: primaryTextColor,
+                                        color: secondaryTextColor,
                                         fontSize: 16,
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
-                                  );
-                                }).toList(),
-                                onChanged: (val) {
-                                  setState(() {
-                                    _selectedSemester = val;
-                                  });
-                                },
-                                decoration: InputDecoration(
-                                  filled: true,
-                                  fillColor: inputFillColor,
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 8,
-                                  ),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide.none,
-                                  ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide.none,
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: const BorderSide(
-                                      color: primaryColor,
-                                      width: 2,
+                                    items: List.generate(8, (i) => i + 1).map((
+                                      i,
+                                    ) {
+                                      return DropdownMenuItem<int>(
+                                        value: i,
+                                        child: Text(
+                                          'Semester $i',
+                                          style: GoogleFonts.plusJakartaSans(
+                                            color: primaryTextColor,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      );
+                                    }).toList(),
+                                    onChanged: (val) {
+                                      setState(() {
+                                        _selectedSemester = val;
+                                      });
+                                    },
+                                    decoration: InputDecoration(
+                                      filled: true,
+                                      fillColor: inputFillColor,
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                            horizontal: 16,
+                                            vertical: 8,
+                                          ),
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                        borderSide: BorderSide.none,
+                                      ),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                        borderSide: BorderSide.none,
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                        borderSide: const BorderSide(
+                                          color: primaryColor,
+                                          width: 2,
+                                        ),
+                                      ),
                                     ),
+                                    validator: (val) => val == null
+                                        ? 'Please select a semester'
+                                        : null,
                                   ),
-                                ),
-                                validator: (val) => val == null
-                                    ? 'Please select a semester'
-                                    : null,
-                              ),
-                            ],
-                          ).animate().fadeIn(delay: 180.ms, duration: 400.ms).slideY(
+                                ],
+                              )
+                              .animate()
+                              .fadeIn(delay: 180.ms, duration: 400.ms)
+                              .slideY(
                                 begin: 0.1,
                                 end: 0,
                                 curve: Curves.easeOutQuad,
@@ -342,84 +352,90 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
                           // 5. Which branch are you in?
                           Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Which branch are you in?',
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 14,
-                                  color: primaryTextColor,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              DropdownButtonFormField<String>(
-                                isExpanded: true,
-                                initialValue: _selectedBranch,
-                                hint: Text(
-                                  'Branch',
-                                  style: GoogleFonts.plusJakartaSans(
-                                    color: secondaryTextColor,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Which branch are you in?',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 14,
+                                      color: primaryTextColor,
+                                    ),
                                   ),
-                                ),
-                                items: [
-                                  'Computer Science',
-                                  'Mechanical Engineering',
-                                  'Electrical Engineering',
-                                  'Civil Engineering',
-                                  'Electronics & Communication',
-                                  'Chemical Engineering',
-                                  'Information Technology',
-                                  'Other',
-                                ].map((branch) {
-                                  return DropdownMenuItem<String>(
-                                    value: branch,
-                                    child: Text(
-                                      branch,
+                                  const SizedBox(height: 8),
+                                  DropdownButtonFormField<String>(
+                                    isExpanded: true,
+                                    initialValue: _selectedBranch,
+                                    hint: Text(
+                                      'Branch',
                                       style: GoogleFonts.plusJakartaSans(
-                                        color: primaryTextColor,
+                                        color: secondaryTextColor,
                                         fontSize: 16,
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
-                                  );
-                                }).toList(),
-                                onChanged: (val) {
-                                  setState(() {
-                                    _selectedBranch = val;
-                                  });
-                                },
-                                decoration: InputDecoration(
-                                  filled: true,
-                                  fillColor: inputFillColor,
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 8,
-                                  ),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide.none,
-                                  ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide.none,
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: const BorderSide(
-                                      color: primaryColor,
-                                      width: 2,
+                                    items:
+                                        [
+                                          'Computer Science',
+                                          'Mechanical Engineering',
+                                          'Electrical Engineering',
+                                          'Civil Engineering',
+                                          'Electronics & Communication',
+                                          'Chemical Engineering',
+                                          'Information Technology',
+                                          'Other',
+                                        ].map((branch) {
+                                          return DropdownMenuItem<String>(
+                                            value: branch,
+                                            child: Text(
+                                              branch,
+                                              style:
+                                                  GoogleFonts.plusJakartaSans(
+                                                    color: primaryTextColor,
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                            ),
+                                          );
+                                        }).toList(),
+                                    onChanged: (val) {
+                                      setState(() {
+                                        _selectedBranch = val;
+                                      });
+                                    },
+                                    decoration: InputDecoration(
+                                      filled: true,
+                                      fillColor: inputFillColor,
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                            horizontal: 16,
+                                            vertical: 8,
+                                          ),
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                        borderSide: BorderSide.none,
+                                      ),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                        borderSide: BorderSide.none,
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                        borderSide: const BorderSide(
+                                          color: primaryColor,
+                                          width: 2,
+                                        ),
+                                      ),
                                     ),
+                                    validator: (val) => val == null
+                                        ? 'Please select a branch'
+                                        : null,
                                   ),
-                                ),
-                                validator: (val) => val == null
-                                    ? 'Please select a branch'
-                                    : null,
-                              ),
-                            ],
-                          ).animate().fadeIn(delay: 260.ms, duration: 400.ms).slideY(
+                                ],
+                              )
+                              .animate()
+                              .fadeIn(delay: 260.ms, duration: 400.ms)
+                              .slideY(
                                 begin: 0.1,
                                 end: 0,
                                 curve: Curves.easeOutQuad,
@@ -428,75 +444,82 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
                           // 6. Which batch do you belong to?
                           Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Which batch do you belong to?',
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 14,
-                                  color: primaryTextColor,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              DropdownButtonFormField<int>(
-                                isExpanded: true,
-                                initialValue: _selectedBatch,
-                                hint: Text(
-                                  'Batch',
-                                  style: GoogleFonts.plusJakartaSans(
-                                    color: secondaryTextColor,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Which batch do you belong to?',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 14,
+                                      color: primaryTextColor,
+                                    ),
                                   ),
-                                ),
-                                items: List.generate(7, (i) => 2022 + i).map((year) {
-                                  return DropdownMenuItem<int>(
-                                    value: year,
-                                    child: Text(
-                                      'Batch $year',
+                                  const SizedBox(height: 8),
+                                  DropdownButtonFormField<int>(
+                                    isExpanded: true,
+                                    initialValue: _selectedBatch,
+                                    hint: Text(
+                                      'Batch',
                                       style: GoogleFonts.plusJakartaSans(
-                                        color: primaryTextColor,
+                                        color: secondaryTextColor,
                                         fontSize: 16,
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
-                                  );
-                                }).toList(),
-                                onChanged: (val) {
-                                  setState(() {
-                                    _selectedBatch = val;
-                                  });
-                                },
-                                decoration: InputDecoration(
-                                  filled: true,
-                                  fillColor: inputFillColor,
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 8,
-                                  ),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide.none,
-                                  ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide.none,
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: const BorderSide(
-                                      color: primaryColor,
-                                      width: 2,
+                                    items: List.generate(7, (i) => 2022 + i)
+                                        .map((year) {
+                                          return DropdownMenuItem<int>(
+                                            value: year,
+                                            child: Text(
+                                              'Batch $year',
+                                              style:
+                                                  GoogleFonts.plusJakartaSans(
+                                                    color: primaryTextColor,
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                            ),
+                                          );
+                                        })
+                                        .toList(),
+                                    onChanged: (val) {
+                                      setState(() {
+                                        _selectedBatch = val;
+                                      });
+                                    },
+                                    decoration: InputDecoration(
+                                      filled: true,
+                                      fillColor: inputFillColor,
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                            horizontal: 16,
+                                            vertical: 8,
+                                          ),
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                        borderSide: BorderSide.none,
+                                      ),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                        borderSide: BorderSide.none,
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                        borderSide: const BorderSide(
+                                          color: primaryColor,
+                                          width: 2,
+                                        ),
+                                      ),
                                     ),
+                                    validator: (val) => val == null
+                                        ? 'Please select a batch'
+                                        : null,
                                   ),
-                                ),
-                                validator: (val) => val == null
-                                    ? 'Please select a batch'
-                                    : null,
-                              ),
-                            ],
-                          ).animate().fadeIn(delay: 340.ms, duration: 400.ms).slideY(
+                                ],
+                              )
+                              .animate()
+                              .fadeIn(delay: 340.ms, duration: 400.ms)
+                              .slideY(
                                 begin: 0.1,
                                 end: 0,
                                 curve: Curves.easeOutQuad,
@@ -505,58 +528,63 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
                           // 7. Tell us about yourself: (Optional)
                           Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Tell us about yourself: (Optional)',
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 14,
-                                  color: primaryTextColor,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              TextFormField(
-                                controller: _bioController,
-                                maxLines: 4,
-                                maxLength: 200,
-                                style: GoogleFonts.plusJakartaSans(
-                                  color: primaryTextColor,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                                decoration: InputDecoration(
-                                  hintText: 'Introduce yourself in a few words.',
-                                  hintStyle: GoogleFonts.plusJakartaSans(
-                                    color: secondaryTextColor,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                  filled: true,
-                                  fillColor: inputFillColor,
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 16,
-                                  ),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide.none,
-                                  ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide.none,
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: const BorderSide(
-                                      color: primaryColor,
-                                      width: 2,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Tell us about yourself: (Optional)',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 14,
+                                      color: primaryTextColor,
                                     ),
                                   ),
-                                ),
-                              ),
-                            ],
-                          ).animate().fadeIn(delay: 420.ms, duration: 400.ms).slideY(
+                                  const SizedBox(height: 8),
+                                  TextFormField(
+                                    controller: _bioController,
+                                    maxLines: 4,
+                                    maxLength: 200,
+                                    style: GoogleFonts.plusJakartaSans(
+                                      color: primaryTextColor,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                    decoration: InputDecoration(
+                                      hintText:
+                                          'Introduce yourself in a few words.',
+                                      hintStyle: GoogleFonts.plusJakartaSans(
+                                        color: secondaryTextColor,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                      filled: true,
+                                      fillColor: inputFillColor,
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                            horizontal: 16,
+                                            vertical: 16,
+                                          ),
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                        borderSide: BorderSide.none,
+                                      ),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                        borderSide: BorderSide.none,
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                        borderSide: const BorderSide(
+                                          color: primaryColor,
+                                          width: 2,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              )
+                              .animate()
+                              .fadeIn(delay: 420.ms, duration: 400.ms)
+                              .slideY(
                                 begin: 0.1,
                                 end: 0,
                                 curve: Curves.easeOutQuad,
@@ -592,14 +620,17 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                                           ),
                                           children: [
                                             const TextSpan(
-                                              text: 'I confirm that I have read and agree to the ',
+                                              text:
+                                                  'I confirm that I have read and agree to the ',
                                             ),
                                             WidgetSpan(
-                                              alignment: PlaceholderAlignment.middle,
+                                              alignment:
+                                                  PlaceholderAlignment.middle,
                                               child: GestureDetector(
                                                 onTap: () {
-                                                  ScaffoldMessenger.of(context)
-                                                      .showSnackBar(
+                                                  ScaffoldMessenger.of(
+                                                    context,
+                                                  ).showSnackBar(
                                                     const SnackBar(
                                                       content: Text(
                                                         'Terms of Service clicked',
@@ -609,21 +640,27 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                                                 },
                                                 child: Text(
                                                   'Terms of Service',
-                                                  style: GoogleFonts.plusJakartaSans(
-                                                    color: const Color(0xFFFF8C00),
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 14,
-                                                  ),
+                                                  style:
+                                                      GoogleFonts.plusJakartaSans(
+                                                        color: const Color(
+                                                          0xFFFF8C00,
+                                                        ),
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 14,
+                                                      ),
                                                 ),
                                               ),
                                             ),
                                             const TextSpan(text: ' and '),
                                             WidgetSpan(
-                                              alignment: PlaceholderAlignment.middle,
+                                              alignment:
+                                                  PlaceholderAlignment.middle,
                                               child: GestureDetector(
                                                 onTap: () {
-                                                  ScaffoldMessenger.of(context)
-                                                      .showSnackBar(
+                                                  ScaffoldMessenger.of(
+                                                    context,
+                                                  ).showSnackBar(
                                                     const SnackBar(
                                                       content: Text(
                                                         'Privacy Policy clicked',
@@ -633,15 +670,21 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                                                 },
                                                 child: Text(
                                                   'Privacy Policy',
-                                                  style: GoogleFonts.plusJakartaSans(
-                                                    color: const Color(0xFFFF8C00),
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 14,
-                                                  ),
+                                                  style:
+                                                      GoogleFonts.plusJakartaSans(
+                                                        color: const Color(
+                                                          0xFFFF8C00,
+                                                        ),
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 14,
+                                                      ),
                                                 ),
                                               ),
                                             ),
-                                            const TextSpan(text: ' of Attendrix Inc.'),
+                                            const TextSpan(
+                                              text: ' of Attendrix Inc.',
+                                            ),
                                           ],
                                         ),
                                       ),
@@ -654,7 +697,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                               // Optional Marketing Checkbox
                               CheckboxListTile(
                                 value: _agreedToMarketing,
-                                controlAffinity: ListTileControlAffinity.leading,
+                                controlAffinity:
+                                    ListTileControlAffinity.leading,
                                 activeColor: primaryColor,
                                 contentPadding: EdgeInsets.zero,
                                 title: Text(
@@ -686,8 +730,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: primaryColor,
                                 foregroundColor: Colors.white,
-                                disabledBackgroundColor:
-                                    primaryColor.withValues(alpha: 0.6),
+                                disabledBackgroundColor: primaryColor
+                                    .withValues(alpha: 0.6),
                                 elevation: 0,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(16),

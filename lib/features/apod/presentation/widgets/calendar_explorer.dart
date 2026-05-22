@@ -29,10 +29,16 @@ class CalendarExplorer extends ConsumerWidget {
     final viewedDates = ref.watch(viewedDatesProvider);
 
     final surfaceColor = isDark ? const Color(0xFF201F21) : Colors.white;
-    final borderColor = isDark ? const Color(0xFF353437) : const Color(0xFFE2E8F0);
+    final borderColor = isDark
+        ? const Color(0xFF353437)
+        : const Color(0xFFE2E8F0);
     final textColor = isDark ? Colors.white : const Color(0xFF15161E);
-    final secondaryTextColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF606A85);
-    final accentColor = isDark ? const Color(0xFFC5C0FF) : const Color(0xFF6F61EF);
+    final secondaryTextColor = isDark
+        ? const Color(0xFF94A3B8)
+        : const Color(0xFF606A85);
+    final accentColor = isDark
+        ? const Color(0xFFC5C0FF)
+        : const Color(0xFF6F61EF);
 
     final today = DateTime.now();
 
@@ -176,11 +182,17 @@ class CalendarExplorer extends ConsumerWidget {
                     return const Expanded(child: SizedBox(height: 40));
                   }
 
-                  final cellDate = DateTime(monthYear.year, monthYear.month, dayNumber);
-                  final isToday = cellDate.year == today.year &&
+                  final cellDate = DateTime(
+                    monthYear.year,
+                    monthYear.month,
+                    dayNumber,
+                  );
+                  final isToday =
+                      cellDate.year == today.year &&
                       cellDate.month == today.month &&
                       cellDate.day == today.day;
-                  final isSelected = cellDate.year == selectedDate.year &&
+                  final isSelected =
+                      cellDate.year == selectedDate.year &&
                       cellDate.month == selectedDate.month &&
                       cellDate.day == selectedDate.day;
 
@@ -208,7 +220,10 @@ class CalendarExplorer extends ConsumerWidget {
                         secondaryTextColor: secondaryTextColor,
                         onTap: () {
                           if (isValid) {
-                            ref.read(calendarSelectedDateProvider.notifier).state = cellDate;
+                            ref
+                                    .read(calendarSelectedDateProvider.notifier)
+                                    .state =
+                                cellDate;
                             onDateSelected(cellDate);
                           }
                         },
@@ -243,7 +258,11 @@ class CalendarExplorer extends ConsumerWidget {
     required VoidCallback? onPressed,
     required Color color,
   }) {
-    Widget child = Icon(icon, size: 18, color: onPressed == null ? color.withValues(alpha: 0.3) : color);
+    Widget child = Icon(
+      icon,
+      size: 18,
+      color: onPressed == null ? color.withValues(alpha: 0.3) : color,
+    );
     if (isLeft && icon == Icons.double_arrow_rounded) {
       child = Transform.rotate(angle: 3.14159, child: child);
     }
@@ -294,7 +313,10 @@ class CalendarExplorer extends ConsumerWidget {
       );
     } else if (isToday) {
       decoration = BoxDecoration(
-        border: Border.all(color: accentColor.withValues(alpha: 0.5), width: 1.5),
+        border: Border.all(
+          color: accentColor.withValues(alpha: 0.5),
+          width: 1.5,
+        ),
         shape: BoxShape.circle,
       );
       textStyle = textStyle.copyWith(
@@ -313,7 +335,8 @@ class CalendarExplorer extends ConsumerWidget {
     }
 
     return Semantics(
-      label: 'Day $day${isToday ? ", Today" : ""}${isSelected ? ", Selected" : ""}${isCached ? ", Cached" : ""}${isViewed ? ", Viewed" : ""}',
+      label:
+          'Day $day${isToday ? ", Today" : ""}${isSelected ? ", Selected" : ""}${isCached ? ", Cached" : ""}${isViewed ? ", Viewed" : ""}',
       button: isValid,
       enabled: isValid,
       child: InkWell(
@@ -344,7 +367,9 @@ class CalendarExplorer extends ConsumerWidget {
                     decoration: BoxDecoration(
                       color: isSelected
                           ? (isDark ? Colors.black : Colors.white)
-                          : (isDark ? const Color(0xFF8A80FF) : const Color(0xFF6F61EF)),
+                          : (isDark
+                                ? const Color(0xFF8A80FF)
+                                : const Color(0xFF6F61EF)),
                       shape: BoxShape.circle,
                     ),
                   ),

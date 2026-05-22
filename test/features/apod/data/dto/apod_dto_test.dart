@@ -11,8 +11,14 @@ void main() {
       expect(dto.title, 'The Pillars of Creation');
       expect(dto.explanation, contains('pillars of gas'));
       expect(dto.mediaType, 'image');
-      expect(dto.url, 'https://apod.nasa.gov/apod/image/2410/PillarsOfCreation_Webb_960.jpg');
-      expect(dto.hdurl, 'https://apod.nasa.gov/apod/image/2410/PillarsOfCreation_Webb_3837.jpg');
+      expect(
+        dto.url,
+        'https://apod.nasa.gov/apod/image/2410/PillarsOfCreation_Webb_960.jpg',
+      );
+      expect(
+        dto.hdurl,
+        'https://apod.nasa.gov/apod/image/2410/PillarsOfCreation_Webb_3837.jpg',
+      );
       expect(dto.copyright, 'NASA, ESA, CSA, STScI');
       expect(dto.serviceVersion, 'v1');
       expect(dto.thumbnailUrl, isNull);

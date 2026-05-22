@@ -76,7 +76,10 @@ class RecentSearchesNotifier extends Notifier<List<String>> {
   }
 }
 
-final recentSearchesProvider = NotifierProvider<RecentSearchesNotifier, List<String>>(RecentSearchesNotifier.new);
+final recentSearchesProvider =
+    NotifierProvider<RecentSearchesNotifier, List<String>>(
+      RecentSearchesNotifier.new,
+    );
 
 /// Notifier for tracking viewed dates.
 class ViewedDatesNotifier extends Notifier<List<String>> {
@@ -105,7 +108,9 @@ class ViewedDatesNotifier extends Notifier<List<String>> {
   }
 }
 
-final viewedDatesProvider = NotifierProvider<ViewedDatesNotifier, List<String>>(ViewedDatesNotifier.new);
+final viewedDatesProvider = NotifierProvider<ViewedDatesNotifier, List<String>>(
+  ViewedDatesNotifier.new,
+);
 
 class HistoryViewModeNotifier extends Notifier<bool> {
   @override
@@ -116,7 +121,9 @@ class HistoryViewModeNotifier extends Notifier<bool> {
 }
 
 /// Tracks if user is viewing in Grid (true) or List (false) mode.
-final historyViewModeProvider = NotifierProvider<HistoryViewModeNotifier, bool>(HistoryViewModeNotifier.new);
+final historyViewModeProvider = NotifierProvider<HistoryViewModeNotifier, bool>(
+  HistoryViewModeNotifier.new,
+);
 
 class CalendarSelectedDateNotifier extends Notifier<DateTime> {
   @override
@@ -127,7 +134,10 @@ class CalendarSelectedDateNotifier extends Notifier<DateTime> {
 }
 
 /// Tracks the selected date in the Calendar Explorer.
-final calendarSelectedDateProvider = NotifierProvider<CalendarSelectedDateNotifier, DateTime>(CalendarSelectedDateNotifier.new);
+final calendarSelectedDateProvider =
+    NotifierProvider<CalendarSelectedDateNotifier, DateTime>(
+      CalendarSelectedDateNotifier.new,
+    );
 
 /// Simple class to represent a Month and a Year.
 @immutable
@@ -157,7 +167,10 @@ class CalendarMonthYearNotifier extends Notifier<MonthYear> {
 }
 
 /// Tracks the month and year currently displayed in the calendar explorer.
-final calendarMonthYearProvider = NotifierProvider<CalendarMonthYearNotifier, MonthYear>(CalendarMonthYearNotifier.new);
+final calendarMonthYearProvider =
+    NotifierProvider<CalendarMonthYearNotifier, MonthYear>(
+      CalendarMonthYearNotifier.new,
+    );
 
 /// Exposes the list of cached dates currently available in local storage.
 final cachedDatesProvider = Provider<List<String>>((ref) {
@@ -171,7 +184,7 @@ final historyEntriesProvider = FutureProvider<List<ApodEntry>>((ref) async {
   final dates = ref.watch(viewedDatesProvider);
   final repository = ref.watch(apodRepositoryProvider);
   final list = <ApodEntry>[];
-  
+
   for (final dateStr in dates) {
     final parsedDate = DateTime.tryParse(dateStr);
     if (parsedDate != null) {
@@ -181,7 +194,7 @@ final historyEntriesProvider = FutureProvider<List<ApodEntry>>((ref) async {
       }
     }
   }
-  
+
   // Sort by date descending (most recent first)
   list.sort((a, b) => b.date.compareTo(a.date));
   return list;
@@ -238,7 +251,10 @@ class ApodNotifier extends Notifier<ApodState> {
     return const ApodLoading();
   }
 
-  Future<void> fetch(DateTime normalizedDate, {bool forceRefresh = false}) async {
+  Future<void> fetch(
+    DateTime normalizedDate, {
+    bool forceRefresh = false,
+  }) async {
     final repo = ref.read(apodRepositoryProvider);
 
     // 1. Cache-first lookup
@@ -251,13 +267,14 @@ class ApodNotifier extends Notifier<ApodState> {
     // Emit Cached state immediately if cachedEntry exists and we aren't forcing a refresh
     if (cachedEntry != null && !forceRefresh) {
       state = ApodCached(cachedEntry);
-      
+
       // Check if cache is stale or if we need to refresh.
       final today = DateTime.now().toUtc();
-      final isToday = normalizedDate.year == today.year &&
+      final isToday =
+          normalizedDate.year == today.year &&
           normalizedDate.month == today.month &&
           normalizedDate.day == today.day;
-      
+
       if (!isToday) {
         // For past dates, the APOD is static. No need to execute a network request.
         return;
@@ -276,7 +293,10 @@ class ApodNotifier extends Notifier<ApodState> {
       state = const ApodLoading();
     }
 
-    final result = await repo.getApodForDate(normalizedDate, forceRefresh: forceRefresh);
+    final result = await repo.getApodForDate(
+      normalizedDate,
+      forceRefresh: forceRefresh,
+    );
 
     // Check if notifier has been disposed before updating state
     if (_isDisposed) return;
@@ -284,7 +304,9 @@ class ApodNotifier extends Notifier<ApodState> {
     switch (result) {
       case Success(:final data):
         state = ApodSuccess(data);
-        unawaited(ref.read(viewedDatesProvider.notifier).addViewedDate(data.date));
+        unawaited(
+          ref.read(viewedDatesProvider.notifier).addViewedDate(data.date),
+        );
         // Refresh the cached dates list
         ref.invalidate(cachedDatesProvider);
       case Failure(:final failure):
@@ -305,5 +327,5 @@ class ApodNotifier extends Notifier<ApodState> {
 // ignore: specify_nonobvious_property_types, NotifierProviderFamily is not publicly exported by Riverpod
 final apodStateProvider =
     NotifierProvider.family<ApodNotifier, ApodState, DateTime>(
-  ApodNotifier.new,
-);
+      ApodNotifier.new,
+    );

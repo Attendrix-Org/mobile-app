@@ -10,6 +10,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MockApodRepository extends Mock implements ApodRepository {}
+
 class MockSharedPreferences extends Mock implements SharedPreferences {}
 
 void main() {
@@ -34,7 +35,9 @@ void main() {
 
     // SharedPreferences default stubs
     when(() => mockPrefs.getStringList(any())).thenReturn(null);
-    when(() => mockPrefs.setStringList(any(), any())).thenAnswer((_) async => true);
+    when(
+      () => mockPrefs.setStringList(any(), any()),
+    ).thenAnswer((_) async => true);
     when(() => mockPrefs.remove(any())).thenAnswer((_) async => true);
   });
 
@@ -51,10 +54,15 @@ void main() {
 
   group('ApodNotifier Unit Tests', () {
     test('initial state is ApodLoading and fetches from repository', () async {
-      when(() => mockRepo.getCachedApod(any()))
-          .thenAnswer((_) async => const Success<ApodEntry?>(null));
-      when(() => mockRepo.getApodForDate(any(), forceRefresh: any(named: 'forceRefresh')))
-          .thenAnswer((_) async => const Success(testEntry));
+      when(
+        () => mockRepo.getCachedApod(any()),
+      ).thenAnswer((_) async => const Success<ApodEntry?>(null));
+      when(
+        () => mockRepo.getApodForDate(
+          any(),
+          forceRefresh: any(named: 'forceRefresh'),
+        ),
+      ).thenAnswer((_) async => const Success(testEntry));
 
       final container = createContainer();
       final states = <ApodState>[];
@@ -76,12 +84,17 @@ void main() {
     });
 
     test('cache-first lookup immediately yields ApodCached', () async {
-      when(() => mockRepo.getCachedApod(any()))
-          .thenAnswer((_) async => const Success<ApodEntry?>(testEntry));
+      when(
+        () => mockRepo.getCachedApod(any()),
+      ).thenAnswer((_) async => const Success<ApodEntry?>(testEntry));
       // For past dates, caching returns early, so getApodForDate won't be called.
       // But we still stub it just in case.
-      when(() => mockRepo.getApodForDate(any(), forceRefresh: any(named: 'forceRefresh')))
-          .thenAnswer((_) async => const Success(testEntry));
+      when(
+        () => mockRepo.getApodForDate(
+          any(),
+          forceRefresh: any(named: 'forceRefresh'),
+        ),
+      ).thenAnswer((_) async => const Success(testEntry));
 
       final container = createContainer();
       final states = <ApodState>[];
@@ -95,44 +108,66 @@ void main() {
       await Future<void>.delayed(Duration.zero);
 
       expect(states, contains(isA<ApodCached>()));
-      final cachedState = states.firstWhere((s) => s is ApodCached) as ApodCached;
+      final cachedState =
+          states.firstWhere((s) => s is ApodCached) as ApodCached;
       expect(cachedState.entry, testEntry);
       expect(cachedState.isRefreshing, isFalse);
     });
 
-    test('network failure after cache hit falls back to ApodOfflineFallback', () async {
-      final today = DateTime.now().toUtc();
-      final todayNormalized = DateTime.utc(today.year, today.month, today.day);
+    test(
+      'network failure after cache hit falls back to ApodOfflineFallback',
+      () async {
+        final today = DateTime.now().toUtc();
+        final todayNormalized = DateTime.utc(
+          today.year,
+          today.month,
+          today.day,
+        );
 
-      when(() => mockRepo.getCachedApod(any()))
-          .thenAnswer((_) async => const Success<ApodEntry?>(testEntry));
-      // Network call fails
-      when(() => mockRepo.getApodForDate(any(), forceRefresh: any(named: 'forceRefresh')))
-          .thenAnswer((_) async => const Failure(ApodNoConnection('No connection')));
+        when(
+          () => mockRepo.getCachedApod(any()),
+        ).thenAnswer((_) async => const Success<ApodEntry?>(testEntry));
+        // Network call fails
+        when(
+          () => mockRepo.getApodForDate(
+            any(),
+            forceRefresh: any(named: 'forceRefresh'),
+          ),
+        ).thenAnswer(
+          (_) async => const Failure(ApodNoConnection('No connection')),
+        );
 
-      final container = createContainer();
-      final states = <ApodState>[];
+        final container = createContainer();
+        final states = <ApodState>[];
 
-      container.listen(
-        apodStateProvider(todayNormalized),
-        (previous, next) => states.add(next),
-        fireImmediately: true,
-      );
+        container.listen(
+          apodStateProvider(todayNormalized),
+          (previous, next) => states.add(next),
+          fireImmediately: true,
+        );
 
-      await Future<void>.delayed(Duration.zero);
+        await Future<void>.delayed(Duration.zero);
 
-      // Verify transitions
-      expect(states, contains(isA<ApodCached>()));
-      expect(states.last, isA<ApodOfflineFallback>());
-      final fallbackState = states.last as ApodOfflineFallback;
-      expect(fallbackState.entry, testEntry);
-    });
+        // Verify transitions
+        expect(states, contains(isA<ApodCached>()));
+        expect(states.last, isA<ApodOfflineFallback>());
+        final fallbackState = states.last as ApodOfflineFallback;
+        expect(fallbackState.entry, testEntry);
+      },
+    );
 
     test('network failure without cache transitions to ApodError', () async {
-      when(() => mockRepo.getCachedApod(any()))
-          .thenAnswer((_) async => const Success<ApodEntry?>(null));
-      when(() => mockRepo.getApodForDate(any(), forceRefresh: any(named: 'forceRefresh')))
-          .thenAnswer((_) async => const Failure(ApodRateLimited('Rate limit exceeded')));
+      when(
+        () => mockRepo.getCachedApod(any()),
+      ).thenAnswer((_) async => const Success<ApodEntry?>(null));
+      when(
+        () => mockRepo.getApodForDate(
+          any(),
+          forceRefresh: any(named: 'forceRefresh'),
+        ),
+      ).thenAnswer(
+        (_) async => const Failure(ApodRateLimited('Rate limit exceeded')),
+      );
 
       final container = createContainer();
       final states = <ApodState>[];
@@ -151,40 +186,44 @@ void main() {
       expect(errorState.failure, isA<ApodRateLimited>());
     });
 
-    test('force refreshing updates the isRefreshing flag to true while fetching', () async {
-      final completer = Completer<Result<ApodEntry>>();
-      when(() => mockRepo.getCachedApod(any()))
-          .thenAnswer((_) async => const Success<ApodEntry?>(testEntry));
-      when(() => mockRepo.getApodForDate(any(), forceRefresh: true))
-          .thenAnswer((_) => completer.future);
+    test(
+      'force refreshing updates the isRefreshing flag to true while fetching',
+      () async {
+        final completer = Completer<Result<ApodEntry>>();
+        when(
+          () => mockRepo.getCachedApod(any()),
+        ).thenAnswer((_) async => const Success<ApodEntry?>(testEntry));
+        when(
+          () => mockRepo.getApodForDate(any(), forceRefresh: true),
+        ).thenAnswer((_) => completer.future);
 
-      final container = createContainer()
-        ..read(apodStateProvider(testDate));
-      await Future<void>.delayed(Duration.zero);
+        final container = createContainer()..read(apodStateProvider(testDate));
+        await Future<void>.delayed(Duration.zero);
 
-      final states = <ApodState>[];
-      container.listen(
-        apodStateProvider(testDate),
-        (previous, next) => states.add(next),
-        fireImmediately: true,
-      );
+        final states = <ApodState>[];
+        container.listen(
+          apodStateProvider(testDate),
+          (previous, next) => states.add(next),
+          fireImmediately: true,
+        );
 
-      // Trigger refresh
-      final notifier = container.read(apodStateProvider(testDate).notifier);
-      final refreshFuture = notifier.refresh();
+        // Trigger refresh
+        final notifier = container.read(apodStateProvider(testDate).notifier);
+        final refreshFuture = notifier.refresh();
 
-      // Check state while refreshing
-      await Future<void>.delayed(const Duration(milliseconds: 10));
-      expect(states, contains(isA<ApodCached>()));
-      final refreshingState = states.last as ApodCached;
-      expect(refreshingState.isRefreshing, isTrue);
+        // Check state while refreshing
+        await Future<void>.delayed(const Duration(milliseconds: 10));
+        expect(states, contains(isA<ApodCached>()));
+        final refreshingState = states.last as ApodCached;
+        expect(refreshingState.isRefreshing, isTrue);
 
-      // Complete the network call
-      completer.complete(const Success(testEntry));
-      await refreshFuture;
+        // Complete the network call
+        completer.complete(const Success(testEntry));
+        await refreshFuture;
 
-      expect(states.last, isA<ApodSuccess>());
-      expect((states.last as ApodSuccess).isRefreshing, isFalse);
-    });
+        expect(states.last, isA<ApodSuccess>());
+        expect((states.last as ApodSuccess).isRefreshing, isFalse);
+      },
+    );
   });
 }

@@ -12,9 +12,10 @@ import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ApodActionBar extends StatefulWidget {
-
   const ApodActionBar({
-    required this.entry, required this.onOpenHD, super.key,
+    required this.entry,
+    required this.onOpenHD,
+    super.key,
   });
   final ApodEntry entry;
   final VoidCallback onOpenHD;
@@ -37,7 +38,8 @@ class _ApodActionBarState extends State<ApodActionBar> {
   }
 
   Future<void> _handleShare() async {
-    final text = '${widget.entry.title}\n\n'
+    final text =
+        '${widget.entry.title}\n\n'
         '${widget.entry.explanation}\n\n'
         'Media URL: ${widget.entry.hdurl ?? widget.entry.url}\n\n'
         'Published Date: ${widget.entry.date}';
@@ -59,7 +61,8 @@ class _ApodActionBarState extends State<ApodActionBar> {
     if (Platform.isAndroid) {
       const channel = MethodChannel('com.attendrix.app/downloads');
       try {
-        final sdkInt = await channel.invokeMethod<int>('getAndroidVersion') ?? 30;
+        final sdkInt =
+            await channel.invokeMethod<int>('getAndroidVersion') ?? 30;
         if (sdkInt <= 28) {
           final status = await Permission.storage.request();
           if (status.isDenied) {
@@ -68,7 +71,9 @@ class _ApodActionBarState extends State<ApodActionBar> {
                 SnackBar(
                   content: Text(
                     'Storage permission is required to download files.',
-                    style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600),
+                    style: GoogleFonts.plusJakartaSans(
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   backgroundColor: const Color(0xFF131315),
                   behavior: SnackBarBehavior.floating,
@@ -98,7 +103,7 @@ class _ApodActionBarState extends State<ApodActionBar> {
     try {
       final dio = Dio();
       final url = widget.entry.hdurl ?? widget.entry.url;
-      
+
       final response = await dio.get<List<int>>(
         url,
         options: Options(responseType: ResponseType.bytes),
@@ -117,10 +122,15 @@ class _ApodActionBarState extends State<ApodActionBar> {
       }
 
       final bytes = Uint8List.fromList(response.data!);
-      final cleanTitle = widget.entry.title.replaceAll(RegExp(r'[^\w\s\-]'), '').replaceAll(' ', '_');
+      final cleanTitle = widget.entry.title
+          .replaceAll(RegExp(r'[^\w\s\-]'), '')
+          .replaceAll(' ', '_');
       final fileExtension = url.split('?').first.split('.').last;
-      final finalExtension = fileExtension.length > 4 || fileExtension.isEmpty ? 'jpg' : fileExtension;
-      final filename = 'apod_${cleanTitle}_${widget.entry.date}.$finalExtension';
+      final finalExtension = fileExtension.length > 4 || fileExtension.isEmpty
+          ? 'jpg'
+          : fileExtension;
+      final filename =
+          'apod_${cleanTitle}_${widget.entry.date}.$finalExtension';
 
       String? savedPath;
 
@@ -131,7 +141,9 @@ class _ApodActionBarState extends State<ApodActionBar> {
           'filename': filename,
         });
       } else {
-        final dir = await getDownloadsDirectory() ?? await getApplicationDocumentsDirectory();
+        final dir =
+            await getDownloadsDirectory() ??
+            await getApplicationDocumentsDirectory();
         final file = File('${dir.path}/$filename');
         await file.writeAsBytes(bytes);
         savedPath = file.path;
@@ -153,7 +165,9 @@ class _ApodActionBarState extends State<ApodActionBar> {
               Expanded(
                 child: Text(
                   'Saved to $savedPath',
-                  style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600),
+                  style: GoogleFonts.plusJakartaSans(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ],
@@ -190,7 +204,9 @@ class _ApodActionBarState extends State<ApodActionBar> {
               Expanded(
                 child: Text(
                   'Download failed: ${e.toString().split('\n').first}',
-                  style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600),
+                  style: GoogleFonts.plusJakartaSans(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ],
@@ -259,12 +275,20 @@ class _ApodActionBarState extends State<ApodActionBar> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    final primaryBg = isDark ? const Color(0xFF8A80FF) : const Color(0xFF6F61EF);
+    final primaryBg = isDark
+        ? const Color(0xFF8A80FF)
+        : const Color(0xFF6F61EF);
     const primaryFg = Colors.white;
 
-    final secondaryBg = isDark ? const Color(0xFF201F21) : const Color(0xFFFFFFFF);
-    final secondaryBorder = isDark ? const Color(0xFF474554) : const Color(0xFFE2E8F0);
-    final secondaryFg = isDark ? const Color(0xFFE5E1E4) : const Color(0xFF15161E);
+    final secondaryBg = isDark
+        ? const Color(0xFF201F21)
+        : const Color(0xFFFFFFFF);
+    final secondaryBorder = isDark
+        ? const Color(0xFF474554)
+        : const Color(0xFFE2E8F0);
+    final secondaryFg = isDark
+        ? const Color(0xFFE5E1E4)
+        : const Color(0xFF15161E);
 
     return Semantics(
       button: true,
@@ -349,12 +373,14 @@ class _ApodActionBarState extends State<ApodActionBar> {
             ),
             // 2. Download
             _buildActionButton(
-              icon: _downloadSuccess ? Icons.check_circle_outline : Icons.download_rounded,
+              icon: _downloadSuccess
+                  ? Icons.check_circle_outline
+                  : Icons.download_rounded,
               label: _isDownloading
                   ? '${(_downloadProgress * 100).toInt()}%'
                   : _downloadSuccess
-                      ? 'Saved'
-                      : 'Download',
+                  ? 'Saved'
+                  : 'Download',
               onTap: _isDownloading ? _cancelDownload : _handleDownload,
               trailingWidget: _isDownloading
                   ? SizedBox(

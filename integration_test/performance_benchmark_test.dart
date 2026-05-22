@@ -1,4 +1,3 @@
-// ignore_for_file: lines_longer_than_80_chars
 // Performance benchmark integration tests.
 //
 // Run in profile mode for real frame timing:
@@ -55,7 +54,7 @@ const _singleEntry = ApodEntry(
 );
 
 void main() {
-  final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  final WidgetsBinding binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   late MockApodRepository mockRepo;
   late MockSharedPreferences mockPrefs;
@@ -154,7 +153,7 @@ void main() {
   test('Perf: 50 sequential LRU cache writes complete within 2 seconds', () async {
     SharedPreferences.setMockInitialValues({});
     final prefs = await SharedPreferences.getInstance();
-    final datasource = ApodLocalDatasource(prefs, maxHistoricalEntries: 50);
+    final datasource = ApodLocalDatasource(prefs);
 
     final stopwatch = Stopwatch()..start();
     for (var i = 0; i < 50; i++) {

@@ -66,7 +66,9 @@ void main() {
         'https://img.youtube.com/vi/P3GkZe3nRQ0/hqdefault.jpg',
       );
 
-      final rawVideoEntry = videoEntry.copyWith(url: 'https://example.com/other-video');
+      final rawVideoEntry = videoEntry.copyWith(
+        url: 'https://example.com/other-video',
+      );
       expect(
         MediaTypeHelper.getDisplayUrl(rawVideoEntry),
         'https://example.com/other-video',

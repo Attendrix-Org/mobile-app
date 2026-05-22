@@ -97,7 +97,9 @@ class ClassBlock extends StatelessWidget {
                   height: 24,
                   child: LinearProgressIndicator(
                     value: progress,
-                    backgroundColor: const Color(0xFFEFE6E4), // light pinkish/beige background
+                    backgroundColor: const Color(
+                      0xFFEFE6E4,
+                    ), // light pinkish/beige background
                     valueColor: const AlwaysStoppedAnimation<Color>(
                       Color(0xFFF6C8C3),
                     ),
@@ -162,8 +164,12 @@ class ClassBlock_primary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Exact colors from design system
-    final primaryTextColor = isCancelled ? const Color(0xFF94A3B8) : const Color(0xFF15161E);
-    final secondaryTextColor = isCancelled ? const Color(0xFF94A3B8) : const Color(0xFF606A85);
+    final primaryTextColor = isCancelled
+        ? const Color(0xFF94A3B8)
+        : const Color(0xFF15161E);
+    final secondaryTextColor = isCancelled
+        ? const Color(0xFF94A3B8)
+        : const Color(0xFF606A85);
     const borderColor = Color(0xFFE2E8F0);
     const pillBgColor = Color(0xFFFEF9C3);
     const pillTextColor = Color(0xFF854D0E);
@@ -201,7 +207,9 @@ class ClassBlock_primary extends StatelessWidget {
                       color: primaryTextColor,
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      decoration: isCancelled ? TextDecoration.lineThrough : null,
+                      decoration: isCancelled
+                          ? TextDecoration.lineThrough
+                          : null,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -211,7 +219,9 @@ class ClassBlock_primary extends StatelessWidget {
                       color: secondaryTextColor,
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
-                      decoration: isCancelled ? TextDecoration.lineThrough : null,
+                      decoration: isCancelled
+                          ? TextDecoration.lineThrough
+                          : null,
                     ),
                   ),
                 ],
@@ -237,7 +247,9 @@ class ClassBlock_primary extends StatelessWidget {
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                       height: 1.25,
-                      decoration: isCancelled ? TextDecoration.lineThrough : null,
+                      decoration: isCancelled
+                          ? TextDecoration.lineThrough
+                          : null,
                     ),
                   ),
                   const SizedBox(height: 6),
@@ -420,14 +432,19 @@ class ClassBlock_upcoming extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final primaryTextColor = isCancelled ? const Color(0xFF94A3B8) : const Color(0xFF15161E);
-    final secondaryTextColor = isCancelled ? const Color(0xFF94A3B8) : const Color(0xFF606A85);
+    final primaryTextColor = isCancelled
+        ? const Color(0xFF94A3B8)
+        : const Color(0xFF15161E);
+    final secondaryTextColor = isCancelled
+        ? const Color(0xFF94A3B8)
+        : const Color(0xFF606A85);
     const borderColor = Color(0xFFE2E8F0);
     const pillBgColor = Color(0xFFFEF9C3);
     const pillTextColor = Color(0xFF854D0E);
 
     final dateStr = DateFormat('EEE, MMM d').format(scheduledStart.toLocal());
-    final timeRangeStr = '${DateFormat('h:mm a').format(scheduledStart.toLocal())} - ${DateFormat('h:mm a').format(scheduledEnd.toLocal())}';
+    final timeRangeStr =
+        '${DateFormat('h:mm a').format(scheduledStart.toLocal())} - ${DateFormat('h:mm a').format(scheduledEnd.toLocal())}';
 
     return Opacity(
       opacity: isCancelled ? 0.6 : 1.0,
@@ -459,7 +476,9 @@ class ClassBlock_upcoming extends StatelessWidget {
                       color: primaryTextColor,
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
-                      decoration: isCancelled ? TextDecoration.lineThrough : null,
+                      decoration: isCancelled
+                          ? TextDecoration.lineThrough
+                          : null,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -470,7 +489,9 @@ class ClassBlock_upcoming extends StatelessWidget {
                       color: secondaryTextColor,
                       fontSize: 10,
                       fontWeight: FontWeight.w600,
-                      decoration: isCancelled ? TextDecoration.lineThrough : null,
+                      decoration: isCancelled
+                          ? TextDecoration.lineThrough
+                          : null,
                     ),
                   ),
                 ],
@@ -496,7 +517,9 @@ class ClassBlock_upcoming extends StatelessWidget {
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                       height: 1.25,
-                      decoration: isCancelled ? TextDecoration.lineThrough : null,
+                      decoration: isCancelled
+                          ? TextDecoration.lineThrough
+                          : null,
                     ),
                   ),
                   const SizedBox(height: 6),

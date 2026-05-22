@@ -35,8 +35,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
         'course_id': 'Mathematics III',
         'batch_id': 'BATCH-2026',
         'semester_id': 'sem1',
-        'scheduled_start': DateTime.now().copyWith(hour: 9, minute: 0, second: 0),
-        'scheduled_end': DateTime.now().copyWith(hour: 9, minute: 50, second: 0),
+        'scheduled_start': DateTime.now().copyWith(
+          hour: 9,
+          minute: 0,
+          second: 0,
+        ),
+        'scheduled_end': DateTime.now().copyWith(
+          hour: 9,
+          minute: 50,
+          second: 0,
+        ),
         'venue': 'Room 302',
         'is_plus_slot': false,
         'lab_group': 'A',
@@ -49,8 +57,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
         'course_id': 'Data Structures',
         'batch_id': 'BATCH-2026',
         'semester_id': 'sem1',
-        'scheduled_start': DateTime.now().copyWith(hour: 10, minute: 0, second: 0),
-        'scheduled_end': DateTime.now().copyWith(hour: 10, minute: 50, second: 0),
+        'scheduled_start': DateTime.now().copyWith(
+          hour: 10,
+          minute: 0,
+          second: 0,
+        ),
+        'scheduled_end': DateTime.now().copyWith(
+          hour: 10,
+          minute: 50,
+          second: 0,
+        ),
         'venue': 'CR 305',
         'is_plus_slot': true,
         'lab_group': 'B',
@@ -63,8 +79,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
         'course_id': 'Database Management',
         'batch_id': 'BATCH-2026',
         'semester_id': 'sem1',
-        'scheduled_start': DateTime.now().copyWith(hour: 11, minute: 0, second: 0),
-        'scheduled_end': DateTime.now().copyWith(hour: 11, minute: 50, second: 0),
+        'scheduled_start': DateTime.now().copyWith(
+          hour: 11,
+          minute: 0,
+          second: 0,
+        ),
+        'scheduled_end': DateTime.now().copyWith(
+          hour: 11,
+          minute: 50,
+          second: 0,
+        ),
         'venue': 'Lab 2',
         'is_plus_slot': false,
         'lab_group': null,
@@ -80,8 +104,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
         'course_id': 'Mathematics III',
         'batch_id': 'BATCH-2026',
         'semester_id': 'sem1',
-        'scheduled_start': DateTime.now().add(const Duration(days: 1)).copyWith(hour: 10, minute: 0, second: 0),
-        'scheduled_end': DateTime.now().add(const Duration(days: 1)).copyWith(hour: 10, minute: 50, second: 0),
+        'scheduled_start': DateTime.now()
+            .add(const Duration(days: 1))
+            .copyWith(hour: 10, minute: 0, second: 0),
+        'scheduled_end': DateTime.now()
+            .add(const Duration(days: 1))
+            .copyWith(hour: 10, minute: 50, second: 0),
         'venue': 'Room 302',
         'is_plus_slot': false,
         'lab_group': 'A',
@@ -93,8 +121,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
         'course_id': 'Operating Systems',
         'batch_id': 'BATCH-2026',
         'semester_id': 'sem1',
-        'scheduled_start': DateTime.now().add(const Duration(days: 2)).copyWith(hour: 11, minute: 0, second: 0),
-        'scheduled_end': DateTime.now().add(const Duration(days: 2)).copyWith(hour: 11, minute: 50, second: 0),
+        'scheduled_start': DateTime.now()
+            .add(const Duration(days: 2))
+            .copyWith(hour: 11, minute: 0, second: 0),
+        'scheduled_end': DateTime.now()
+            .add(const Duration(days: 2))
+            .copyWith(hour: 11, minute: 50, second: 0),
         'venue': 'CR 306',
         'is_plus_slot': false,
         'lab_group': null,
@@ -106,8 +138,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
         'course_id': 'Software Engineering',
         'batch_id': 'BATCH-2026',
         'semester_id': 'sem1',
-        'scheduled_start': DateTime.now().add(const Duration(days: 3)).copyWith(hour: 14, minute: 0, second: 0),
-        'scheduled_end': DateTime.now().add(const Duration(days: 3)).copyWith(hour: 14, minute: 50, second: 0),
+        'scheduled_start': DateTime.now()
+            .add(const Duration(days: 3))
+            .copyWith(hour: 14, minute: 0, second: 0),
+        'scheduled_end': DateTime.now()
+            .add(const Duration(days: 3))
+            .copyWith(hour: 14, minute: 50, second: 0),
         'venue': 'Lab 1',
         'is_plus_slot': true,
         'lab_group': 'B',
@@ -167,9 +203,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           top: 12,
                           right: 12,
                           child: CircleAvatar(
-                            backgroundColor: Colors.black.withValues(alpha: 0.5),
+                            backgroundColor: Colors.black.withValues(
+                              alpha: 0.5,
+                            ),
                             child: IconButton(
-                              icon: const Icon(Icons.close, color: Colors.white),
+                              icon: const Icon(
+                                Icons.close,
+                                color: Colors.white,
+                              ),
                               onPressed: () => Navigator.of(context).pop(),
                             ),
                           ),
@@ -225,7 +266,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               ),
                               onPressed: () {
                                 Navigator.of(context).pop();
-                                unawaited(Navigator.of(context).pushNamed(ApodDetailPage.routeName));
+                                unawaited(
+                                  Navigator.of(
+                                    context,
+                                  ).pushNamed(ApodDetailPage.routeName),
+                                );
                               },
                               child: Text(
                                 'Explore More',
@@ -248,7 +293,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
     );
   }
-
 
   Widget _buildHamburgerMenu(BuildContext context) {
     return Builder(
@@ -305,8 +349,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildHomeView() {
-    final activeTodayCount = _todayClasses.where((c) => !(c['is_cancelled'] as bool)).length;
-    final displayClassesCount = _isTodayTab ? activeTodayCount : _upcomingClasses.length;
+    final activeTodayCount = _todayClasses
+        .where((c) => !(c['is_cancelled'] as bool))
+        .length;
+    final displayClassesCount = _isTodayTab
+        ? activeTodayCount
+        : _upcomingClasses.length;
     final screenWidth = MediaQuery.of(context).size.width;
     final isWide = screenWidth > 600;
 
@@ -386,11 +434,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       child: Image.asset(
                         'assets/Crystal_Animated_Icon_(1).gif',
                         fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => const Icon(
-                          Icons.stars,
-                          color: Colors.amber,
-                          size: 24,
-                        ),
+                        errorBuilder: (context, error, stackTrace) =>
+                            const Icon(
+                              Icons.stars,
+                              color: Colors.amber,
+                              size: 24,
+                            ),
                       ),
                     ),
                   ),
@@ -463,7 +512,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
         // 3. Tab Switches Row
         Padding(
-          padding: const EdgeInsets.only(left: 24, right: 24, top: 20, bottom: 12),
+          padding: const EdgeInsets.only(
+            left: 24,
+            right: 24,
+            top: 20,
+            bottom: 12,
+          ),
           child: Row(
             children: [
               _buildTabButton('Today', _isTodayTab),
@@ -509,10 +563,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ),
                       const SizedBox(width: 4),
                       const Icon(
-                        Icons.refresh,
-                        color: Color(0xFF6F61EF),
-                        size: 18,
-                      )
+                            Icons.refresh,
+                            color: Color(0xFF6F61EF),
+                            size: 18,
+                          )
                           .animate(
                             target: _isRefreshing ? 1 : 0,
                           )
@@ -549,50 +603,53 @@ class _DashboardScreenState extends State<DashboardScreen> {
             child: LayoutBuilder(
               key: ValueKey<bool>(_isTodayTab),
               builder: (context, constraints) {
-                final itemWidth = isWide ? (constraints.maxWidth - 16) / 2 : constraints.maxWidth;
-                final listItems = (_isTodayTab ? _todayClasses : _upcomingClasses).map((c) {
-                  Widget classCard;
-                  if (_isTodayTab) {
-                    classCard = ClassBlock_primary(
-                      classId: c['class_id'] as String,
-                      classRef: c['class_ref'] as String,
-                      courseId: c['course_id'] as String,
-                      batchId: c['batch_id'] as String,
-                      semesterId: c['semester_id'] as String,
-                      scheduledStart: c['scheduled_start'] as DateTime,
-                      scheduledEnd: c['scheduled_end'] as DateTime,
-                      venue: c['venue'] as String?,
-                      isPlusSlot: c['is_plus_slot'] as bool,
-                      labGroup: c['lab_group'] as String?,
-                      isCancelled: c['is_cancelled'] as bool,
-                      isMarked: c['is_marked'] as bool,
-                      onAttendanceChanged: (val) {
-                        setState(() {
-                          c['is_marked'] = val;
-                        });
-                      },
-                    );
-                  } else {
-                    classCard = ClassBlock_upcoming(
-                      classId: c['class_id'] as String,
-                      classRef: c['class_ref'] as String,
-                      courseId: c['course_id'] as String,
-                      batchId: c['batch_id'] as String,
-                      semesterId: c['semester_id'] as String,
-                      scheduledStart: c['scheduled_start'] as DateTime,
-                      scheduledEnd: c['scheduled_end'] as DateTime,
-                      venue: c['venue'] as String?,
-                      isPlusSlot: c['is_plus_slot'] as bool,
-                      labGroup: c['lab_group'] as String?,
-                      isCancelled: c['is_cancelled'] as bool,
-                    );
-                  }
+                final itemWidth = isWide
+                    ? (constraints.maxWidth - 16) / 2
+                    : constraints.maxWidth;
+                final listItems =
+                    (_isTodayTab ? _todayClasses : _upcomingClasses).map((c) {
+                      Widget classCard;
+                      if (_isTodayTab) {
+                        classCard = ClassBlock_primary(
+                          classId: c['class_id'] as String,
+                          classRef: c['class_ref'] as String,
+                          courseId: c['course_id'] as String,
+                          batchId: c['batch_id'] as String,
+                          semesterId: c['semester_id'] as String,
+                          scheduledStart: c['scheduled_start'] as DateTime,
+                          scheduledEnd: c['scheduled_end'] as DateTime,
+                          venue: c['venue'] as String?,
+                          isPlusSlot: c['is_plus_slot'] as bool,
+                          labGroup: c['lab_group'] as String?,
+                          isCancelled: c['is_cancelled'] as bool,
+                          isMarked: c['is_marked'] as bool,
+                          onAttendanceChanged: (val) {
+                            setState(() {
+                              c['is_marked'] = val;
+                            });
+                          },
+                        );
+                      } else {
+                        classCard = ClassBlock_upcoming(
+                          classId: c['class_id'] as String,
+                          classRef: c['class_ref'] as String,
+                          courseId: c['course_id'] as String,
+                          batchId: c['batch_id'] as String,
+                          semesterId: c['semester_id'] as String,
+                          scheduledStart: c['scheduled_start'] as DateTime,
+                          scheduledEnd: c['scheduled_end'] as DateTime,
+                          venue: c['venue'] as String?,
+                          isPlusSlot: c['is_plus_slot'] as bool,
+                          labGroup: c['lab_group'] as String?,
+                          isCancelled: c['is_cancelled'] as bool,
+                        );
+                      }
 
-                  return SizedBox(
-                    width: itemWidth,
-                    child: classCard,
-                  );
-                }).toList();
+                      return SizedBox(
+                        width: itemWidth,
+                        child: classCard,
+                      );
+                    }).toList();
 
                 if (isWide) {
                   return Wrap(
@@ -602,10 +659,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   );
                 } else {
                   return Column(
-                    children: listItems.map((child) => Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: child,
-                    )).toList(),
+                    children: listItems
+                        .map(
+                          (child) => Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: child,
+                          ),
+                        )
+                        .toList(),
                   );
                 }
               },
@@ -641,8 +702,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
             title == 'Timetable'
                 ? Icons.calendar_month
                 : title == 'Analytics'
-                    ? Icons.bar_chart
-                    : Icons.person,
+                ? Icons.bar_chart
+                : Icons.person,
             size: 64,
             color: const Color(0xFF94A3B8),
           ),
@@ -753,7 +814,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                   const SizedBox(height: 16),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.25),
                       borderRadius: BorderRadius.circular(12),
@@ -774,152 +838,222 @@ class _DashboardScreenState extends State<DashboardScreen> {
             const SizedBox(height: 16),
             // Dashboard Drawer Item
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-              child: ListTile(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                tileColor: _activeBottomTab == 0 ? const Color(0xFFE2F1FD) : null,
-                leading: HeroIcon(
-                  HeroIcons.home,
-                  color: _activeBottomTab == 0 ? const Color(0xFF6F61EF) : const Color(0xFF606A85),
-                  style: _activeBottomTab == 0 ? HeroIconStyle.solid : HeroIconStyle.outline,
-                ),
-                title: Text(
-                  'Dashboard',
-                  style: GoogleFonts.outfit(
-                    fontWeight: _activeBottomTab == 0 ? FontWeight.bold : FontWeight.w500,
-                    color: _activeBottomTab == 0 ? const Color(0xFF6F61EF) : const Color(0xFF15161E),
-                    fontSize: 15,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 4,
                   ),
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                  setState(() {
-                    _activeBottomTab = 0;
-                  });
-                },
-              ),
-            ).animate().fadeIn(delay: 50.ms, duration: 250.ms).slideX(begin: -0.1, end: 0, curve: Curves.easeOut),
+                  child: ListTile(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    tileColor: _activeBottomTab == 0
+                        ? const Color(0xFFE2F1FD)
+                        : null,
+                    leading: HeroIcon(
+                      HeroIcons.home,
+                      color: _activeBottomTab == 0
+                          ? const Color(0xFF6F61EF)
+                          : const Color(0xFF606A85),
+                      style: _activeBottomTab == 0
+                          ? HeroIconStyle.solid
+                          : HeroIconStyle.outline,
+                    ),
+                    title: Text(
+                      'Dashboard',
+                      style: GoogleFonts.outfit(
+                        fontWeight: _activeBottomTab == 0
+                            ? FontWeight.bold
+                            : FontWeight.w500,
+                        color: _activeBottomTab == 0
+                            ? const Color(0xFF6F61EF)
+                            : const Color(0xFF15161E),
+                        fontSize: 15,
+                      ),
+                    ),
+                    onTap: () {
+                      Navigator.pop(context);
+                      setState(() {
+                        _activeBottomTab = 0;
+                      });
+                    },
+                  ),
+                )
+                .animate()
+                .fadeIn(delay: 50.ms, duration: 250.ms)
+                .slideX(begin: -0.1, end: 0, curve: Curves.easeOut),
             // Timetable Drawer Item
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-              child: ListTile(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                tileColor: _activeBottomTab == 1 ? const Color(0xFFE2F1FD) : null,
-                leading: HeroIcon(
-                  HeroIcons.calendar,
-                  color: _activeBottomTab == 1 ? const Color(0xFF6F61EF) : const Color(0xFF606A85),
-                  style: _activeBottomTab == 1 ? HeroIconStyle.solid : HeroIconStyle.outline,
-                ),
-                title: Text(
-                  'Timetable',
-                  style: GoogleFonts.outfit(
-                    fontWeight: _activeBottomTab == 1 ? FontWeight.bold : FontWeight.w500,
-                    color: _activeBottomTab == 1 ? const Color(0xFF6F61EF) : const Color(0xFF15161E),
-                    fontSize: 15,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 4,
                   ),
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                  setState(() {
-                    _activeBottomTab = 1;
-                  });
-                },
-              ),
-            ).animate().fadeIn(delay: 100.ms, duration: 250.ms).slideX(begin: -0.1, end: 0, curve: Curves.easeOut),
+                  child: ListTile(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    tileColor: _activeBottomTab == 1
+                        ? const Color(0xFFE2F1FD)
+                        : null,
+                    leading: HeroIcon(
+                      HeroIcons.calendar,
+                      color: _activeBottomTab == 1
+                          ? const Color(0xFF6F61EF)
+                          : const Color(0xFF606A85),
+                      style: _activeBottomTab == 1
+                          ? HeroIconStyle.solid
+                          : HeroIconStyle.outline,
+                    ),
+                    title: Text(
+                      'Timetable',
+                      style: GoogleFonts.outfit(
+                        fontWeight: _activeBottomTab == 1
+                            ? FontWeight.bold
+                            : FontWeight.w500,
+                        color: _activeBottomTab == 1
+                            ? const Color(0xFF6F61EF)
+                            : const Color(0xFF15161E),
+                        fontSize: 15,
+                      ),
+                    ),
+                    onTap: () {
+                      Navigator.pop(context);
+                      setState(() {
+                        _activeBottomTab = 1;
+                      });
+                    },
+                  ),
+                )
+                .animate()
+                .fadeIn(delay: 100.ms, duration: 250.ms)
+                .slideX(begin: -0.1, end: 0, curve: Curves.easeOut),
             // Analytics Drawer Item
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-              child: ListTile(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                tileColor: _activeBottomTab == 2 ? const Color(0xFFE2F1FD) : null,
-                leading: HeroIcon(
-                  HeroIcons.chartBar,
-                  color: _activeBottomTab == 2 ? const Color(0xFF6F61EF) : const Color(0xFF606A85),
-                  style: _activeBottomTab == 2 ? HeroIconStyle.solid : HeroIconStyle.outline,
-                ),
-                title: Text(
-                  'Analytics',
-                  style: GoogleFonts.outfit(
-                    fontWeight: _activeBottomTab == 2 ? FontWeight.bold : FontWeight.w500,
-                    color: _activeBottomTab == 2 ? const Color(0xFF6F61EF) : const Color(0xFF15161E),
-                    fontSize: 15,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 4,
                   ),
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                  setState(() {
-                    _activeBottomTab = 2;
-                  });
-                },
-              ),
-            ).animate().fadeIn(delay: 150.ms, duration: 250.ms).slideX(begin: -0.1, end: 0, curve: Curves.easeOut),
+                  child: ListTile(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    tileColor: _activeBottomTab == 2
+                        ? const Color(0xFFE2F1FD)
+                        : null,
+                    leading: HeroIcon(
+                      HeroIcons.chartBar,
+                      color: _activeBottomTab == 2
+                          ? const Color(0xFF6F61EF)
+                          : const Color(0xFF606A85),
+                      style: _activeBottomTab == 2
+                          ? HeroIconStyle.solid
+                          : HeroIconStyle.outline,
+                    ),
+                    title: Text(
+                      'Analytics',
+                      style: GoogleFonts.outfit(
+                        fontWeight: _activeBottomTab == 2
+                            ? FontWeight.bold
+                            : FontWeight.w500,
+                        color: _activeBottomTab == 2
+                            ? const Color(0xFF6F61EF)
+                            : const Color(0xFF15161E),
+                        fontSize: 15,
+                      ),
+                    ),
+                    onTap: () {
+                      Navigator.pop(context);
+                      setState(() {
+                        _activeBottomTab = 2;
+                      });
+                    },
+                  ),
+                )
+                .animate()
+                .fadeIn(delay: 150.ms, duration: 250.ms)
+                .slideX(begin: -0.1, end: 0, curve: Curves.easeOut),
             // Profile Drawer Item
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-              child: ListTile(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                tileColor: _activeBottomTab == 3 ? const Color(0xFFE2F1FD) : null,
-                leading: HeroIcon(
-                  HeroIcons.user,
-                  color: _activeBottomTab == 3 ? const Color(0xFF6F61EF) : const Color(0xFF606A85),
-                  style: _activeBottomTab == 3 ? HeroIconStyle.solid : HeroIconStyle.outline,
-                ),
-                title: Text(
-                  'Profile',
-                  style: GoogleFonts.outfit(
-                    fontWeight: _activeBottomTab == 3 ? FontWeight.bold : FontWeight.w500,
-                    color: _activeBottomTab == 3 ? const Color(0xFF6F61EF) : const Color(0xFF15161E),
-                    fontSize: 15,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 4,
                   ),
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                  setState(() {
-                    _activeBottomTab = 3;
-                  });
-                },
-              ),
-            ).animate().fadeIn(delay: 200.ms, duration: 250.ms).slideX(begin: -0.1, end: 0, curve: Curves.easeOut),
+                  child: ListTile(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    tileColor: _activeBottomTab == 3
+                        ? const Color(0xFFE2F1FD)
+                        : null,
+                    leading: HeroIcon(
+                      HeroIcons.user,
+                      color: _activeBottomTab == 3
+                          ? const Color(0xFF6F61EF)
+                          : const Color(0xFF606A85),
+                      style: _activeBottomTab == 3
+                          ? HeroIconStyle.solid
+                          : HeroIconStyle.outline,
+                    ),
+                    title: Text(
+                      'Profile',
+                      style: GoogleFonts.outfit(
+                        fontWeight: _activeBottomTab == 3
+                            ? FontWeight.bold
+                            : FontWeight.w500,
+                        color: _activeBottomTab == 3
+                            ? const Color(0xFF6F61EF)
+                            : const Color(0xFF15161E),
+                        fontSize: 15,
+                      ),
+                    ),
+                    onTap: () {
+                      Navigator.pop(context);
+                      setState(() {
+                        _activeBottomTab = 3;
+                      });
+                    },
+                  ),
+                )
+                .animate()
+                .fadeIn(delay: 200.ms, duration: 250.ms)
+                .slideX(begin: -0.1, end: 0, curve: Curves.easeOut),
             const Spacer(),
             const Divider(),
             // Logout Drawer Item
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              child: ListTile(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                leading: const HeroIcon(
-                  HeroIcons.arrowLeftOnRectangle,
-                  color: Colors.red,
-                ),
-                title: Text(
-                  'Logout',
-                  style: GoogleFonts.outfit(
-                    color: Colors.red,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
                   ),
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                  unawaited(
-                    Navigator.of(context).pushNamedAndRemoveUntil(
-                      '/',
-                      (route) => false,
+                  child: ListTile(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                  );
-                },
-              ),
-            ).animate().fadeIn(delay: 250.ms, duration: 250.ms).slideX(begin: -0.1, end: 0, curve: Curves.easeOut),
+                    leading: const HeroIcon(
+                      HeroIcons.arrowLeftOnRectangle,
+                      color: Colors.red,
+                    ),
+                    title: Text(
+                      'Logout',
+                      style: GoogleFonts.outfit(
+                        color: Colors.red,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                      ),
+                    ),
+                    onTap: () {
+                      Navigator.pop(context);
+                      unawaited(
+                        Navigator.of(context).pushNamedAndRemoveUntil(
+                          '/',
+                          (route) => false,
+                        ),
+                      );
+                    },
+                  ),
+                )
+                .animate()
+                .fadeIn(delay: 250.ms, duration: 250.ms)
+                .slideX(begin: -0.1, end: 0, curve: Curves.easeOut),
             const SizedBox(height: 16),
           ],
         ),
@@ -949,10 +1083,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 child: _activeBottomTab == 0
                     ? _buildHomeView()
                     : _activeBottomTab == 1
-                        ? _buildPlaceholderView('Timetable')
-                        : _activeBottomTab == 2
-                            ? _buildPlaceholderView('Analytics')
-                            : _buildPlaceholderView('Profile'),
+                    ? _buildPlaceholderView('Timetable')
+                    : _activeBottomTab == 2
+                    ? _buildPlaceholderView('Analytics')
+                    : _buildPlaceholderView('Profile'),
               ),
             ),
           ),

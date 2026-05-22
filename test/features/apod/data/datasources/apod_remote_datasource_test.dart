@@ -45,29 +45,32 @@ void main() {
       expect(result.mediaType, 'image');
     });
 
-    test('fetchApod date parameter should be passed in queryParameters', () async {
-      when(
-        () => mockDio.get<Map<String, dynamic>>(
-          'apod',
-          queryParameters: any(named: 'queryParameters'),
-        ),
-      ).thenAnswer(
-        (_) async => Response(
-          data: ApodFixtures.imageResponse,
-          statusCode: 200,
-          requestOptions: RequestOptions(path: 'apod'),
-        ),
-      );
+    test(
+      'fetchApod date parameter should be passed in queryParameters',
+      () async {
+        when(
+          () => mockDio.get<Map<String, dynamic>>(
+            'apod',
+            queryParameters: any(named: 'queryParameters'),
+          ),
+        ).thenAnswer(
+          (_) async => Response(
+            data: ApodFixtures.imageResponse,
+            statusCode: 200,
+            requestOptions: RequestOptions(path: 'apod'),
+          ),
+        );
 
-      await datasource.fetchApod(date: '2024-10-24');
+        await datasource.fetchApod(date: '2024-10-24');
 
-      verify(
-        () => mockDio.get<Map<String, dynamic>>(
-          'apod',
-          queryParameters: {'date': '2024-10-24'},
-        ),
-      ).called(1);
-    });
+        verify(
+          () => mockDio.get<Map<String, dynamic>>(
+            'apod',
+            queryParameters: {'date': '2024-10-24'},
+          ),
+        ).called(1);
+      },
+    );
 
     test('fetchApodRange success should return List of ApodDto', () async {
       when(
@@ -159,42 +162,48 @@ void main() {
       );
     });
 
-    test('fetchApod should throw ApodTimeout on DioException timeout', () async {
-      when(
-        () => mockDio.get<Map<String, dynamic>>(
-          any(),
-          queryParameters: any(named: 'queryParameters'),
-        ),
-      ).thenThrow(
-        DioException(
-          requestOptions: RequestOptions(),
-          type: DioExceptionType.connectionTimeout,
-        ),
-      );
+    test(
+      'fetchApod should throw ApodTimeout on DioException timeout',
+      () async {
+        when(
+          () => mockDio.get<Map<String, dynamic>>(
+            any(),
+            queryParameters: any(named: 'queryParameters'),
+          ),
+        ).thenThrow(
+          DioException(
+            requestOptions: RequestOptions(),
+            type: DioExceptionType.connectionTimeout,
+          ),
+        );
 
-      expect(
-        () => datasource.fetchApod(),
-        throwsA(isA<ApodTimeout>()),
-      );
-    });
+        expect(
+          () => datasource.fetchApod(),
+          throwsA(isA<ApodTimeout>()),
+        );
+      },
+    );
 
-    test('fetchApod should throw ApodNoConnection on DioException connection error', () async {
-      when(
-        () => mockDio.get<Map<String, dynamic>>(
-          any(),
-          queryParameters: any(named: 'queryParameters'),
-        ),
-      ).thenThrow(
-        DioException(
-          requestOptions: RequestOptions(),
-          type: DioExceptionType.connectionError,
-        ),
-      );
+    test(
+      'fetchApod should throw ApodNoConnection on DioException connection error',
+      () async {
+        when(
+          () => mockDio.get<Map<String, dynamic>>(
+            any(),
+            queryParameters: any(named: 'queryParameters'),
+          ),
+        ).thenThrow(
+          DioException(
+            requestOptions: RequestOptions(),
+            type: DioExceptionType.connectionError,
+          ),
+        );
 
-      expect(
-        () => datasource.fetchApod(),
-        throwsA(isA<ApodNoConnection>()),
-      );
-    });
+        expect(
+          () => datasource.fetchApod(),
+          throwsA(isA<ApodNoConnection>()),
+        );
+      },
+    );
   });
 }

@@ -1,4 +1,3 @@
-// ignore_for_file: lines_longer_than_80_chars
 import 'dart:convert';
 import 'dart:io';
 
@@ -16,10 +15,15 @@ import 'package:mocktail/mocktail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MockApodRepository extends Mock implements ApodRepository {}
+
 class MockSharedPreferences extends Mock implements SharedPreferences {}
+
 class MockHttpClient extends Mock implements HttpClient {}
+
 class MockHttpClientRequest extends Mock implements HttpClientRequest {}
+
 class MockHttpClientResponse extends Mock implements HttpClientResponse {}
+
 class MockHttpHeaders extends Mock implements HttpHeaders {}
 
 class _TestHttpOverrides extends HttpOverrides {
@@ -33,7 +37,8 @@ class _TestHttpOverrides extends HttpOverrides {
 const ApodEntry _imageEntry = ApodEntry(
   date: '2026-05-21',
   title: 'A Stunning Cosmic Pillar',
-  explanation: 'This entry has a perfectly ordinary explanation that renders cleanly.',
+  explanation:
+      'This entry has a perfectly ordinary explanation that renders cleanly.',
   url: 'https://apod.nasa.gov/apod/image/2605/pillar.jpg',
   hdurl: 'https://apod.nasa.gov/apod/image/2605/pillar_hd.jpg',
   mediaType: 'image',
@@ -77,20 +82,30 @@ void main() {
       'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
     );
 
-    when(() => mockHttpClient.getUrl(any())).thenAnswer((_) async => mockHttpClientRequest);
+    when(
+      () => mockHttpClient.getUrl(any()),
+    ).thenAnswer((_) async => mockHttpClientRequest);
     when(() => mockHttpClientRequest.headers).thenReturn(mockHttpHeaders);
-    when(() => mockHttpClientRequest.close()).thenAnswer((_) async => mockHttpClientResponse);
+    when(
+      () => mockHttpClientRequest.close(),
+    ).thenAnswer((_) async => mockHttpClientResponse);
     when(() => mockHttpClientResponse.statusCode).thenReturn(200);
-    when(() => mockHttpClientResponse.contentLength).thenReturn(transparentPng.length);
-    when(() => mockHttpClientResponse.listen(
-          any(),
-          cancelOnError: any(named: 'cancelOnError'),
-          onDone: any(named: 'onDone'),
-          onError: any(named: 'onError'),
-        )).thenAnswer((inv) {
+    when(
+      () => mockHttpClientResponse.contentLength,
+    ).thenReturn(transparentPng.length);
+    when(
+      () => mockHttpClientResponse.listen(
+        any(),
+        cancelOnError: any(named: 'cancelOnError'),
+        onDone: any(named: 'onDone'),
+        onError: any(named: 'onError'),
+      ),
+    ).thenAnswer((inv) {
       final onData = inv.positionalArguments[0] as void Function(List<int>);
       final onDone = inv.namedArguments[#onDone] as void Function()?;
-      return Stream<List<int>>.fromIterable([transparentPng]).listen(onData, onDone: onDone);
+      return Stream<List<int>>.fromIterable([
+        transparentPng,
+      ]).listen(onData, onDone: onDone);
     });
 
     HttpOverrides.global = _TestHttpOverrides(mockHttpClient);
@@ -105,14 +120,21 @@ void main() {
     MockApodRepository? repo,
   }) {
     final mockRepo = repo ?? MockApodRepository();
-    when(() => mockRepo.getCachedApod(any()))
-        .thenAnswer((_) async => const Success<ApodEntry?>(null));
-    when(() => mockRepo.getApodForDate(any(), forceRefresh: any(named: 'forceRefresh')))
-        .thenAnswer((_) async => Success(entry));
+    when(
+      () => mockRepo.getCachedApod(any()),
+    ).thenAnswer((_) async => const Success<ApodEntry?>(null));
+    when(
+      () => mockRepo.getApodForDate(
+        any(),
+        forceRefresh: any(named: 'forceRefresh'),
+      ),
+    ).thenAnswer((_) async => Success(entry));
 
     final mockPrefs = MockSharedPreferences();
     when(() => mockPrefs.getStringList(any())).thenReturn(null);
-    when(() => mockPrefs.setStringList(any(), any())).thenAnswer((_) async => true);
+    when(
+      () => mockPrefs.setStringList(any(), any()),
+    ).thenAnswer((_) async => true);
     when(() => mockPrefs.remove(any())).thenAnswer((_) async => true);
 
     return ProviderScope(
@@ -139,7 +161,7 @@ void main() {
   // ─────────────────────────────────────────────────────────────────────────
   group('Serialization Regression Tests', () {
     test('ApodDto.fromJson round-trips through toJson without data loss', () {
-      final original = ApodDto(
+      const original = ApodDto(
         date: '2026-05-21',
         title: 'Test Title',
         explanation: 'Test explanation.',
@@ -230,18 +252,18 @@ void main() {
   // ─────────────────────────────────────────────────────────────────────────
   group('Provider State Transition Regression Tests', () {
     test('ApodSuccess state carries the correct entry', () {
-      final state = ApodSuccess(_imageEntry);
+      const state = ApodSuccess(_imageEntry);
       expect(state.entry, equals(_imageEntry));
       expect(state.isRefreshing, isFalse);
     });
 
     test('ApodCached state defaults isRefreshing to false', () {
-      final state = ApodCached(_imageEntry);
+      const state = ApodCached(_imageEntry);
       expect(state.isRefreshing, isFalse);
     });
 
     test('ApodOfflineFallback state carries entry with isRefreshing flag', () {
-      final state = ApodOfflineFallback(_imageEntry, isRefreshing: true);
+      const state = ApodOfflineFallback(_imageEntry, isRefreshing: true);
       expect(state.entry, equals(_imageEntry));
       expect(state.isRefreshing, isTrue);
     });
@@ -264,7 +286,11 @@ void main() {
         const ApodUnknownFailure(),
       ];
       for (final f in failures) {
-        expect(f.message.isNotEmpty, isTrue, reason: '${f.runtimeType} has empty message');
+        expect(
+          f.message.isNotEmpty,
+          isTrue,
+          reason: '${f.runtimeType} has empty message',
+        );
       }
     });
   });
@@ -273,7 +299,9 @@ void main() {
   // GROUP 3: Layout Overflow Regression (Widget tests)
   // ─────────────────────────────────────────────────────────────────────────
   group('Layout Overflow Regression Tests', () {
-    testWidgets('No overflow with standard entry on mobile at 1x scale', (tester) async {
+    testWidgets('No overflow with standard entry on mobile at 1x scale', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() {
@@ -286,7 +314,9 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('No overflow with entry missing all optional fields', (tester) async {
+    testWidgets('No overflow with entry missing all optional fields', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() {
@@ -299,7 +329,9 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('No overflow with extremely long explanation text', (tester) async {
+    testWidgets('No overflow with extremely long explanation text', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() {
@@ -333,7 +365,9 @@ void main() {
         tester.view.resetDevicePixelRatio();
       });
 
-      await tester.pumpWidget(buildPage(entry: _imageEntry, size: const Size(320, 568)));
+      await tester.pumpWidget(
+        buildPage(entry: _imageEntry, size: const Size(320, 568)),
+      );
       await tester.pump(const Duration(milliseconds: 600));
       expect(tester.takeException(), isNull);
     });
@@ -346,7 +380,9 @@ void main() {
         tester.view.resetDevicePixelRatio();
       });
 
-      await tester.pumpWidget(buildPage(entry: _imageEntry, size: const Size(1024, 768)));
+      await tester.pumpWidget(
+        buildPage(entry: _imageEntry, size: const Size(1024, 768)),
+      );
       await tester.pump(const Duration(milliseconds: 600));
       expect(tester.takeException(), isNull);
     });
@@ -356,7 +392,9 @@ void main() {
   // GROUP 4: Theme Regression
   // ─────────────────────────────────────────────────────────────────────────
   group('Theme Regression Tests', () {
-    testWidgets('Detail page renders in dark theme without errors', (tester) async {
+    testWidgets('Detail page renders in dark theme without errors', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() {
@@ -365,14 +403,21 @@ void main() {
       });
 
       final mockRepo = MockApodRepository();
-      when(() => mockRepo.getCachedApod(any()))
-          .thenAnswer((_) async => const Success<ApodEntry?>(null));
-      when(() => mockRepo.getApodForDate(any(), forceRefresh: any(named: 'forceRefresh')))
-          .thenAnswer((_) async => const Success(_imageEntry));
+      when(
+        () => mockRepo.getCachedApod(any()),
+      ).thenAnswer((_) async => const Success<ApodEntry?>(null));
+      when(
+        () => mockRepo.getApodForDate(
+          any(),
+          forceRefresh: any(named: 'forceRefresh'),
+        ),
+      ).thenAnswer((_) async => const Success(_imageEntry));
 
       final mockPrefs = MockSharedPreferences();
       when(() => mockPrefs.getStringList(any())).thenReturn(null);
-      when(() => mockPrefs.setStringList(any(), any())).thenAnswer((_) async => true);
+      when(
+        () => mockPrefs.setStringList(any(), any()),
+      ).thenAnswer((_) async => true);
       when(() => mockPrefs.remove(any())).thenAnswer((_) async => true);
 
       await tester.pumpWidget(
@@ -393,7 +438,9 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('Detail page renders in light theme without errors', (tester) async {
+    testWidgets('Detail page renders in light theme without errors', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() {
@@ -402,14 +449,21 @@ void main() {
       });
 
       final mockRepo = MockApodRepository();
-      when(() => mockRepo.getCachedApod(any()))
-          .thenAnswer((_) async => const Success<ApodEntry?>(null));
-      when(() => mockRepo.getApodForDate(any(), forceRefresh: any(named: 'forceRefresh')))
-          .thenAnswer((_) async => const Success(_imageEntry));
+      when(
+        () => mockRepo.getCachedApod(any()),
+      ).thenAnswer((_) async => const Success<ApodEntry?>(null));
+      when(
+        () => mockRepo.getApodForDate(
+          any(),
+          forceRefresh: any(named: 'forceRefresh'),
+        ),
+      ).thenAnswer((_) async => const Success(_imageEntry));
 
       final mockPrefs = MockSharedPreferences();
       when(() => mockPrefs.getStringList(any())).thenReturn(null);
-      when(() => mockPrefs.setStringList(any(), any())).thenAnswer((_) async => true);
+      when(
+        () => mockPrefs.setStringList(any(), any()),
+      ).thenAnswer((_) async => true);
       when(() => mockPrefs.remove(any())).thenAnswer((_) async => true);
 
       await tester.pumpWidget(
@@ -443,14 +497,21 @@ void main() {
       });
 
       final mockRepo = MockApodRepository();
-      when(() => mockRepo.getCachedApod(any()))
-          .thenAnswer((_) async => const Success<ApodEntry?>(null));
-      when(() => mockRepo.getApodForDate(any(), forceRefresh: any(named: 'forceRefresh')))
-          .thenAnswer((_) async => const Success(_imageEntry));
+      when(
+        () => mockRepo.getCachedApod(any()),
+      ).thenAnswer((_) async => const Success<ApodEntry?>(null));
+      when(
+        () => mockRepo.getApodForDate(
+          any(),
+          forceRefresh: any(named: 'forceRefresh'),
+        ),
+      ).thenAnswer((_) async => const Success(_imageEntry));
 
       final mockPrefs = MockSharedPreferences();
       when(() => mockPrefs.getStringList(any())).thenReturn(null);
-      when(() => mockPrefs.setStringList(any(), any())).thenAnswer((_) async => true);
+      when(
+        () => mockPrefs.setStringList(any(), any()),
+      ).thenAnswer((_) async => true);
       when(() => mockPrefs.remove(any())).thenAnswer((_) async => true);
 
       await tester.pumpWidget(
@@ -462,7 +523,8 @@ void main() {
           child: MaterialApp(
             home: const Scaffold(body: Text('Home')),
             routes: {
-              ApodDetailPage.routeName: (_) => const ApodDetailPage(entry: _imageEntry),
+              ApodDetailPage.routeName: (_) =>
+                  const ApodDetailPage(entry: _imageEntry),
             },
           ),
         ),
@@ -477,12 +539,14 @@ void main() {
           child: MaterialApp(
             home: Builder(
               builder: (ctx) => ElevatedButton(
-                onPressed: () => Navigator.of(ctx).pushNamed(ApodDetailPage.routeName),
+                onPressed: () =>
+                    Navigator.of(ctx).pushNamed(ApodDetailPage.routeName),
                 child: const Text('Open'),
               ),
             ),
             routes: {
-              ApodDetailPage.routeName: (_) => const ApodDetailPage(entry: _imageEntry),
+              ApodDetailPage.routeName: (_) =>
+                  const ApodDetailPage(entry: _imageEntry),
             },
           ),
         ),
@@ -492,13 +556,19 @@ void main() {
       // Use bounded pumps instead of pumpAndSettle to avoid timeout from
       // ongoing Skeletonizer shimmer / flutter_animate looping animations.
       await tester.pump(); // start navigation
-      await tester.pump(const Duration(milliseconds: 350)); // finish route transition
-      await tester.pump(const Duration(milliseconds: 600)); // settle page render
+      await tester.pump(
+        const Duration(milliseconds: 350),
+      ); // finish route transition
+      await tester.pump(
+        const Duration(milliseconds: 600),
+      ); // settle page render
       expect(find.byType(ApodDetailPage), findsOneWidget);
 
       await tester.tap(find.byKey(const Key('apod_detail_back_btn')));
       await tester.pump(); // start pop
-      await tester.pump(const Duration(milliseconds: 500)); // finish pop transition
+      await tester.pump(
+        const Duration(milliseconds: 500),
+      ); // finish pop transition
       await tester.pump(); // final frame
       expect(find.byType(ApodDetailPage), findsNothing);
     });
