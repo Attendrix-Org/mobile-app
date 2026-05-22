@@ -27,6 +27,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MockApodRepository extends Mock implements ApodRepository {}
+
 class MockSharedPreferences extends Mock implements SharedPreferences {}
 
 const _today = ApodEntry(
@@ -86,7 +87,9 @@ void main() {
     mockPrefs = MockSharedPreferences();
 
     when(() => mockPrefs.getStringList(any())).thenReturn(null);
-    when(() => mockPrefs.setStringList(any(), any())).thenAnswer((_) async => true);
+    when(
+      () => mockPrefs.setStringList(any(), any()),
+    ).thenAnswer((_) async => true);
     when(() => mockPrefs.remove(any())).thenAnswer((_) async => true);
     when(() => mockPrefs.getString(any())).thenReturn(null);
     when(() => mockPrefs.setString(any(), any())).thenAnswer((_) async => true);
@@ -95,13 +98,22 @@ void main() {
   // ─────────────────────────────────────────────────────────────────────────
   // TEST 1: Successful APOD retrieval renders entry
   // ─────────────────────────────────────────────────────────────────────────
-  testWidgets("Integration: App launch fetches and renders today's APOD", (tester) async {
-    when(() => mockRepo.getCachedApod(any()))
-        .thenAnswer((_) async => const Success<ApodEntry?>(null));
-    when(() => mockRepo.getApodForDate(any(), forceRefresh: any(named: 'forceRefresh')))
-        .thenAnswer((_) async => const Success(_today));
+  testWidgets("Integration: App launch fetches and renders today's APOD", (
+    tester,
+  ) async {
+    when(
+      () => mockRepo.getCachedApod(any()),
+    ).thenAnswer((_) async => const Success<ApodEntry?>(null));
+    when(
+      () => mockRepo.getApodForDate(
+        any(),
+        forceRefresh: any(named: 'forceRefresh'),
+      ),
+    ).thenAnswer((_) async => const Success(_today));
 
-    await tester.pumpWidget(_buildTestApp(mockRepo: mockRepo, mockPrefs: mockPrefs));
+    await tester.pumpWidget(
+      _buildTestApp(mockRepo: mockRepo, mockPrefs: mockPrefs),
+    );
     await tester.pumpAndSettle(const Duration(seconds: 5));
 
     expect(find.text('Galaxy Collision'), findsOneWidget);
@@ -111,16 +123,25 @@ void main() {
   // ─────────────────────────────────────────────────────────────────────────
   // TEST 2: Cache-first startup shows cached entry before network response
   // ─────────────────────────────────────────────────────────────────────────
-  testWidgets('Integration: Cached entry displays before network response', (tester) async {
-    when(() => mockRepo.getCachedApod(any()))
-        .thenAnswer((_) async => const Success<ApodEntry?>(_today));
-    when(() => mockRepo.getApodForDate(any(), forceRefresh: any(named: 'forceRefresh')))
-        .thenAnswer((_) async {
+  testWidgets('Integration: Cached entry displays before network response', (
+    tester,
+  ) async {
+    when(
+      () => mockRepo.getCachedApod(any()),
+    ).thenAnswer((_) async => const Success<ApodEntry?>(_today));
+    when(
+      () => mockRepo.getApodForDate(
+        any(),
+        forceRefresh: any(named: 'forceRefresh'),
+      ),
+    ).thenAnswer((_) async {
       await Future<void>.delayed(const Duration(seconds: 10));
       return const Success(_today);
     });
 
-    await tester.pumpWidget(_buildTestApp(mockRepo: mockRepo, mockPrefs: mockPrefs));
+    await tester.pumpWidget(
+      _buildTestApp(mockRepo: mockRepo, mockPrefs: mockPrefs),
+    );
     await tester.pump(const Duration(milliseconds: 500));
 
     expect(find.text('Galaxy Collision'), findsOneWidget);
@@ -129,13 +150,22 @@ void main() {
   // ─────────────────────────────────────────────────────────────────────────
   // TEST 3: Offline fallback shows cached data with offline banner
   // ─────────────────────────────────────────────────────────────────────────
-  testWidgets('Integration: Offline startup shows cached entry with banner', (tester) async {
-    when(() => mockRepo.getCachedApod(any()))
-        .thenAnswer((_) async => const Success<ApodEntry?>(_today));
-    when(() => mockRepo.getApodForDate(any(), forceRefresh: any(named: 'forceRefresh')))
-        .thenAnswer((_) async => const Failure(ApodNoConnection()));
+  testWidgets('Integration: Offline startup shows cached entry with banner', (
+    tester,
+  ) async {
+    when(
+      () => mockRepo.getCachedApod(any()),
+    ).thenAnswer((_) async => const Success<ApodEntry?>(_today));
+    when(
+      () => mockRepo.getApodForDate(
+        any(),
+        forceRefresh: any(named: 'forceRefresh'),
+      ),
+    ).thenAnswer((_) async => const Failure(ApodNoConnection()));
 
-    await tester.pumpWidget(_buildTestApp(mockRepo: mockRepo, mockPrefs: mockPrefs));
+    await tester.pumpWidget(
+      _buildTestApp(mockRepo: mockRepo, mockPrefs: mockPrefs),
+    );
     await tester.pumpAndSettle(const Duration(seconds: 5));
 
     expect(find.text('Galaxy Collision'), findsOneWidget);
@@ -145,13 +175,22 @@ void main() {
   // ─────────────────────────────────────────────────────────────────────────
   // TEST 4: Error state shows "Lost in Space" when no cache available
   // ─────────────────────────────────────────────────────────────────────────
-  testWidgets('Integration: Network error with empty cache shows error state', (tester) async {
-    when(() => mockRepo.getCachedApod(any()))
-        .thenAnswer((_) async => const Success<ApodEntry?>(null));
-    when(() => mockRepo.getApodForDate(any(), forceRefresh: any(named: 'forceRefresh')))
-        .thenAnswer((_) async => const Failure(ApodNoConnection()));
+  testWidgets('Integration: Network error with empty cache shows error state', (
+    tester,
+  ) async {
+    when(
+      () => mockRepo.getCachedApod(any()),
+    ).thenAnswer((_) async => const Success<ApodEntry?>(null));
+    when(
+      () => mockRepo.getApodForDate(
+        any(),
+        forceRefresh: any(named: 'forceRefresh'),
+      ),
+    ).thenAnswer((_) async => const Failure(ApodNoConnection()));
 
-    await tester.pumpWidget(_buildTestApp(mockRepo: mockRepo, mockPrefs: mockPrefs));
+    await tester.pumpWidget(
+      _buildTestApp(mockRepo: mockRepo, mockPrefs: mockPrefs),
+    );
     await tester.pumpAndSettle(const Duration(seconds: 5));
 
     expect(find.text('Lost in Space'), findsOneWidget);
@@ -160,18 +199,27 @@ void main() {
   // ─────────────────────────────────────────────────────────────────────────
   // TEST 5: Prev/Next day navigation loads different entries
   // ─────────────────────────────────────────────────────────────────────────
-  testWidgets('Integration: Previous day navigation loads previous APOD', (tester) async {
-    when(() => mockRepo.getCachedApod(any()))
-        .thenAnswer((_) async => const Success<ApodEntry?>(null));
-    when(() => mockRepo.getApodForDate(any(), forceRefresh: any(named: 'forceRefresh')))
-        .thenAnswer((inv) async {
+  testWidgets('Integration: Previous day navigation loads previous APOD', (
+    tester,
+  ) async {
+    when(
+      () => mockRepo.getCachedApod(any()),
+    ).thenAnswer((_) async => const Success<ApodEntry?>(null));
+    when(
+      () => mockRepo.getApodForDate(
+        any(),
+        forceRefresh: any(named: 'forceRefresh'),
+      ),
+    ).thenAnswer((inv) async {
       final date = inv.positionalArguments[0] as DateTime;
       if (date.day == 21) return const Success(_today);
       if (date.day == 20) return const Success(_yesterday);
       return const Failure(ApodNoConnection());
     });
 
-    await tester.pumpWidget(_buildTestApp(mockRepo: mockRepo, mockPrefs: mockPrefs));
+    await tester.pumpWidget(
+      _buildTestApp(mockRepo: mockRepo, mockPrefs: mockPrefs),
+    );
     await tester.pumpAndSettle(const Duration(seconds: 5));
 
     expect(find.text('Galaxy Collision'), findsOneWidget);
@@ -187,13 +235,22 @@ void main() {
   // ─────────────────────────────────────────────────────────────────────────
   // TEST 6: HD image viewer opens and closes correctly
   // ─────────────────────────────────────────────────────────────────────────
-  testWidgets('Integration: Open HD viewer via action bar and navigate back', (tester) async {
-    when(() => mockRepo.getCachedApod(any()))
-        .thenAnswer((_) async => const Success<ApodEntry?>(null));
-    when(() => mockRepo.getApodForDate(any(), forceRefresh: any(named: 'forceRefresh')))
-        .thenAnswer((_) async => const Success(_today));
+  testWidgets('Integration: Open HD viewer via action bar and navigate back', (
+    tester,
+  ) async {
+    when(
+      () => mockRepo.getCachedApod(any()),
+    ).thenAnswer((_) async => const Success<ApodEntry?>(null));
+    when(
+      () => mockRepo.getApodForDate(
+        any(),
+        forceRefresh: any(named: 'forceRefresh'),
+      ),
+    ).thenAnswer((_) async => const Success(_today));
 
-    await tester.pumpWidget(_buildTestApp(mockRepo: mockRepo, mockPrefs: mockPrefs));
+    await tester.pumpWidget(
+      _buildTestApp(mockRepo: mockRepo, mockPrefs: mockPrefs),
+    );
     await tester.pumpAndSettle(const Duration(seconds: 5));
 
     await tester.scrollUntilVisible(
@@ -217,15 +274,24 @@ void main() {
   // ─────────────────────────────────────────────────────────────────────────
   // TEST 7: History page navigates and renders
   // ─────────────────────────────────────────────────────────────────────────
-  testWidgets('Integration: History page renders after navigation', (tester) async {
-    when(() => mockRepo.getCachedApod(any()))
-        .thenAnswer((_) async => const Success<ApodEntry?>(null));
-    when(() => mockRepo.getApodForDate(any(), forceRefresh: any(named: 'forceRefresh')))
-        .thenAnswer((_) async => const Success(_today));
-    when(() => mockRepo.getApodRange(
-          startDate: any(named: 'startDate'),
-          endDate: any(named: 'endDate'),
-        )).thenAnswer((_) async => const Success([]));
+  testWidgets('Integration: History page renders after navigation', (
+    tester,
+  ) async {
+    when(
+      () => mockRepo.getCachedApod(any()),
+    ).thenAnswer((_) async => const Success<ApodEntry?>(null));
+    when(
+      () => mockRepo.getApodForDate(
+        any(),
+        forceRefresh: any(named: 'forceRefresh'),
+      ),
+    ).thenAnswer((_) async => const Success(_today));
+    when(
+      () => mockRepo.getApodRange(
+        startDate: any(named: 'startDate'),
+        endDate: any(named: 'endDate'),
+      ),
+    ).thenAnswer((_) async => const Success([]));
 
     await tester.pumpWidget(
       ProviderScope(

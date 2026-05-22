@@ -27,6 +27,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MockApodRepository extends Mock implements ApodRepository {}
+
 class MockSharedPreferences extends Mock implements SharedPreferences {}
 
 /// Generates N synthetic APOD entries for history scroll benchmarks.
@@ -54,7 +55,8 @@ const _singleEntry = ApodEntry(
 );
 
 void main() {
-  final WidgetsBinding binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  final WidgetsBinding binding =
+      IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   late MockApodRepository mockRepo;
   late MockSharedPreferences mockPrefs;
@@ -65,14 +67,21 @@ void main() {
     mockPrefs = MockSharedPreferences();
 
     when(() => mockPrefs.getStringList(any())).thenReturn(null);
-    when(() => mockPrefs.setStringList(any(), any())).thenAnswer((_) async => true);
+    when(
+      () => mockPrefs.setStringList(any(), any()),
+    ).thenAnswer((_) async => true);
     when(() => mockPrefs.remove(any())).thenAnswer((_) async => true);
     when(() => mockPrefs.getString(any())).thenReturn(null);
     when(() => mockPrefs.setString(any(), any())).thenAnswer((_) async => true);
-    when(() => mockRepo.getCachedApod(any()))
-        .thenAnswer((_) async => const Success<ApodEntry?>(null));
-    when(() => mockRepo.getApodForDate(any(), forceRefresh: any(named: 'forceRefresh')))
-        .thenAnswer((_) async => const Success(_singleEntry));
+    when(
+      () => mockRepo.getCachedApod(any()),
+    ).thenAnswer((_) async => const Success<ApodEntry?>(null));
+    when(
+      () => mockRepo.getApodForDate(
+        any(),
+        forceRefresh: any(named: 'forceRefresh'),
+      ),
+    ).thenAnswer((_) async => const Success(_singleEntry));
   });
 
   Widget buildDetailPage() {
@@ -90,7 +99,9 @@ void main() {
   // ─────────────────────────────────────────────────────────────────────────
   // BENCHMARK 1: Detail page initial render performance
   // ─────────────────────────────────────────────────────────────────────────
-  testWidgets('Perf: Detail page renders within 5 seconds of pump', (tester) async {
+  testWidgets('Perf: Detail page renders within 5 seconds of pump', (
+    tester,
+  ) async {
     final stopwatch = Stopwatch()..start();
 
     await tester.pumpWidget(buildDetailPage());
@@ -102,7 +113,8 @@ void main() {
     expect(
       stopwatch.elapsedMilliseconds,
       lessThan(5000),
-      reason: 'Detail page must settle in < 5s (actual: ${stopwatch.elapsedMilliseconds}ms)',
+      reason:
+          'Detail page must settle in < 5s (actual: ${stopwatch.elapsedMilliseconds}ms)',
     );
   });
 
@@ -130,7 +142,8 @@ void main() {
     expect(
       writeStopwatch.elapsedMilliseconds,
       lessThan(50),
-      reason: 'Cache write must be < 50ms (actual: ${writeStopwatch.elapsedMilliseconds}ms)',
+      reason:
+          'Cache write must be < 50ms (actual: ${writeStopwatch.elapsedMilliseconds}ms)',
     );
 
     // Benchmark synchronous read
@@ -143,7 +156,8 @@ void main() {
     expect(
       readStopwatch.elapsedMilliseconds,
       lessThan(5),
-      reason: 'Cache read must be < 5ms (actual: ${readStopwatch.elapsedMilliseconds}ms)',
+      reason:
+          'Cache read must be < 5ms (actual: ${readStopwatch.elapsedMilliseconds}ms)',
     );
   });
 
@@ -164,7 +178,8 @@ void main() {
       await datasource.cacheApodForDate(
         date,
         ApodDto(
-          date: '$year-${month.toString().padLeft(2, '0')}-${day.toString().padLeft(2, '0')}',
+          date:
+              '$year-${month.toString().padLeft(2, '0')}-${day.toString().padLeft(2, '0')}',
           title: 'Entry $i',
           explanation: 'Explanation $i',
           mediaType: 'image',
@@ -177,7 +192,8 @@ void main() {
     expect(
       stopwatch.elapsedMilliseconds,
       lessThan(2000),
-      reason: '50 LRU writes must be < 2s (actual: ${stopwatch.elapsedMilliseconds}ms)',
+      reason:
+          '50 LRU writes must be < 2s (actual: ${stopwatch.elapsedMilliseconds}ms)',
     );
 
     // Eviction should keep count at or below maxHistoricalEntries
@@ -188,35 +204,49 @@ void main() {
   // ─────────────────────────────────────────────────────────────────────────
   // BENCHMARK 4: History page scroll with 50 items
   // ─────────────────────────────────────────────────────────────────────────
-  testWidgets('Perf: History page scroll through 50 entries without jank', (tester) async {
+  testWidgets('Perf: History page scroll through 50 entries without jank', (
+    tester,
+  ) async {
     final entries = _generateEntries(50);
 
     final prefsStub = MockSharedPreferences();
-    when(() => prefsStub.getStringList('apod_viewed_dates'))
-        .thenReturn(entries.map((e) => e.date).toList());
+    when(
+      () => prefsStub.getStringList('apod_viewed_dates'),
+    ).thenReturn(entries.map((e) => e.date).toList());
     when(() => prefsStub.getStringList(any())).thenReturn(null);
-    when(() => prefsStub.setStringList(any(), any())).thenAnswer((_) async => true);
+    when(
+      () => prefsStub.setStringList(any(), any()),
+    ).thenAnswer((_) async => true);
     when(() => prefsStub.remove(any())).thenAnswer((_) async => true);
     when(() => prefsStub.getString(any())).thenReturn(null);
     when(() => prefsStub.setString(any(), any())).thenAnswer((_) async => true);
 
     final repoStub = MockApodRepository();
-    when(() => repoStub.getCachedApod(any()))
-        .thenAnswer((_) async => const Success<ApodEntry?>(null));
-    when(() => repoStub.getApodForDate(any(), forceRefresh: any(named: 'forceRefresh')))
-        .thenAnswer((inv) async {
+    when(
+      () => repoStub.getCachedApod(any()),
+    ).thenAnswer((_) async => const Success<ApodEntry?>(null));
+    when(
+      () => repoStub.getApodForDate(
+        any(),
+        forceRefresh: any(named: 'forceRefresh'),
+      ),
+    ).thenAnswer((inv) async {
       final date = inv.positionalArguments[0] as DateTime;
       final found = entries.where((e) {
         final d = DateTime.parse(e.date);
-        return d.year == date.year && d.month == date.month && d.day == date.day;
+        return d.year == date.year &&
+            d.month == date.month &&
+            d.day == date.day;
       });
       if (found.isNotEmpty) return Success(found.first);
       return const Failure(ApodNoConnection());
     });
-    when(() => repoStub.getApodRange(
-          startDate: any(named: 'startDate'),
-          endDate: any(named: 'endDate'),
-        )).thenAnswer((_) async => Success(entries));
+    when(
+      () => repoStub.getApodRange(
+        startDate: any(named: 'startDate'),
+        endDate: any(named: 'endDate'),
+      ),
+    ).thenAnswer((_) async => Success(entries));
 
     await tester.pumpWidget(
       ProviderScope(
@@ -261,7 +291,9 @@ void main() {
   // ─────────────────────────────────────────────────────────────────────────
   // BENCHMARK 5: Provider rebuild count validation
   // ─────────────────────────────────────────────────────────────────────────
-  testWidgets('Perf: Idle pump does not trigger excessive root rebuilds', (tester) async {
+  testWidgets('Perf: Idle pump does not trigger excessive root rebuilds', (
+    tester,
+  ) async {
     var buildCount = 0;
 
     await tester.pumpWidget(
@@ -290,7 +322,8 @@ void main() {
     expect(
       afterIdleCount - initialCount,
       lessThanOrEqualTo(2),
-      reason: 'Idle pump triggered ${afterIdleCount - initialCount} extra rebuilds',
+      reason:
+          'Idle pump triggered ${afterIdleCount - initialCount} extra rebuilds',
     );
   });
 }

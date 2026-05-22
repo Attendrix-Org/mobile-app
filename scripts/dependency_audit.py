@@ -38,7 +38,10 @@ def run_flutter_outdated():
             print(f"  [WARN] flutter pub outdated exited with {result.returncode}")
             print(result.stderr[:500])
             return None
-        return json.loads(result.stdout)
+        stdout = result.stdout
+        if "{" in stdout:
+            stdout = stdout[stdout.index("{"):]
+        return json.loads(stdout)
     except (subprocess.TimeoutExpired, json.JSONDecodeError, FileNotFoundError) as e:
         print(f"  [ERROR] Failed to run flutter pub outdated: {e}")
         return None
@@ -50,10 +53,18 @@ def extract_major_upgrades(outdated_data):
     if not outdated_data:
         return upgrades
     for pkg in outdated_data.get("packages", []):
+        if not pkg:
+            continue
         name = pkg.get("package", "")
-        current = pkg.get("current", {}).get("version") or ""
-        upgradable = pkg.get("upgradable", {}).get("version") or ""
-        resolvable = pkg.get("resolvable", {}).get("version") or ""
+        
+        current_obj = pkg.get("current")
+        current = (current_obj.get("version") if isinstance(current_obj, dict) else None) or ""
+        
+        upgradable_obj = pkg.get("upgradable")
+        upgradable = (upgradable_obj.get("version") if isinstance(upgradable_obj, dict) else None) or ""
+        
+        resolvable_obj = pkg.get("resolvable")
+        resolvable = (resolvable_obj.get("version") if isinstance(resolvable_obj, dict) else None) or ""
 
         # Determine if there is a major version jump
         best_version = resolvable or upgradable
