@@ -12,7 +12,12 @@
           "package_name": "com.attendrix.app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "1058303346843-c8enfku55d52dvdt4brufeudfsk71pll.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyB7kVGAE8wWISKt8I9SCBhtn2BSmfVB1sU"
@@ -20,7 +25,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1058303346843-c8enfku55d52dvdt4brufeudfsk71pll.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1058303346843-batdjkk968h52gk117bpbhhcl1oqgejj.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.attendrix.app"
+              }
+            }
+          ]
         }
       }
     }
