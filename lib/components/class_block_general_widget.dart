@@ -1,0 +1,255 @@
+import '/backend/schema/structs/index.dart';
+import '/cards/calender_dropdown/calender_dropdown_widget.dart';
+import '/flutter_flow/flutter_flow_theme.dart';
+import '/flutter_flow/flutter_flow_util.dart';
+import '/modals/mark_absent_dialog/mark_absent_dialog_widget.dart';
+import '/modals/unmark_absent_dialog/unmark_absent_dialog_widget.dart';
+import '/flutter_flow/custom_functions.dart' as functions;
+import 'package:aligned_dialog/aligned_dialog.dart';
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'class_block_general_model.dart';
+export 'class_block_general_model.dart';
+
+class ClassBlockGeneralWidget extends StatefulWidget {
+  const ClassBlockGeneralWidget({
+    super.key,
+    required this.classBlock,
+  });
+
+  final ScheduledClassStruct? classBlock;
+
+  @override
+  State<ClassBlockGeneralWidget> createState() =>
+      _ClassBlockGeneralWidgetState();
+}
+
+class _ClassBlockGeneralWidgetState extends State<ClassBlockGeneralWidget> {
+  late ClassBlockGeneralModel _model;
+
+  @override
+  void setState(VoidCallback callback) {
+    super.setState(callback);
+    _model.onUpdate();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _model = createModel(context, () => ClassBlockGeneralModel());
+
+    WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
+  }
+
+  @override
+  void dispose() {
+    _model.maybeDispose();
+
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    context.watch<FFAppState>();
+
+    return Builder(
+      builder: (context) => InkWell(
+        splashColor: Colors.transparent,
+        focusColor: Colors.transparent,
+        hoverColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+        onTap: () async {
+          logFirebaseEvent('CLASS_BLOCK_GENERAL_Container_mk5y0i5v_O');
+          if (widget.classBlock!.isAbsent) {
+            logFirebaseEvent('Container_alert_dialog');
+            await showDialog(
+              context: context,
+              builder: (dialogContext) {
+                return Dialog(
+                  elevation: 0,
+                  insetPadding: EdgeInsets.zero,
+                  backgroundColor: Colors.transparent,
+                  alignment: AlignmentDirectional(0.0, 0.0)
+                      .resolve(Directionality.of(context)),
+                  child: UnmarkAbsentDialogWidget(
+                    classBlock: widget.classBlock!,
+                  ),
+                );
+              },
+            );
+          } else {
+            logFirebaseEvent('Container_alert_dialog');
+            await showDialog(
+              barrierColor: Color(0x1F000000),
+              context: context,
+              builder: (dialogContext) {
+                return Dialog(
+                  elevation: 0,
+                  insetPadding: EdgeInsets.zero,
+                  backgroundColor: Colors.transparent,
+                  alignment: AlignmentDirectional(0.0, 0.0)
+                      .resolve(Directionality.of(context)),
+                  child: MarkAbsentDialogWidget(
+                    classBlock: widget.classBlock!,
+                  ),
+                );
+              },
+            );
+          }
+
+          logFirebaseEvent('Container_dismiss_dialog');
+          Navigator.pop(context);
+        },
+        child: AnimatedContainer(
+          duration: Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+          width: double.infinity,
+          height: 45.0,
+          decoration: BoxDecoration(
+            color: valueOrDefault<Color>(
+              widget.classBlock!.isAbsent
+                  ? FlutterFlowTheme.of(context).error
+                  : FlutterFlowTheme.of(context).presentGreen,
+              FlutterFlowTheme.of(context).presentGreen,
+            ),
+            borderRadius: BorderRadius.circular(12.0),
+          ),
+          child: Padding(
+            padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 4.0, 0.0),
+            child: Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding:
+                          EdgeInsetsDirectional.fromSTEB(8.0, 0.0, 0.0, 0.0),
+                      child: Text(
+                        valueOrDefault<String>(
+                          widget.classBlock?.courseName,
+                          'CourseName Not Defined',
+                        ),
+                        style: FlutterFlowTheme.of(context).bodyMedium.override(
+                              font: GoogleFonts.outfit(
+                                fontWeight: FontWeight.w600,
+                                fontStyle: FlutterFlowTheme.of(context)
+                                    .bodyMedium
+                                    .fontStyle,
+                              ),
+                              color: FlutterFlowTheme.of(context).info,
+                              fontSize: 15.0,
+                              letterSpacing: 0.0,
+                              fontWeight: FontWeight.w600,
+                              fontStyle: FlutterFlowTheme.of(context)
+                                  .bodyMedium
+                                  .fontStyle,
+                            ),
+                      ),
+                    ),
+                    Padding(
+                      padding:
+                          EdgeInsetsDirectional.fromSTEB(8.0, 0.0, 12.0, 0.0),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          RichText(
+                            textScaler: MediaQuery.of(context).textScaler,
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: '${dateTimeFormat(
+                                    "MMMMEEEEd",
+                                    widget.classBlock?.scheduledStart,
+                                    locale: FFLocalizations.of(context)
+                                        .languageCode,
+                                  )}, ${functions.formatClassTime(widget.classBlock?.scheduledStart, FFAppState().userPreferences.preferredTimeFormat)} - ${functions.formatClassTime(widget.classBlock?.scheduledEnd, FFAppState().userPreferences.preferredTimeFormat)}',
+                                  style: GoogleFonts.outfit(
+                                    color: FlutterFlowTheme.of(context).info,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 10.0,
+                                  ),
+                                )
+                              ],
+                              style: FlutterFlowTheme.of(context)
+                                  .bodyMedium
+                                  .override(
+                                    font: GoogleFonts.outfit(
+                                      fontWeight: FontWeight.w600,
+                                      fontStyle: FlutterFlowTheme.of(context)
+                                          .bodyMedium
+                                          .fontStyle,
+                                    ),
+                                    color: FlutterFlowTheme.of(context).info,
+                                    fontSize: 20.0,
+                                    letterSpacing: 0.0,
+                                    fontWeight: FontWeight.w600,
+                                    fontStyle: FlutterFlowTheme.of(context)
+                                        .bodyMedium
+                                        .fontStyle,
+                                  ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Builder(
+                      builder: (context) => Padding(
+                        padding:
+                            EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 8.0, 0.0),
+                        child: InkWell(
+                          splashColor: Colors.transparent,
+                          focusColor: Colors.transparent,
+                          hoverColor: Colors.transparent,
+                          highlightColor: Colors.transparent,
+                          onTap: () async {
+                            logFirebaseEvent(
+                                'CLASS_BLOCK_GENERAL_Icon_sxve31ai_ON_TAP');
+                            logFirebaseEvent('Icon_alert_dialog');
+                            await showAlignedDialog(
+                              context: context,
+                              isGlobal: false,
+                              avoidOverflow: true,
+                              targetAnchor: AlignmentDirectional(-1.0, 1.0)
+                                  .resolve(Directionality.of(context)),
+                              followerAnchor: AlignmentDirectional(-1.0, 1.0)
+                                  .resolve(Directionality.of(context)),
+                              builder: (dialogContext) {
+                                return Material(
+                                  color: Colors.transparent,
+                                  child: CalenderDropdownWidget(
+                                    classBlock: widget.classBlock!,
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                          child: Icon(
+                            Icons.filter_list,
+                            color: FlutterFlowTheme.of(context).info,
+                            size: 24.0,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

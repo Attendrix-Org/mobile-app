@@ -1,17 +1,23 @@
 {
-  "manifest_version": 3,
-  "version": "1.0.0",
-  "name": "Attendrix Web",
-  "short_name": "Attendrix",
-  "start_url": ".",
-  "display": "standalone",
-  "background_color": "#0175C2",
-  "theme_color": "#0175C2",
-  "description": "Attendrix is a modern academic management and student productivity platform for higher-education institutions.",
-  "orientation": "portrait-primary",
-  "prefer_related_applications": false,
-  "icons": {
-    "192": "icons/Icon-192.png",
-    "512": "icons/Icon-512.png"
-  }
+    "name": "Attendrix",
+    "short_name": "Attendrix",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#0175C2",
+    "theme_color": "#0175C2",
+    "description": "A new Flutter project.",
+    "orientation": "portrait-primary",
+    "prefer_related_applications": false,
+    "icons": [
+        {
+            "src": "icons/app_launcher_icon.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/app_launcher_icon.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
 }

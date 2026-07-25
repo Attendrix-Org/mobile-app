@@ -1,0 +1,31 @@
+import 'dart:convert';
+import 'dart:math' as math;
+
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
+import 'package:timeago/timeago.dart' as timeago;
+import '/flutter_flow/custom_functions.dart';
+import '/flutter_flow/lat_lng.dart';
+import '/flutter_flow/place.dart';
+import '/flutter_flow/uploaded_file.dart';
+import '/backend/schema/structs/index.dart';
+import '/backend/schema/enums/enums.dart';
+import '/backend/supabase/supabase.dart';
+import '/auth/supabase_auth/auth_util.dart';
+
+int calendarItemHeight(
+  DateTime startTime,
+  DateTime endTime,
+) {
+  double pixelsPerMinute = 1.5;
+  int minimumHeight = 40;
+  final duration = endTime.difference(startTime).inMinutes;
+
+  if (duration <= 0) return minimumHeight;
+
+  return (duration * pixelsPerMinute).round().clamp(
+        minimumHeight,
+        1000000,
+      );
+}
