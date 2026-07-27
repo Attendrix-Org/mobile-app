@@ -19,8 +19,6 @@ import 'package:flutter/material.dart';
 //   Return type      → Data type: attendanceCalculatorData (struct)
 
 import 'dart:math';
-import 'index.dart'; // Imports other custom actions
-import '/flutter_flow/custom_functions.dart';
 
 Future<AttendanceCalculatorDataStruct> calculateProjectedAttendance(
   EnrolledCourseStruct? enrolledCourse,

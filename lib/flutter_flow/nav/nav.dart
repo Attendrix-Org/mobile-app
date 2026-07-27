@@ -158,12 +158,6 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               ),
             ),
             FFRoute(
-              name: ProfileWidget.routeName,
-              path: ProfileWidget.routePath,
-              requireAuth: true,
-              builder: (context, params) => ProfileWidget(),
-            ),
-            FFRoute(
                 name: CalendarWidget.routeName,
                 path: CalendarWidget.routePath,
                 requireAuth: true,
@@ -191,12 +185,6 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
                         initialPage: 'tasks',
                         page: TasksWidget(),
                       )),
-            FFRoute(
-              name: SettingsWidget.routeName,
-              path: SettingsWidget.routePath,
-              requireAuth: true,
-              builder: (context, params) => SettingsWidget(),
-            ),
             FFRoute(
               name: ChallengesWidget.routeName,
               path: ChallengesWidget.routePath,
@@ -242,6 +230,21 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               name: QuickNotesWidget.routeName,
               path: QuickNotesWidget.routePath,
               builder: (context, params) => QuickNotesWidget(),
+            ),
+            FFRoute(
+              name: EnrolledCoursesWidget.routeName,
+              path: EnrolledCoursesWidget.routePath,
+              builder: (context, params) => EnrolledCoursesWidget(),
+            ),
+            FFRoute(
+              name: SettingsWidget.routeName,
+              path: SettingsWidget.routePath,
+              builder: (context, params) => SettingsWidget(),
+            ),
+            FFRoute(
+              name: ManageNotificationsWidget.routeName,
+              path: ManageNotificationsWidget.routePath,
+              builder: (context, params) => ManageNotificationsWidget(),
             )
           ].map((r) => r.toRoute(appStateNotifier)).toList(),
         ),

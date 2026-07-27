@@ -26,7 +26,9 @@ class DashboardModel extends FlutterFlowModel<DashboardWidget> {
   AppBootstrapStruct? appBootstrapData;
   // Stores action output result for [Custom Action - generatePastDateRange] action in dashboard widget.
   List<DateTime>? generatedDateRange;
-  // Stores action output result for [Custom Action - generateGreetingMessage] action in dashboard widget.
+  // Stores action output result for [Custom Action - executeScheduleQuery] action in dashboard widget.
+  List<ScheduledClassStruct>? calendarDateQueryData;
+  // Stores action output result for [Custom Action - generateGreeting] action in dashboard widget.
   String? generatedGreetingMessage;
   // Model for atAGlance component.
   late AtAGlanceModel atAGlanceModel;

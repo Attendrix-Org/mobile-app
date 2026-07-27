@@ -13,11 +13,18 @@ class UserPreferencesStruct extends BaseStruct {
     String? userMess,
     ActionTone? preferredActionTone,
     bool? atAGlanceView,
+    int? defaultRequiredAttendance,
+    bool? useScheduledClassesForGreetingMessage,
+    bool? useActionToneForGreetingMessage,
   })  : _enableAPOD = enableAPOD,
         _preferredTimeFormat = preferredTimeFormat,
         _userMess = userMess,
         _preferredActionTone = preferredActionTone,
-        _atAGlanceView = atAGlanceView;
+        _atAGlanceView = atAGlanceView,
+        _defaultRequiredAttendance = defaultRequiredAttendance,
+        _useScheduledClassesForGreetingMessage =
+            useScheduledClassesForGreetingMessage,
+        _useActionToneForGreetingMessage = useActionToneForGreetingMessage;
 
   // "enableAPOD" field.
   bool? _enableAPOD;
@@ -56,6 +63,36 @@ class UserPreferencesStruct extends BaseStruct {
 
   bool hasAtAGlanceView() => _atAGlanceView != null;
 
+  // "defaultRequiredAttendance" field.
+  int? _defaultRequiredAttendance;
+  int get defaultRequiredAttendance => _defaultRequiredAttendance ?? 80;
+  set defaultRequiredAttendance(int? val) => _defaultRequiredAttendance = val;
+
+  void incrementDefaultRequiredAttendance(int amount) =>
+      defaultRequiredAttendance = defaultRequiredAttendance + amount;
+
+  bool hasDefaultRequiredAttendance() => _defaultRequiredAttendance != null;
+
+  // "useScheduledClassesForGreetingMessage" field.
+  bool? _useScheduledClassesForGreetingMessage;
+  bool get useScheduledClassesForGreetingMessage =>
+      _useScheduledClassesForGreetingMessage ?? true;
+  set useScheduledClassesForGreetingMessage(bool? val) =>
+      _useScheduledClassesForGreetingMessage = val;
+
+  bool hasUseScheduledClassesForGreetingMessage() =>
+      _useScheduledClassesForGreetingMessage != null;
+
+  // "useActionToneForGreetingMessage" field.
+  bool? _useActionToneForGreetingMessage;
+  bool get useActionToneForGreetingMessage =>
+      _useActionToneForGreetingMessage ?? true;
+  set useActionToneForGreetingMessage(bool? val) =>
+      _useActionToneForGreetingMessage = val;
+
+  bool hasUseActionToneForGreetingMessage() =>
+      _useActionToneForGreetingMessage != null;
+
   static UserPreferencesStruct fromMap(Map<String, dynamic> data) =>
       UserPreferencesStruct(
         enableAPOD: data['enableAPOD'] as bool?,
@@ -67,6 +104,12 @@ class UserPreferencesStruct extends BaseStruct {
             ? data['preferredActionTone']
             : deserializeEnum<ActionTone>(data['preferredActionTone']),
         atAGlanceView: data['atAGlanceView'] as bool?,
+        defaultRequiredAttendance:
+            castToType<int>(data['defaultRequiredAttendance']),
+        useScheduledClassesForGreetingMessage:
+            data['useScheduledClassesForGreetingMessage'] as bool?,
+        useActionToneForGreetingMessage:
+            data['useActionToneForGreetingMessage'] as bool?,
       );
 
   static UserPreferencesStruct? maybeFromMap(dynamic data) => data is Map
@@ -79,6 +122,10 @@ class UserPreferencesStruct extends BaseStruct {
         'userMess': _userMess,
         'preferredActionTone': _preferredActionTone?.serialize(),
         'atAGlanceView': _atAGlanceView,
+        'defaultRequiredAttendance': _defaultRequiredAttendance,
+        'useScheduledClassesForGreetingMessage':
+            _useScheduledClassesForGreetingMessage,
+        'useActionToneForGreetingMessage': _useActionToneForGreetingMessage,
       }.withoutNulls;
 
   @override
@@ -101,6 +148,18 @@ class UserPreferencesStruct extends BaseStruct {
         ),
         'atAGlanceView': serializeParam(
           _atAGlanceView,
+          ParamType.bool,
+        ),
+        'defaultRequiredAttendance': serializeParam(
+          _defaultRequiredAttendance,
+          ParamType.int,
+        ),
+        'useScheduledClassesForGreetingMessage': serializeParam(
+          _useScheduledClassesForGreetingMessage,
+          ParamType.bool,
+        ),
+        'useActionToneForGreetingMessage': serializeParam(
+          _useActionToneForGreetingMessage,
           ParamType.bool,
         ),
       }.withoutNulls;
@@ -132,6 +191,21 @@ class UserPreferencesStruct extends BaseStruct {
           ParamType.bool,
           false,
         ),
+        defaultRequiredAttendance: deserializeParam(
+          data['defaultRequiredAttendance'],
+          ParamType.int,
+          false,
+        ),
+        useScheduledClassesForGreetingMessage: deserializeParam(
+          data['useScheduledClassesForGreetingMessage'],
+          ParamType.bool,
+          false,
+        ),
+        useActionToneForGreetingMessage: deserializeParam(
+          data['useActionToneForGreetingMessage'],
+          ParamType.bool,
+          false,
+        ),
       );
 
   @override
@@ -144,7 +218,12 @@ class UserPreferencesStruct extends BaseStruct {
         preferredTimeFormat == other.preferredTimeFormat &&
         userMess == other.userMess &&
         preferredActionTone == other.preferredActionTone &&
-        atAGlanceView == other.atAGlanceView;
+        atAGlanceView == other.atAGlanceView &&
+        defaultRequiredAttendance == other.defaultRequiredAttendance &&
+        useScheduledClassesForGreetingMessage ==
+            other.useScheduledClassesForGreetingMessage &&
+        useActionToneForGreetingMessage ==
+            other.useActionToneForGreetingMessage;
   }
 
   @override
@@ -153,7 +232,10 @@ class UserPreferencesStruct extends BaseStruct {
         preferredTimeFormat,
         userMess,
         preferredActionTone,
-        atAGlanceView
+        atAGlanceView,
+        defaultRequiredAttendance,
+        useScheduledClassesForGreetingMessage,
+        useActionToneForGreetingMessage
       ]);
 }
 
@@ -163,6 +245,9 @@ UserPreferencesStruct createUserPreferencesStruct({
   String? userMess,
   ActionTone? preferredActionTone,
   bool? atAGlanceView,
+  int? defaultRequiredAttendance,
+  bool? useScheduledClassesForGreetingMessage,
+  bool? useActionToneForGreetingMessage,
 }) =>
     UserPreferencesStruct(
       enableAPOD: enableAPOD,
@@ -170,4 +255,8 @@ UserPreferencesStruct createUserPreferencesStruct({
       userMess: userMess,
       preferredActionTone: preferredActionTone,
       atAGlanceView: atAGlanceView,
+      defaultRequiredAttendance: defaultRequiredAttendance,
+      useScheduledClassesForGreetingMessage:
+          useScheduledClassesForGreetingMessage,
+      useActionToneForGreetingMessage: useActionToneForGreetingMessage,
     );

@@ -73,4 +73,11 @@ class UsersRow extends SupabaseDataRow {
 
   int? get odometer => getField<int>('odometer');
   set odometer(int? value) => setField<int>('odometer', value);
+
+  String? get labGroup => getField<String>('lab_group');
+  set labGroup(String? value) => setField<String>('lab_group', value);
+
+  int? get minAttendanceTarget => getField<int>('min_attendance_target');
+  set minAttendanceTarget(int? value) =>
+      setField<int>('min_attendance_target', value);
 }

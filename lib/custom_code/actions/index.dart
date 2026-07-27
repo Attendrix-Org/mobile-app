@@ -1,5 +1,4 @@
-export '/custom_code/actions/generate_greeting_message.dart'
-    show generateGreetingMessage;
+export '/custom_code/actions/generate_greeting.dart' show generateGreeting;
 export '/custom_code/actions/init_one_signal.dart' show initOneSignal;
 export '/custom_code/actions/link_one_signal_user.dart' show linkOneSignalUser;
 export '/custom_code/actions/is_username_available.dart'
@@ -52,5 +51,6 @@ export '/custom_code/actions/opt_in_push_notifications.dart'
     show optInPushNotifications;
 export '/custom_code/actions/opt_out_push_notifications.dart'
     show optOutPushNotifications;
-export '/custom_code/actions/is_push_enabled.dart' show isPushEnabled;
 export '/custom_code/actions/has_push_permission.dart' show hasPushPermission;
+export '/custom_code/actions/report_class_cancelled.dart'
+    show reportClassCancelled;

@@ -10,8 +10,11 @@ import 'package:flutter/material.dart';
 // Begin custom action code
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ScheduleUnauthorizedException implements Exception {
   final String message;
@@ -36,10 +39,15 @@ class ScheduleFetchException implements Exception {
 }
 
 const Duration _rpcTimeout = Duration(seconds: 10);
+const String _cacheKeyPrefix = 'schedule_cache_';
+
+/// Helper to generate date-specific cache keys (e.g., "schedule_cache_26_07_2026")
+String _getCacheKey(DateTime date) {
+  final dateStr = DateFormat('dd_MM_yyyy').format(date);
+  return '$_cacheKeyPrefix$dateStr';
+}
 
 /// Parses a single RPC row into a [ScheduledClassStruct].
-/// Throws if the row is missing a field the schema guarantees as
-/// NOT NULL — callers decide whether to skip-and-count or abort.
 ScheduledClassStruct _parseScheduleRow(Map<String, dynamic> data) {
   final courseTypeRaw = data['courseType'] as String?;
   if (courseTypeRaw == null) {
@@ -78,74 +86,8 @@ ScheduledClassStruct _parseScheduleRow(Map<String, dynamic> data) {
   );
 }
 
-Future<List<ScheduledClassStruct>> executeScheduleQuery(
-  ScheduleViewType viewType,
-  DateTime? selectedDate,
-  DateTime? startDate,
-  DateTime? endDate,
-  int? limit,
-) async {
-  String rpcName;
-  Map<String, dynamic> params = {};
-
-  switch (viewType) {
-    case ScheduleViewType.today:
-      rpcName = 'get_today_classes';
-      break;
-    case ScheduleViewType.current:
-      rpcName = 'get_current_class';
-      break;
-    case ScheduleViewType.upcoming:
-      rpcName = 'get_upcoming_classes';
-      params = {'p_limit': limit ?? 10};
-      break;
-    case ScheduleViewType.calendarDay:
-      if (selectedDate == null) {
-        throw Exception('selectedDate cannot be null');
-      }
-      rpcName = 'get_classes_for_date';
-      params = {'p_date': DateFormat('yyyy-MM-dd').format(selectedDate)};
-      break;
-    case ScheduleViewType.calendarRange:
-      if (startDate == null || endDate == null) {
-        throw Exception('startDate and endDate cannot be null');
-      }
-      rpcName = 'get_classes_for_date_range';
-      params = {
-        'p_start_date': DateFormat('yyyy-MM-dd').format(startDate),
-        'p_end_date': DateFormat('yyyy-MM-dd').format(endDate),
-      };
-      break;
-  }
-
-  dynamic response;
-  try {
-    response = await Supabase.instance.client
-        .rpc(rpcName, params: params)
-        .timeout(_rpcTimeout);
-  } on PostgrestException catch (e) {
-    switch (e.code) {
-      case 'PT401':
-        throw ScheduleUnauthorizedException(e.message);
-      case 'PT404':
-        throw ScheduleNotOnboardedException(e.message);
-      default:
-        debugPrint('[$rpcName] PostgrestException (${e.code}): ${e.message}');
-        throw ScheduleFetchException(e.message, code: e.code);
-    }
-  } catch (e) {
-    debugPrint('[$rpcName] unexpected error: $e');
-    throw ScheduleFetchException(e.toString());
-  }
-
-  if (response is! List) {
-    throw ScheduleFetchException(
-      'RPC "$rpcName" returned an unexpected response type: '
-      '${response.runtimeType}.',
-    );
-  }
-  final rows = response;
-
+/// Helper to safely iterate and parse raw JSON rows into structs
+List<ScheduledClassStruct> _parseRows(List<dynamic> rows, String sourceTag) {
   final result = <ScheduledClassStruct>[];
   var skippedRows = 0;
 
@@ -155,7 +97,7 @@ Future<List<ScheduledClassStruct>> executeScheduleQuery(
       data = Map<String, dynamic>.from(row as Map);
     } catch (e) {
       skippedRows++;
-      debugPrint('[$rpcName] row is not a Map, skipping: $e | row=$row');
+      debugPrint('[$sourceTag] row is not a Map, skipping: $e | row=$row');
       continue;
     }
 
@@ -163,24 +105,125 @@ Future<List<ScheduledClassStruct>> executeScheduleQuery(
       result.add(_parseScheduleRow(data));
     } catch (e) {
       skippedRows++;
-      debugPrint(
-        '[$rpcName] failed parsing class ${data['classId']}: $e',
-      );
+      debugPrint('[$sourceTag] failed parsing class ${data['classId']}: $e');
       continue;
     }
   }
 
   if (skippedRows > 0) {
     debugPrint(
-      '[$rpcName] $skippedRows row(s) skipped out of ${rows.length} total.',
-    );
-    // Surface this to the caller if the UI should reflect partial data,
-    // e.g. via a companion return value or a stream event, rather than
-    // only a debug log the user never sees:
-    // throw PartialScheduleException(result, skippedRows);
+        '[$sourceTag] $skippedRows row(s) skipped out of ${rows.length} total.');
   }
 
   return result;
+}
+
+/// Fetches schedule data for a specific date using date key validation in calendarDates + SharedPreferences cache.
+Future<List<ScheduledClassStruct>> getScheduleForDate(
+  DateTime targetDate, {
+  bool forceRefresh = false,
+}) async {
+  final datePrefix = '${DateFormat('dd_MM_yyyy').format(targetDate)}_';
+  final cacheKey = _getCacheKey(targetDate);
+  final prefs = await SharedPreferences.getInstance();
+
+  final calendarDates = FFAppState().cacheMetaData.calendarDates;
+  final existingKey = calendarDates.firstWhere(
+    (e) => e.startsWith(datePrefix),
+    orElse: () => '',
+  );
+
+  // 1. If not forcing refresh AND date key is present in calendarDates -> Read from SharedPreferences & return instantly
+  if (!forceRefresh && existingKey.isNotEmpty) {
+    final cachedJsonStr = prefs.getString(cacheKey);
+    if (cachedJsonStr != null && cachedJsonStr.isNotEmpty) {
+      try {
+        final decodedList = jsonDecode(cachedJsonStr) as List<dynamic>;
+        debugPrint(
+            '[ScheduleService] Cache hit (already in calendarDates: $existingKey) for $cacheKey');
+        return _parseRows(decodedList, 'cache:$cacheKey');
+      } catch (e) {
+        debugPrint('[ScheduleService] Failed reading cache for $cacheKey: $e');
+        await prefs.remove(cacheKey);
+      }
+    }
+  }
+
+  debugPrint(
+      '[ScheduleService] Network fetch triggered for $cacheKey (force=$forceRefresh, inCalendarDates=${existingKey.isNotEmpty})');
+
+  // 2. Fetch date cache key & fresh classes from Supabase
+  final formattedDate = DateFormat('yyyy-MM-dd').format(targetDate);
+
+  String? newDateKey;
+  try {
+    final dynamic keyResponse = await Supabase.instance.client.rpc(
+        'get_date_cache_key',
+        params: {'p_date': formattedDate}).timeout(const Duration(seconds: 5));
+    if (keyResponse != null) {
+      newDateKey = keyResponse.toString();
+    }
+  } catch (e) {
+    debugPrint('[ScheduleService] get_date_cache_key skipped/failed: $e');
+  }
+
+  dynamic response;
+  try {
+    response = await Supabase.instance.client.rpc('get_classes_for_date',
+        params: {'p_date': formattedDate}).timeout(_rpcTimeout);
+  } on PostgrestException catch (e) {
+    switch (e.code) {
+      case 'PT401':
+        throw ScheduleUnauthorizedException(e.message);
+      case 'PT404':
+        throw ScheduleNotOnboardedException(e.message);
+      default:
+        debugPrint(
+            '[get_classes_for_date] PostgrestException (${e.code}): ${e.message}');
+        throw ScheduleFetchException(e.message, code: e.code);
+    }
+  } catch (e) {
+    debugPrint('[get_classes_for_date] unexpected error: $e');
+    throw ScheduleFetchException(e.toString());
+  }
+
+  if (response is! List) {
+    throw ScheduleFetchException(
+      'RPC "get_classes_for_date" returned an unexpected response type: ${response.runtimeType}.',
+    );
+  }
+
+  // 3. Save raw payload to SharedPreferences cache
+  try {
+    await prefs.setString(cacheKey, jsonEncode(response));
+  } catch (e) {
+    debugPrint('[ScheduleService] Failed writing cache for $cacheKey: $e');
+  }
+
+  // 4. Add/Update date key in AppState calendarDates list
+  final String dateKeyToAdd =
+      newDateKey ?? '$datePrefix${DateTime.now().millisecondsSinceEpoch}';
+  final updatedDates = List<String>.from(calendarDates);
+  updatedDates.removeWhere((e) => e.startsWith(datePrefix));
+  updatedDates.add(dateKeyToAdd);
+
+  FFAppState().update(() {
+    FFAppState().cacheMetaData.calendarDates = updatedDates;
+  });
+
+  return _parseRows(response, 'get_classes_for_date');
+}
+
+/// Backward-compatible wrapper for FlutterFlow UI actions.
+Future<List<ScheduledClassStruct>> executeScheduleQuery(
+  ScheduleViewType viewType,
+  DateTime? selectedDate,
+  DateTime? startDate,
+  DateTime? endDate,
+  int? limit,
+) async {
+  final target = selectedDate ?? startDate ?? DateTime.now();
+  return getScheduleForDate(target);
 }
 // Set your action name, define your arguments and return parameter,
 // and then add the boilerplate code using the `</>` button on the right!

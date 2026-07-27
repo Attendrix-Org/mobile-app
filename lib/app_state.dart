@@ -145,6 +145,34 @@ class FFAppState extends ChangeNotifier {
               .toList() ??
           _Messes;
     });
+    await _safeInitAsync(() async {
+      if (await secureStorage.read(key: 'ff_pendingNotification') != null) {
+        try {
+          final serializedData =
+              await secureStorage.getString('ff_pendingNotification') ?? '{}';
+          _pendingNotification = PendingNotificationStruct.fromSerializableMap(
+              jsonDecode(serializedData));
+        } catch (e) {
+          print("Can't decode persisted data type. Error: $e.");
+        }
+      }
+    });
+    await _safeInitAsync(() async {
+      _selectedDateClasses =
+          (await secureStorage.getStringList('ff_selectedDateClasses'))
+                  ?.map((x) {
+                    try {
+                      return ScheduledClassStruct.fromSerializableMap(
+                          jsonDecode(x));
+                    } catch (e) {
+                      print("Can't decode persisted data type. Error: $e.");
+                      return null;
+                    }
+                  })
+                  .withoutNulls
+                  .toList() ??
+              _selectedDateClasses;
+    });
   }
 
   void update(VoidCallback callback) {
@@ -453,6 +481,70 @@ class FFAppState extends ChangeNotifier {
         'ff_Messes', _Messes.map((x) => x.serialize()).toList());
   }
 
+  PendingNotificationStruct _pendingNotification = PendingNotificationStruct();
+  PendingNotificationStruct get pendingNotification => _pendingNotification;
+  set pendingNotification(PendingNotificationStruct value) {
+    _pendingNotification = value;
+    secureStorage.setString('ff_pendingNotification', value.serialize());
+  }
+
+  void deletePendingNotification() {
+    secureStorage.delete(key: 'ff_pendingNotification');
+  }
+
+  void updatePendingNotificationStruct(
+      Function(PendingNotificationStruct) updateFn) {
+    updateFn(_pendingNotification);
+    secureStorage.setString(
+        'ff_pendingNotification', _pendingNotification.serialize());
+  }
+
+  List<ScheduledClassStruct> _selectedDateClasses = [];
+  List<ScheduledClassStruct> get selectedDateClasses => _selectedDateClasses;
+  set selectedDateClasses(List<ScheduledClassStruct> value) {
+    _selectedDateClasses = value;
+    secureStorage.setStringList(
+        'ff_selectedDateClasses', value.map((x) => x.serialize()).toList());
+  }
+
+  void deleteSelectedDateClasses() {
+    secureStorage.delete(key: 'ff_selectedDateClasses');
+  }
+
+  void addToSelectedDateClasses(ScheduledClassStruct value) {
+    selectedDateClasses.add(value);
+    secureStorage.setStringList('ff_selectedDateClasses',
+        _selectedDateClasses.map((x) => x.serialize()).toList());
+  }
+
+  void removeFromSelectedDateClasses(ScheduledClassStruct value) {
+    selectedDateClasses.remove(value);
+    secureStorage.setStringList('ff_selectedDateClasses',
+        _selectedDateClasses.map((x) => x.serialize()).toList());
+  }
+
+  void removeAtIndexFromSelectedDateClasses(int index) {
+    selectedDateClasses.removeAt(index);
+    secureStorage.setStringList('ff_selectedDateClasses',
+        _selectedDateClasses.map((x) => x.serialize()).toList());
+  }
+
+  void updateSelectedDateClassesAtIndex(
+    int index,
+    ScheduledClassStruct Function(ScheduledClassStruct) updateFn,
+  ) {
+    selectedDateClasses[index] = updateFn(_selectedDateClasses[index]);
+    secureStorage.setStringList('ff_selectedDateClasses',
+        _selectedDateClasses.map((x) => x.serialize()).toList());
+  }
+
+  void insertAtIndexInSelectedDateClasses(
+      int index, ScheduledClassStruct value) {
+    selectedDateClasses.insert(index, value);
+    secureStorage.setStringList('ff_selectedDateClasses',
+        _selectedDateClasses.map((x) => x.serialize()).toList());
+  }
+
   final _courseCatalogManager = FutureRequestManager<List<CourseSyllabiRow>>();
   Future<List<CourseSyllabiRow>> courseCatalog({
     String? uniqueQueryKey,
@@ -484,6 +576,23 @@ class FFAppState extends ChangeNotifier {
       _currentDayAcademicCalendarManager.clear();
   void clearCurrentDayAcademicCalendarCacheKey(String? uniqueKey) =>
       _currentDayAcademicCalendarManager.clearRequest(uniqueKey);
+
+  final _appVersionMetadataCacheManager =
+      FutureRequestManager<List<AppVersionControlRow>>();
+  Future<List<AppVersionControlRow>> appVersionMetadataCache({
+    String? uniqueQueryKey,
+    bool? overrideCache,
+    required Future<List<AppVersionControlRow>> Function() requestFn,
+  }) =>
+      _appVersionMetadataCacheManager.performRequest(
+        uniqueQueryKey: uniqueQueryKey,
+        overrideCache: overrideCache,
+        requestFn: requestFn,
+      );
+  void clearAppVersionMetadataCacheCache() =>
+      _appVersionMetadataCacheManager.clear();
+  void clearAppVersionMetadataCacheCacheKey(String? uniqueKey) =>
+      _appVersionMetadataCacheManager.clearRequest(uniqueKey);
 }
 
 void _safeInit(Function() initializeField) {

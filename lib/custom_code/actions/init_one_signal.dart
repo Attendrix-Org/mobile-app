@@ -12,7 +12,6 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
-import '/app_state.dart';
 
 Future<void> initOneSignal() async {
   try {

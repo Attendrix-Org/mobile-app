@@ -1238,6 +1238,9 @@ class _BusTimeCardWidgetState extends State<BusTimeCardWidget> {
                           'BUS_TIME_CARD_ENABLE_LOCATION_BTN_ON_TAP');
                       logFirebaseEvent('Button_request_permissions');
                       await requestPermission(locationPermission);
+                      logFirebaseEvent('Button_update_component_state');
+                      _model.locationPermission = false;
+                      safeSetState(() {});
                     },
                     text: 'Enable Location',
                     icon: Icon(

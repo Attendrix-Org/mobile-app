@@ -611,13 +611,21 @@ class _ClassesWidgetState extends State<ClassesWidget>
                                                                 .isEmpty) {
                                                               return Center(
                                                                 child:
-                                                                    EmptyStateContainerWidget(
-                                                                  date:
-                                                                      generatedDatesListViewItem,
-                                                                  title:
-                                                                      'Nothing Here!',
-                                                                  message:
-                                                                      'There are no upcoming classes scheduled. Check back later or sync your timetable if you recently made changes.',
+                                                                    Container(
+                                                                  width: MediaQuery.sizeOf(
+                                                                              context)
+                                                                          .width *
+                                                                      1.0,
+                                                                  height: 100.0,
+                                                                  child:
+                                                                      EmptyStateContainerWidget(
+                                                                    date:
+                                                                        generatedDatesListViewItem,
+                                                                    title:
+                                                                        'Nothing Here!',
+                                                                    message:
+                                                                        'There are no upcoming classes scheduled. Check back later or sync your timetable if you recently made changes.',
+                                                                  ),
                                                                 ),
                                                               );
                                                             }
