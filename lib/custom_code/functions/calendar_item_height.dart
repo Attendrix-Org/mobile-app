@@ -18,8 +18,8 @@ int calendarItemHeight(
   DateTime startTime,
   DateTime endTime,
 ) {
-  double pixelsPerMinute = 1.5;
-  int minimumHeight = 40;
+  double pixelsPerMinute = 1.4;
+  int minimumHeight = 75;
   final duration = endTime.difference(startTime).inMinutes;
 
   if (duration <= 0) return minimumHeight;

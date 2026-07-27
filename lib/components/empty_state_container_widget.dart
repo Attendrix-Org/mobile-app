@@ -96,40 +96,12 @@ class _EmptyStateContainerWidgetState extends State<EmptyStateContainerWidget> {
                 : null;
 
         return Container(
-          width: MediaQuery.sizeOf(context).width * 1.0,
-          height: 180.0,
-          decoration: BoxDecoration(
-            color: FlutterFlowTheme.of(context).primaryBackground,
-            borderRadius: BorderRadius.circular(16.0),
-            shape: BoxShape.rectangle,
-            border: Border.all(
-              color: FlutterFlowTheme.of(context).alternate,
-              width: 2.0,
-            ),
-          ),
+          decoration: BoxDecoration(),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8.0),
-                child: Image.network(
-                  FFAppConstants.icons.elementAtOrNull(valueOrDefault<int>(
-                    functions.deterministicIndex(
-                        dateTimeFormat(
-                          "d/M/y",
-                          widget.date,
-                          locale: FFLocalizations.of(context).languageCode,
-                        ),
-                        17),
-                    5,
-                  ))!,
-                  width: 80.0,
-                  height: 80.0,
-                  fit: BoxFit.cover,
-                ),
-              ),
               Text(
                 valueOrDefault<String>(
                   functions

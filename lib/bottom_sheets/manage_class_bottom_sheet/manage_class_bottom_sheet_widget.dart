@@ -50,7 +50,7 @@ class _ManageClassBottomSheetWidgetState
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: double.infinity,
+      width: MediaQuery.sizeOf(context).width * 1.0,
       height: 220.0,
       decoration: BoxDecoration(
         color: FlutterFlowTheme.of(context).secondaryBackground,

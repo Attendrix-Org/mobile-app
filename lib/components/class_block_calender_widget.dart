@@ -72,12 +72,12 @@ class _ClassBlockCalenderWidgetState extends State<ClassBlockCalenderWidget> {
       child: Padding(
         padding: EdgeInsetsDirectional.fromSTEB(
             FlutterFlowTheme.of(context).designToken.spacing.sm,
-            0.0,
+            8.0,
             FlutterFlowTheme.of(context).designToken.spacing.sm,
             0.0),
         child: Column(
           mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
@@ -179,7 +179,7 @@ class _ClassBlockCalenderWidgetState extends State<ClassBlockCalenderWidget> {
                       TextSpan(
                         text: 'course code: ',
                         style: GoogleFonts.outfit(
-                          color: FlutterFlowTheme.of(context).secondary,
+                          color: FlutterFlowTheme.of(context).primaryText,
                           fontWeight: FontWeight.w600,
                           fontSize: 12.0,
                         ),
@@ -213,51 +213,58 @@ class _ClassBlockCalenderWidgetState extends State<ClassBlockCalenderWidget> {
                 ),
               ],
             ),
-            Padding(
-              padding: EdgeInsetsDirectional.fromSTEB(0.0, 4.0, 0.0, 0.0),
-              child: Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      Icon(
-                        FFIcons.klocationMapPin1,
-                        color: FlutterFlowTheme.of(context).primaryText,
-                        size: 12.0,
-                      ),
-                      Padding(
-                        padding:
-                            EdgeInsetsDirectional.fromSTEB(4.0, 0.0, 0.0, 0.0),
-                        child: Text(
-                          valueOrDefault<String>(
-                            widget.classRow?.venue,
-                            'MED Building',
-                          ),
-                          style:
-                              FlutterFlowTheme.of(context).bodyMedium.override(
-                                    font: GoogleFonts.outfit(
-                                      fontWeight: FontWeight.w600,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .fontStyle,
-                                    ),
-                                    color: FlutterFlowTheme.of(context).info,
-                                    fontSize: 12.0,
-                                    letterSpacing: 0.0,
+            if (valueOrDefault<bool>(
+              functions.calendarItemHeight(widget.classRow!.scheduledStart!,
+                      widget.classRow!.scheduledEnd!) >
+                  80,
+              false,
+            ))
+              Padding(
+                padding: EdgeInsetsDirectional.fromSTEB(0.0, 4.0, 0.0, 0.0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        Icon(
+                          FFIcons.klocationMapPin1,
+                          color: FlutterFlowTheme.of(context).primaryText,
+                          size: 12.0,
+                        ),
+                        Padding(
+                          padding: EdgeInsetsDirectional.fromSTEB(
+                              4.0, 0.0, 0.0, 0.0),
+                          child: Text(
+                            valueOrDefault<String>(
+                              widget.classRow?.venue,
+                              'MED Building',
+                            ),
+                            style: FlutterFlowTheme.of(context)
+                                .bodyMedium
+                                .override(
+                                  font: GoogleFonts.outfit(
                                     fontWeight: FontWeight.w600,
                                     fontStyle: FlutterFlowTheme.of(context)
                                         .bodyMedium
                                         .fontStyle,
                                   ),
+                                  color: FlutterFlowTheme.of(context).info,
+                                  fontSize: 12.0,
+                                  letterSpacing: 0.0,
+                                  fontWeight: FontWeight.w600,
+                                  fontStyle: FlutterFlowTheme.of(context)
+                                      .bodyMedium
+                                      .fontStyle,
+                                ),
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
             Padding(
               padding: EdgeInsetsDirectional.fromSTEB(0.0, 6.0, 0.0, 0.0),
               child: Row(

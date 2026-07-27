@@ -3184,6 +3184,14 @@ class _OnboardingWidgetState extends State<OnboardingWidget>
                                                     _model.isOnboardingComplete =
                                                         true;
                                                     safeSetState(() {});
+                                                    logFirebaseEvent(
+                                                        'Button_custom_action');
+                                                    await actions
+                                                        .linkOneSignalUser(
+                                                      currentUserUid,
+                                                      currentUserEmail,
+                                                      _model.batch,
+                                                    );
                                                   } else {
                                                     logFirebaseEvent(
                                                         'Button_stop_periodic_action');
