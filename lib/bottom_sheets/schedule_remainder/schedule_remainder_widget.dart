@@ -1,3 +1,4 @@
+import '/backend/schema/structs/index.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
@@ -12,14 +13,10 @@ export 'schedule_remainder_model.dart';
 class ScheduleRemainderWidget extends StatefulWidget {
   const ScheduleRemainderWidget({
     super.key,
-    required this.className,
-    required this.classStartTime,
-    required this.classID,
+    required this.classBlock,
   });
 
-  final String? className;
-  final DateTime? classStartTime;
-  final String? classID;
+  final ScheduledClassStruct? classBlock;
 
   @override
   State<ScheduleRemainderWidget> createState() =>

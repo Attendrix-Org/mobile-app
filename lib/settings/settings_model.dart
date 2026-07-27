@@ -5,6 +5,12 @@ import 'settings_widget.dart' show SettingsWidget;
 import 'package:flutter/material.dart';
 
 class SettingsModel extends FlutterFlowModel<SettingsWidget> {
+  ///  Local state fields for this page.
+
+  bool triggerEventUNKNOWN = false;
+
+  int? tapCount = 0;
+
   ///  State fields for stateful widgets in this page.
 
   // State field(s) for Switch widget.
@@ -15,6 +21,8 @@ class SettingsModel extends FlutterFlowModel<SettingsWidget> {
   bool? switchValue3;
   // State field(s) for Switch widget.
   bool? switchValue4;
+  // State field(s) for Switch widget.
+  bool? switchValue5;
   // State field(s) for ChoiceChips widget.
   FormFieldController<List<String>>? choiceChipsValueController1;
   String? get choiceChipsValue1 =>
@@ -27,6 +35,8 @@ class SettingsModel extends FlutterFlowModel<SettingsWidget> {
       choiceChipsValueController2?.value?.firstOrNull;
   set choiceChipsValue2(String? val) =>
       choiceChipsValueController2?.value = val != null ? [val] : [];
+  // State field(s) for CountController widget.
+  int? countControllerValue;
 
   @override
   void initState(BuildContext context) {}

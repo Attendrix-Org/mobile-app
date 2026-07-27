@@ -1,5 +1,7 @@
 import '/backend/schema/structs/index.dart';
 import '/bottom_sheets/class_block_bottom_sheet/class_block_bottom_sheet_widget.dart';
+import '/bottom_sheets/schedule_remainder/schedule_remainder_widget.dart';
+import '/components/class_report_widget.dart';
 import '/components/quick_note_bottom_sheet_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -50,7 +52,7 @@ class _CalenderDropdownWidgetState extends State<CalenderDropdownWidget> {
 
     return Container(
       width: 215.0,
-      height: 155.0,
+      height: 200.0,
       decoration: BoxDecoration(
         color: FlutterFlowTheme.of(context).secondaryBackground,
         boxShadow: [
@@ -72,7 +74,7 @@ class _CalenderDropdownWidgetState extends State<CalenderDropdownWidget> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: EdgeInsetsDirectional.fromSTEB(12.0, 12.0, 12.0, 0.0),
+              padding: EdgeInsetsDirectional.fromSTEB(12.0, 12.0, 8.0, 0.0),
               child: Row(
                 mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -98,63 +100,90 @@ class _CalenderDropdownWidgetState extends State<CalenderDropdownWidget> {
             ),
             Padding(
               padding: EdgeInsetsDirectional.fromSTEB(0.0, 6.0, 0.0, 0.0),
-              child: Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: FlutterFlowTheme.of(context).secondaryBackground,
-                ),
-                child: Padding(
-                  padding: EdgeInsetsDirectional.fromSTEB(0.0, 8.0, 0.0, 8.0),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      if (!_model.remainderSet)
-                        Padding(
-                          padding: EdgeInsetsDirectional.fromSTEB(
-                              12.0, 0.0, 0.0, 0.0),
-                          child: Icon(
-                            FFIcons.kbellNotification,
-                            color: FlutterFlowTheme.of(context).primaryText,
-                            size: 20.0,
-                          ),
+              child: InkWell(
+                splashColor: Colors.transparent,
+                focusColor: Colors.transparent,
+                hoverColor: Colors.transparent,
+                highlightColor: Colors.transparent,
+                onTap: () async {
+                  logFirebaseEvent('CALENDER_DROPDOWN_replaceWidget_ON_TAP');
+                  logFirebaseEvent('replaceWidget_dismiss_dialog');
+                  Navigator.pop(context);
+                  logFirebaseEvent('replaceWidget_bottom_sheet');
+                  await showModalBottomSheet(
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    enableDrag: false,
+                    context: context,
+                    builder: (context) {
+                      return Padding(
+                        padding: MediaQuery.viewInsetsOf(context),
+                        child: ScheduleRemainderWidget(
+                          classBlock: widget.classBlock!,
                         ),
-                      if (_model.remainderSet)
-                        Padding(
-                          padding: EdgeInsetsDirectional.fromSTEB(
-                              12.0, 0.0, 0.0, 0.0),
-                          child: Icon(
-                            FFIcons.kbellCheck,
-                            color: FlutterFlowTheme.of(context).primaryText,
-                            size: 20.0,
-                          ),
-                        ),
-                      Expanded(
-                        child: Padding(
-                          padding: EdgeInsetsDirectional.fromSTEB(
-                              12.0, 0.0, 4.0, 0.0),
-                          child: Text(
-                            valueOrDefault<String>(
-                              _model.remainderSet
-                                  ? 'Remainder Set!'
-                                  : 'Add Class Remainder',
-                              'Reminder Set',
+                      );
+                    },
+                  ).then((value) => safeSetState(() {}));
+                },
+                child: Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: FlutterFlowTheme.of(context).secondaryBackground,
+                  ),
+                  child: Padding(
+                    padding: EdgeInsetsDirectional.fromSTEB(0.0, 8.0, 0.0, 8.0),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        if (!_model.remainderSet)
+                          Padding(
+                            padding: EdgeInsetsDirectional.fromSTEB(
+                                12.0, 0.0, 0.0, 0.0),
+                            child: Icon(
+                              FFIcons.kbellNotification,
+                              color: FlutterFlowTheme.of(context).primaryText,
+                              size: 20.0,
                             ),
-                            textAlign: TextAlign.start,
-                            maxLines: 2,
-                            style: FlutterFlowTheme.of(context)
-                                .labelLarge
-                                .override(
-                                  fontFamily: FlutterFlowTheme.of(context)
-                                      .labelLargeFamily,
-                                  fontSize: 12.0,
-                                  letterSpacing: 0.0,
-                                  useGoogleFonts: !FlutterFlowTheme.of(context)
-                                      .labelLargeIsCustom,
-                                ),
+                          ),
+                        if (_model.remainderSet)
+                          Padding(
+                            padding: EdgeInsetsDirectional.fromSTEB(
+                                12.0, 0.0, 0.0, 0.0),
+                            child: Icon(
+                              FFIcons.kbellCheck,
+                              color: FlutterFlowTheme.of(context).primaryText,
+                              size: 20.0,
+                            ),
+                          ),
+                        Expanded(
+                          child: Padding(
+                            padding: EdgeInsetsDirectional.fromSTEB(
+                                12.0, 0.0, 4.0, 0.0),
+                            child: Text(
+                              valueOrDefault<String>(
+                                _model.remainderSet
+                                    ? 'Remainder Set!'
+                                    : 'Add Class Remainder',
+                                'Reminder Set',
+                              ),
+                              textAlign: TextAlign.start,
+                              maxLines: 2,
+                              style: FlutterFlowTheme.of(context)
+                                  .labelLarge
+                                  .override(
+                                    fontFamily: FlutterFlowTheme.of(context)
+                                        .labelLargeFamily,
+                                    fontSize: 12.0,
+                                    letterSpacing: 0.0,
+                                    useGoogleFonts:
+                                        !FlutterFlowTheme.of(context)
+                                            .labelLargeIsCustom,
+                                  ),
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -303,44 +332,76 @@ class _CalenderDropdownWidgetState extends State<CalenderDropdownWidget> {
                 ),
               ),
             ),
-            Container(
-              width: double.infinity,
-              decoration: BoxDecoration(),
-              child: Padding(
-                padding: EdgeInsetsDirectional.fromSTEB(0.0, 8.0, 0.0, 8.0),
-                child: Row(
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    Padding(
-                      padding:
-                          EdgeInsetsDirectional.fromSTEB(12.0, 0.0, 0.0, 0.0),
-                      child: Icon(
-                        Icons.block_flipped,
-                        color: FlutterFlowTheme.of(context).absentRed,
-                        size: 20.0,
-                      ),
-                    ),
-                    Expanded(
-                      child: Padding(
-                        padding:
-                            EdgeInsetsDirectional.fromSTEB(12.0, 0.0, 0.0, 0.0),
-                        child: Text(
-                          'Report Class as Cancelled',
-                          style: FlutterFlowTheme.of(context)
-                              .labelMedium
-                              .override(
-                                fontFamily: FlutterFlowTheme.of(context)
-                                    .labelMediumFamily,
-                                color: FlutterFlowTheme.of(context).error,
-                                fontSize: 12.0,
-                                letterSpacing: 0.0,
-                                useGoogleFonts: !FlutterFlowTheme.of(context)
-                                    .labelMediumIsCustom,
-                              ),
+            Builder(
+              builder: (context) => InkWell(
+                splashColor: Colors.transparent,
+                focusColor: Colors.transparent,
+                hoverColor: Colors.transparent,
+                highlightColor: Colors.transparent,
+                onTap: () async {
+                  logFirebaseEvent('CALENDER_DROPDOWN_COMP_wrapWidget_ON_TAP');
+                  logFirebaseEvent('wrapWidget_dismiss_dialog');
+                  Navigator.pop(context);
+                  logFirebaseEvent('wrapWidget_alert_dialog');
+                  await showDialog(
+                    context: context,
+                    builder: (dialogContext) {
+                      return Dialog(
+                        elevation: 0,
+                        insetPadding: EdgeInsets.zero,
+                        backgroundColor: Colors.transparent,
+                        alignment: AlignmentDirectional(0.0, 0.0)
+                            .resolve(Directionality.of(context)),
+                        child: ClassReportWidget(
+                          classID: widget.classBlock!.classId,
+                          courseName: widget.classBlock!.courseName,
+                          courseID: widget.classBlock!.courseId,
                         ),
-                      ),
+                      );
+                    },
+                  );
+                },
+                child: Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(),
+                  child: Padding(
+                    padding: EdgeInsetsDirectional.fromSTEB(0.0, 8.0, 0.0, 8.0),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        Padding(
+                          padding: EdgeInsetsDirectional.fromSTEB(
+                              12.0, 0.0, 0.0, 0.0),
+                          child: Icon(
+                            Icons.block_flipped,
+                            color: FlutterFlowTheme.of(context).absentRed,
+                            size: 20.0,
+                          ),
+                        ),
+                        Expanded(
+                          child: Padding(
+                            padding: EdgeInsetsDirectional.fromSTEB(
+                                12.0, 0.0, 0.0, 0.0),
+                            child: Text(
+                              'Report Class as Cancelled',
+                              style: FlutterFlowTheme.of(context)
+                                  .labelMedium
+                                  .override(
+                                    fontFamily: FlutterFlowTheme.of(context)
+                                        .labelMediumFamily,
+                                    color: FlutterFlowTheme.of(context).error,
+                                    fontSize: 12.0,
+                                    letterSpacing: 0.0,
+                                    useGoogleFonts:
+                                        !FlutterFlowTheme.of(context)
+                                            .labelMediumIsCustom,
+                                  ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
             ),

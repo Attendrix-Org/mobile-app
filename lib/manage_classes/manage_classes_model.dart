@@ -1,6 +1,5 @@
 import '/backend/schema/structs/index.dart';
 import '/backend/supabase/supabase.dart';
-import '/components/class_block_general_widget.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/form_field_controller.dart';
 import '/flutter_flow/request_manager.dart';
@@ -128,15 +127,6 @@ class ManageClassesModel extends FlutterFlowModel<ManageClassesWidget> {
       isExtraClassValueController?.value = val != null ? [val] : [];
   // Stores action output result for [Custom Action - scheduleClass] action in scheduleButton widget.
   FeedbackStruct? schedulerFeedback;
-  // Models for classBlock_general dynamic component.
-  late FlutterFlowDynamicModels<ClassBlockGeneralModel>
-      classBlockGeneralModels1;
-  // Models for classBlock_general dynamic component.
-  late FlutterFlowDynamicModels<ClassBlockGeneralModel>
-      classBlockGeneralModels2;
-  // Models for classBlock_general dynamic component.
-  late FlutterFlowDynamicModels<ClassBlockGeneralModel>
-      classBlockGeneralModels3;
 
   /// Query cache managers for this widget.
 
@@ -156,24 +146,13 @@ class ManageClassesModel extends FlutterFlowModel<ManageClassesWidget> {
       _userCoursesManager.clearRequest(uniqueKey);
 
   @override
-  void initState(BuildContext context) {
-    classBlockGeneralModels1 =
-        FlutterFlowDynamicModels(() => ClassBlockGeneralModel());
-    classBlockGeneralModels2 =
-        FlutterFlowDynamicModels(() => ClassBlockGeneralModel());
-    classBlockGeneralModels3 =
-        FlutterFlowDynamicModels(() => ClassBlockGeneralModel());
-  }
+  void initState(BuildContext context) {}
 
   @override
   void dispose() {
     tabBarController?.dispose();
     classVenueFocusNode?.dispose();
     classVenueTextController?.dispose();
-
-    classBlockGeneralModels1.dispose();
-    classBlockGeneralModels2.dispose();
-    classBlockGeneralModels3.dispose();
 
     /// Dispose query cache managers for this widget.
 

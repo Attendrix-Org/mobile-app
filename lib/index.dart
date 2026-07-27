@@ -13,11 +13,9 @@ export '/manage_classes/manage_classes_widget.dart' show ManageClassesWidget;
 export '/attendance/attendance_widget.dart' show AttendanceWidget;
 export '/user_onboarding/reset_password_sent/reset_password_sent_widget.dart'
     show ResetPasswordSentWidget;
-export '/profile/profile_widget.dart' show ProfileWidget;
 export '/calendar/calendar_widget.dart' show CalendarWidget;
 export '/classes/classes_widget.dart' show ClassesWidget;
 export '/tasks/tasks_widget.dart' show TasksWidget;
-export '/settings/settings_widget.dart' show SettingsWidget;
 export '/challenges/challenges_widget.dart' show ChallengesWidget;
 export '/admin_page/admin_page_widget.dart' show AdminPageWidget;
 export '/apod/apod_widget.dart' show ApodWidget;
@@ -25,3 +23,8 @@ export '/under_maintainance/under_maintainance_widget.dart'
     show UnderMaintainanceWidget;
 export '/course_catalog/course_catalog_widget.dart' show CourseCatalogWidget;
 export '/quick_notes/quick_notes_widget.dart' show QuickNotesWidget;
+export '/enrolled_courses/enrolled_courses_widget.dart'
+    show EnrolledCoursesWidget;
+export '/settings/settings_widget.dart' show SettingsWidget;
+export '/manage_notifications/manage_notifications_widget.dart'
+    show ManageNotificationsWidget;

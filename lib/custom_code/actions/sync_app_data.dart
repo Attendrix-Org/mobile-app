@@ -15,8 +15,8 @@ import 'dart:async';
 import 'dart:io';
 
 // ─────────────────────────────────────────────────────────────────────────
-// Attendrix Industrial Client Synchronization Engine — v8
-// High-performance, fault-tolerant, concurrent state reconciliation
+// Attendrix Industrial Client Synchronization Engine — v9
+// High-performance, fault-tolerant, concurrent state reconciliation + APOD
 // ─────────────────────────────────────────────────────────────────────────
 
 String get _currentAppVersion => FFAppConstants.appVersion;
@@ -38,6 +38,7 @@ class _SyncOutcome {
   final missed = _DatasetState<List<ScheduledClassStruct>>();
   final bus = _DatasetState<List<BusRouteStruct>>();
   final mess = _DatasetState<List<MessStruct>>();
+  final apod = _DatasetState<ApodStruct>();
 }
 
 /// Executes an RPC call with timeout and retries for transient errors.
@@ -128,6 +129,8 @@ Future<void> syncAppData(
         localMeta.appVersion != _currentAppVersion;
 
     bool isStale(int localTs, int serverTs) => fullSync || localTs < serverTs;
+    bool isSameDay(DateTime a, DateTime b) =>
+        a.year == b.year && a.month == b.month && a.day == b.day;
 
     final bool wantsCalendar =
         doSyncCalendar && calendarDates != null && calendarDates.isNotEmpty;
@@ -147,6 +150,12 @@ Future<void> syncAppData(
     final bool staleMess = doSyncMess &&
         isStale(localMeta.messUpdatedAt, serverMeta.messUpdatedAt);
 
+    final bool staleApod = fullSync ||
+        localMeta.apodLastFetchedAt == null ||
+        !FFAppState().apodData.hasTitle() ||
+        FFAppState().apodData.title.isEmpty ||
+        !isSameDay(localMeta.apodLastFetchedAt!, DateTime.now());
+
     final outcome = _SyncOutcome();
     final List<Future<void>> pending = [];
 
@@ -156,6 +165,7 @@ Future<void> syncAppData(
     if (staleMissed) pending.add(_fetchMissed(outcome));
     if (staleBus) pending.add(_fetchBus(outcome));
     if (staleMess) pending.add(_fetchMess(outcome));
+    if (staleApod) pending.add(_fetchApod(outcome));
 
     if (pending.isNotEmpty) {
       await Future.wait(pending, eagerError: false);
@@ -181,6 +191,9 @@ Future<void> syncAppData(
       if (outcome.mess.fetched && outcome.mess.data != null) {
         FFAppState().Messes = outcome.mess.data!;
       }
+      if (outcome.apod.fetched && outcome.apod.data != null) {
+        FFAppState().apodData = outcome.apod.data!;
+      }
 
       FFAppState().cacheMetaData = CacheMetadataStruct(
         appVersion: _currentAppVersion,
@@ -203,7 +216,8 @@ Future<void> syncAppData(
         messUpdatedAt: outcome.mess.fetched
             ? serverMeta.messUpdatedAt
             : localMeta.messUpdatedAt,
-        apodLastFetchedAt: localMeta.apodLastFetchedAt,
+        apodLastFetchedAt:
+            outcome.apod.fetched ? DateTime.now() : localMeta.apodLastFetchedAt,
       );
     });
 
@@ -219,7 +233,8 @@ Future<void> syncAppData(
         'calendar=${outcome.calendar.fetched} (${outcome.calendar.latencyMs}ms) '
         'missed=${outcome.missed.fetched} (${outcome.missed.latencyMs}ms) '
         'bus=${outcome.bus.fetched} (${outcome.bus.latencyMs}ms) '
-        'mess=${outcome.mess.fetched} (${outcome.mess.latencyMs}ms)');
+        'mess=${outcome.mess.fetched} (${outcome.mess.latencyMs}ms) '
+        'apod=${outcome.apod.fetched} (${outcome.apod.latencyMs}ms)');
   } finally {
     _isSyncRunning = false;
   }
@@ -416,6 +431,22 @@ MessStruct _parseMess(Map<String, dynamic> raw) {
   );
 }
 
+ApodStruct _parseApod(Map<String, dynamic> raw) {
+  return ApodStruct(
+    apodDate: (raw['apodDate'] ?? raw['apod_date'])?.toString() ?? '',
+    title: (raw['title'])?.toString() ?? '',
+    description: (raw['description'])?.toString() ?? '',
+    imageUrl: (raw['imageUrl'] ?? raw['image_url'])?.toString() ?? '',
+    hdImageUrl: (raw['hdImageUrl'] ?? raw['hd_image_url'])?.toString() ?? '',
+    mediaType: (raw['mediaType'] ?? raw['media_type'])?.toString() ?? '',
+    shareUrl:
+        (raw['shareUrl'] ?? raw['share_url'] ?? raw['shareurl'])?.toString() ??
+            '',
+    copyright: (raw['copyright'])?.toString() ?? '',
+    fetchedAt: _parseDateTimeValue(raw['fetchedAt'] ?? raw['fetched_at']),
+  );
+}
+
 Future<void> _fetchProfile(_SyncOutcome outcome) async {
   final sw = Stopwatch()..start();
   try {
@@ -548,5 +579,28 @@ Future<void> _fetchMess(_SyncOutcome outcome) async {
     debugPrint('syncAppData: mess sync failed - $e');
   } finally {
     outcome.mess.latencyMs = sw.elapsedMilliseconds;
+  }
+}
+
+Future<void> _fetchApod(_SyncOutcome outcome) async {
+  final sw = Stopwatch()..start();
+  try {
+    final dynamic response = await _callRpcWithRetry('get_latest_apod');
+    if (response is List && response.isNotEmpty) {
+      final data = Map<String, dynamic>.from(response.first as Map);
+      outcome.apod.data = _parseApod(data);
+      outcome.apod.fetched = true;
+    } else if (response is Map) {
+      outcome.apod.data = _parseApod(Map<String, dynamic>.from(response));
+      outcome.apod.fetched = true;
+    } else {
+      debugPrint(
+          'syncAppData: get_latest_apod returned unexpected format (${response?.runtimeType})');
+    }
+  } catch (e) {
+    outcome.apod.error = e;
+    debugPrint('syncAppData: apod sync failed - $e');
+  } finally {
+    outcome.apod.latencyMs = sw.elapsedMilliseconds;
   }
 }

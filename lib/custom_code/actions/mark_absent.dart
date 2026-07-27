@@ -58,8 +58,8 @@ Future<MarkAbsentResponseStruct> markAbsent(
       try {
         final decoded = jsonDecode(resMap['attendance'] as String);
         if (decoded is Map) {
-          newAttendance = AttendanceStruct.fromMap(
-              Map<String, dynamic>.from(decoded as Map));
+          newAttendance =
+              AttendanceStruct.fromMap(Map<String, dynamic>.from(decoded));
         }
       } catch (e) {
         debugPrint('Failed to decode attendance JSON string: $e');
