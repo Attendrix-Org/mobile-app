@@ -71,17 +71,58 @@ jobs:
           channel: stable
           cache: true
 
-      - name: Restore debug keystore
+      - name: Log environment metadata
         run: |
-          if [ -z "${{ secrets.ANDROID_DEBUG_KEYSTORE_BASE64 }}" ]; then
-            echo "::error::ANDROID_DEBUG_KEYSTORE_BASE64 secret is not set."
+          echo "=== Environment Info ==="
+          flutter --version
+          java -version
+
+      - name: Validate signing secrets
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          if [ -z "$ANDROID_KEYSTORE_BASE64" ]; then
+            echo "::error::ANDROID_KEYSTORE_BASE64 secret is missing."
             exit 1
           fi
-          echo "${{ secrets.ANDROID_DEBUG_KEYSTORE_BASE64 }}" | base64 -d > android/debug.keystore
-          keytool -list -keystore android/debug.keystore -storepass android > /dev/null || {
-            echo "::error::Decoded keystore is invalid — check the secret's contents."
+          if [ -z "$KEYSTORE_PASSWORD" ]; then
+            echo "::error::KEYSTORE_PASSWORD secret is missing."
+            exit 1
+          fi
+          if [ -z "$KEY_ALIAS" ]; then
+            echo "::error::KEY_ALIAS secret is missing."
+            exit 1
+          fi
+          if [ -z "$KEY_PASSWORD" ]; then
+            echo "::error::KEY_PASSWORD secret is missing."
+            exit 1
+          fi
+
+      - name: Restore release keystore and key.properties
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > android/release.keystore
+          chmod 600 android/release.keystore
+
+          keytool -list -keystore android/release.keystore -storepass "$KEYSTORE_PASSWORD" -alias "$KEY_ALIAS" > /dev/null || {
+            echo "::error::Key alias '$KEY_ALIAS' not found in release.keystore or password mismatch."
             exit 1
           }
+
+          cat <<EOF > android/key.properties
+storePassword=$KEYSTORE_PASSWORD
+keyPassword=$KEY_PASSWORD
+keyAlias=$KEY_ALIAS
+storeFile=release.keystore
+EOF
+          chmod 600 android/key.properties
 
       - run: flutter pub get
 
@@ -92,11 +133,39 @@ jobs:
             --obfuscate
 
       - name: Verify signature and generate checksum
+        env:
+          EXPECTED_CERT_SHA256: ${{ secrets.EXPECTED_CERT_SHA256 }}
         run: |
+          APK_PATH="build/app/outputs/flutter-apk/app-release.apk"
+          if [ ! -f "$APK_PATH" ]; then
+            echo "::error::Release APK not found at $APK_PATH"
+            exit 1
+          fi
+
+          SDK_ROOT="${ANDROID_SDK_ROOT:-$ANDROID_HOME}"
+          APKSIGNER=$(find "$SDK_ROOT/build-tools" -type f -name apksigner | sort -V | tail -n 1)
+          if [ -z "$APKSIGNER" ] || [ ! -x "$APKSIGNER" ]; then
+            echo "::error::apksigner tool not found in $SDK_ROOT/build-tools"
+            exit 1
+          fi
+
+          echo "Verifying APK signature using apksigner ($APKSIGNER)..."
+          "$APKSIGNER" verify --verbose --print-certs "$APK_PATH"
+
+          if [ -n "$EXPECTED_CERT_SHA256" ]; then
+            echo "Verifying signer certificate fingerprint against EXPECTED_CERT_SHA256..."
+            ACTUAL_SHA256=$("$APKSIGNER" verify --print-certs "$APK_PATH" | grep "SHA-256 digest:" | head -n1 | awk '{print $NF}')
+            CLEAN_ACTUAL=$(echo "$ACTUAL_SHA256" | tr -d ':' | tr '[:lower:]' '[:upper:]')
+            CLEAN_EXPECTED=$(echo "$EXPECTED_CERT_SHA256" | tr -d ':' | tr '[:lower:]' '[:upper:]')
+            if [ "$CLEAN_ACTUAL" != "$CLEAN_EXPECTED" ]; then
+              echo "::error::Signer SHA-256 fingerprint ($CLEAN_ACTUAL) does not match EXPECTED_CERT_SHA256 ($CLEAN_EXPECTED)!"
+              exit 1
+            fi
+            echo "Certificate SHA-256 fingerprint matched successfully."
+          fi
+
           cd build/app/outputs/flutter-apk
-          echo "--- Signer fingerprint ---"
-          keytool -printcert -jarfile app-release.apk | grep -A1 "SHA256:"
-          sha256sum app-release.apk | tee app-release.apk.sha256
+          sha256sum app-release.apk > app-release.apk.sha256
 
       - name: Zip debug symbols
         run: cd build && zip -r debug-info.zip debug-info
@@ -113,3 +182,13 @@ jobs:
             build/app/outputs/flutter-apk/app-release.apk
             build/app/outputs/flutter-apk/app-release.apk.sha256
             build/debug-info.zip
+
+      - name: Clean up signing credentials
+        if: always()
+        run: |
+          if command -v shred >/dev/null 2>&1; then
+            shred -u android/release.keystore 2>/dev/null || rm -f android/release.keystore
+          else
+            rm -f android/release.keystore
+          fi
+          rm -f android/key.properties
