@@ -2,8 +2,8 @@ name: Release APK
 
 on:
   push:
-    branches: [main]
-  workflow_dispatch: {}
+    branches: [main, native]
+  workflow_dispatch:
 
 concurrency:
   group: release-main
