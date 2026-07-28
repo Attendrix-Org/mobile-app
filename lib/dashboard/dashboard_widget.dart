@@ -1297,7 +1297,7 @@ class _DashboardWidgetState extends State<DashboardWidget>
                                                     true,
                                                     true,
                                                     false,
-                                                    false,
+                                                    true,
                                                     false,
                                                     false,
                                                     _model.generatedDates

@@ -11,3 +11,4 @@ export '/custom_code/functions/calendar_item_height.dart';
 export '/custom_code/functions/deterministic_index.dart';
 export '/custom_code/functions/attendance_status.dart';
 export '/custom_code/functions/get_empty_state_message.dart';
+export '/custom_code/functions/map_core_courses.dart';

@@ -93,6 +93,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
             FFRoute(
               name: ForgotPasswordWidget.routeName,
               path: ForgotPasswordWidget.routePath,
+              requireAuth: true,
               builder: (context, params) => ForgotPasswordWidget(),
             ),
             FFRoute(
@@ -150,6 +151,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
             FFRoute(
               name: ResetPasswordSentWidget.routeName,
               path: ResetPasswordSentWidget.routePath,
+              requireAuth: true,
               builder: (context, params) => ResetPasswordSentWidget(
                 email: params.getParam(
                   'email',
@@ -206,6 +208,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
             FFRoute(
               name: UnderMaintainanceWidget.routeName,
               path: UnderMaintainanceWidget.routePath,
+              requireAuth: true,
               builder: (context, params) => UnderMaintainanceWidget(
                 currentVersion: params.getParam(
                   'currentVersion',
@@ -224,26 +227,31 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
             FFRoute(
               name: CourseCatalogWidget.routeName,
               path: CourseCatalogWidget.routePath,
+              requireAuth: true,
               builder: (context, params) => CourseCatalogWidget(),
             ),
             FFRoute(
               name: QuickNotesWidget.routeName,
               path: QuickNotesWidget.routePath,
+              requireAuth: true,
               builder: (context, params) => QuickNotesWidget(),
             ),
             FFRoute(
               name: EnrolledCoursesWidget.routeName,
               path: EnrolledCoursesWidget.routePath,
+              requireAuth: true,
               builder: (context, params) => EnrolledCoursesWidget(),
             ),
             FFRoute(
               name: SettingsWidget.routeName,
               path: SettingsWidget.routePath,
+              requireAuth: true,
               builder: (context, params) => SettingsWidget(),
             ),
             FFRoute(
               name: ManageNotificationsWidget.routeName,
               path: ManageNotificationsWidget.routePath,
+              requireAuth: true,
               builder: (context, params) => ManageNotificationsWidget(),
             )
           ].map((r) => r.toRoute(appStateNotifier)).toList(),
