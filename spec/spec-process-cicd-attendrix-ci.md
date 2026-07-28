@@ -201,3 +201,4 @@ debug-info.zip: file                  # Obfuscated symbol map archive
 | Version | Date | Changes | Author |
 |---------|------|---------|--------|
 | 1.0 | 2026-07-28 | Initial production release signing specification | Mobile DevOps |
+| 1.1 | 2026-07-28 | Optimized secret restoration step, dynamic branch concurrency, and pub lock cache keying | Mobile DevOps |
