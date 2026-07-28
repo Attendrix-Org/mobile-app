@@ -877,7 +877,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                                               padding: EdgeInsetsDirectional
                                                   .fromSTEB(4.0, 0.0, 0.0, 0.0),
                                               child: Text(
-                                                'View Courses',
+                                                'Manage Courses',
                                                 style: FlutterFlowTheme.of(
                                                         context)
                                                     .bodyMedium

@@ -14,35 +14,62 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 Future<FeedbackStruct> completeCourseEnrollment(
   List<EnrolledCourseStruct> enrolledCourses,
+  bool debug,
 ) async {
   try {
     final payload = enrolledCourses.map((e) => e.toMap()).toList();
 
-    final success = await Supabase.instance.client.rpc(
+    final res = await Supabase.instance.client.rpc(
       'update_enrolled_courses',
       params: {
         'p_enrolled_courses': payload,
       },
-    ) as bool;
+    );
+
+    final resMap = res is Map ? res : <String, dynamic>{};
+
+    final added = (resMap['added'] ?? 0) as int;
+    final removed = (resMap['removed'] ?? 0) as int;
+    final retained = (resMap['retained'] ?? 0) as int;
+
+    String message;
+
+    if (debug) {
+      message = 'Course enrollment updated successfully: '
+          '$added added, $removed removed, $retained retained.';
+    } else {
+      // Fresh onboarding
+      if (removed == 0 && retained == 0) {
+        message = added == 1
+            ? 'Your course has been added successfully.'
+            : 'Your courses have been added successfully.';
+      }
+      // Existing enrollment updated
+      else {
+        message = 'Your course preferences have been updated successfully.';
+      }
+    }
 
     return FeedbackStruct(
-      success: success,
-      statusCode: success ? 200 : 400,
-      message: success
-          ? 'Course enrollment completed successfully.'
-          : 'Course enrollment failed.',
+      success: true,
+      statusCode: 200,
+      message: message,
     );
   } on PostgrestException catch (e) {
     return FeedbackStruct(
       success: false,
       statusCode: 400,
-      message: e.message,
+      message: debug
+          ? e.message
+          : 'We couldn\'t update your course selections. Please try again.',
     );
   } catch (e) {
     return FeedbackStruct(
       success: false,
       statusCode: 500,
-      message: e.toString(),
+      message: debug
+          ? e.toString()
+          : 'Something went wrong while updating your courses. Please try again.',
     );
   }
 }
