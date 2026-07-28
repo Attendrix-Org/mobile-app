@@ -8,5 +8,6 @@
     android:maxResizeHeight="500dp"
     android:resizeMode="horizontal|vertical"
     android:widgetCategory="home_screen"
+    android:previewImage="@drawable/attendrix_mess_menu_widget_preview"
     android:updatePeriodMillis="0"
     android:description="@string/mess_menu_widget_description" />
