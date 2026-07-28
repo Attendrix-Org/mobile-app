@@ -6,12 +6,11 @@ on:
   workflow_dispatch: {}
 
 concurrency:
-  group: 'release-${{ github.ref }}'
+  group: release-main
   cancel-in-progress: false
 
 jobs:
   check-version:
-    name: Check Version & Release Status
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -35,7 +34,7 @@ jobs:
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
-      - name: Check if version is already released
+      - name: Skip if this version was already released
         id: compare
         env:
           GH_TOKEN: ${{ github.token }}
@@ -48,7 +47,6 @@ jobs:
           fi
 
   build-and-release:
-    name: Build & Publish Release APK
     needs: check-version
     if: needs.check-version.outputs.should_release == 'true'
     runs-on: ubuntu-latest
@@ -58,7 +56,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up JDK 17
+      - name: Set up JDK
         uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -75,22 +73,41 @@ jobs:
 
       - name: Log environment metadata
         run: |
-          echo "=== Build Environment Info ==="
+          echo "=== Environment Info ==="
           flutter --version
           java -version
 
-      - name: Restore and validate release signing credentials
+      - name: Validate signing secrets
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
-          if [ -z "$ANDROID_KEYSTORE_BASE64" ] || [ -z "$KEYSTORE_PASSWORD" ] || [ -z "$KEY_ALIAS" ] || [ -z "$KEY_PASSWORD" ]; then
-            echo "::error::Missing required signing secrets. Verify ANDROID_KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD."
+          if [ -z "$ANDROID_KEYSTORE_BASE64" ]; then
+            echo "::error::ANDROID_KEYSTORE_BASE64 secret is missing."
+            exit 1
+          fi
+          if [ -z "$KEYSTORE_PASSWORD" ]; then
+            echo "::error::KEYSTORE_PASSWORD secret is missing."
+            exit 1
+          fi
+          if [ -z "$KEY_ALIAS" ]; then
+            echo "::error::KEY_ALIAS secret is missing."
+            exit 1
+          fi
+          if [ -z "$KEY_PASSWORD" ]; then
+            echo "::error::KEY_PASSWORD secret is missing."
             exit 1
           fi
 
+      - name: Restore release keystore and key.properties
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
           echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > android/release.keystore
           chmod 600 android/release.keystore
 
@@ -107,8 +124,7 @@ storeFile=release.keystore
 EOF
           chmod 600 android/key.properties
 
-      - name: Fetch Flutter dependencies
-        run: flutter pub get
+      - run: flutter pub get
 
       - name: Build release APK
         run: |
