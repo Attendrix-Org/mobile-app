@@ -1,17 +1,11 @@
 name: Release APK
 
-on:
-  push:
-    branches: [main, native]
-  workflow_dispatch:
+on: [push, workflow_dispatch]
 
-concurrency:
-  group: release-${{ github.ref }}
-  cancel-in-progress: false
+concurrency: release-main
 
 jobs:
   check-version:
-    name: Check Version & Release Status
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -35,20 +29,26 @@ jobs:
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
-      - name: Check if version is already released
+      - name: Skip if this version was already released
         id: compare
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ steps.extract.outputs.tag }}
         run: |
-          if gh release view "$TAG" --repo "${{ github.repository }}" > /dev/null 2>&1; then
+          RELEASE_EXISTS="false"
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            RELEASE_EXISTS="true"
+          fi
+
+          if [ "$RELEASE_EXISTS" = "true" ]; then
+            echo "::notice::Version $TAG was already released. Skipping build."
             echo "should_release=false" >> "$GITHUB_OUTPUT"
           else
+            echo "::notice::Version $TAG has not been released yet. Proceeding with release build."
             echo "should_release=true" >> "$GITHUB_OUTPUT"
           fi
 
   build-and-release:
-    name: Build & Publish Release APK
     needs: check-version
     if: needs.check-version.outputs.should_release == 'true'
     runs-on: ubuntu-latest
@@ -58,7 +58,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up JDK 17
+      - name: Set up JDK
         uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -73,26 +73,44 @@ jobs:
           flutter-version: '3.38.6'
           channel: stable
           cache: true
-          cache-key: "flutter-:os:-:channel:-:version:-:arch:-:${{ hashFiles('**/pubspec.lock') }}"
 
       - name: Log environment metadata
         run: |
-          echo "=== Build Environment Info ==="
+          echo "=== Environment Info ==="
           flutter --version
           java -version
 
-      - name: Restore and validate release signing credentials
+      - name: Validate signing secrets
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
-          if [ -z "$ANDROID_KEYSTORE_BASE64" ] || [ -z "$KEYSTORE_PASSWORD" ] || [ -z "$KEY_ALIAS" ] || [ -z "$KEY_PASSWORD" ]; then
-            echo "::error::Missing required signing secrets. Verify ANDROID_KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD."
+          if [ -z "$ANDROID_KEYSTORE_BASE64" ]; then
+            echo "::error::ANDROID_KEYSTORE_BASE64 secret is missing."
+            exit 1
+          fi
+          if [ -z "$KEYSTORE_PASSWORD" ]; then
+            echo "::error::KEYSTORE_PASSWORD secret is missing."
+            exit 1
+          fi
+          if [ -z "$KEY_ALIAS" ]; then
+            echo "::error::KEY_ALIAS secret is missing."
+            exit 1
+          fi
+          if [ -z "$KEY_PASSWORD" ]; then
+            echo "::error::KEY_PASSWORD secret is missing."
             exit 1
           fi
 
+      - name: Restore release keystore and key.properties
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
           echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > android/release.keystore
           chmod 600 android/release.keystore
 
@@ -101,16 +119,15 @@ jobs:
             exit 1
           }
 
-          cat <<EOF > android/key.properties
-storePassword=$KEYSTORE_PASSWORD
-keyPassword=$KEY_PASSWORD
-keyAlias=$KEY_ALIAS
-storeFile=release.keystore
-EOF
+          {
+            printf 'storePassword=%s\n' "$KEYSTORE_PASSWORD"
+            printf 'keyPassword=%s\n' "$KEY_PASSWORD"
+            printf 'keyAlias=%s\n' "$KEY_ALIAS"
+            printf 'storeFile=%s\n' "release.keystore"
+          } > android/key.properties
           chmod 600 android/key.properties
 
-      - name: Fetch Flutter dependencies
-        run: flutter pub get
+      - run: flutter pub get
 
       - name: Build release APK
         run: |
@@ -118,7 +135,7 @@ EOF
             --split-debug-info=build/debug-info \
             --obfuscate
 
-      - name: Verify signature and generate checksum
+            - name: Verify signature and generate checksum
         env:
           EXPECTED_CERT_SHA256: ${{ secrets.EXPECTED_CERT_SHA256 }}
         run: |
@@ -130,6 +147,7 @@ EOF
 
           SDK_ROOT="${ANDROID_SDK_ROOT:-$ANDROID_HOME}"
           APKSIGNER=$(find "$SDK_ROOT/build-tools" -type f -name apksigner | sort -V | tail -n 1)
+
           if [ -z "$APKSIGNER" ] || [ ! -x "$APKSIGNER" ]; then
             echo "::error::apksigner tool not found in $SDK_ROOT/build-tools"
             exit 1
@@ -140,18 +158,32 @@ EOF
 
           if [ -n "$EXPECTED_CERT_SHA256" ]; then
             echo "Verifying signer certificate fingerprint against EXPECTED_CERT_SHA256..."
-            ACTUAL_SHA256=$("$APKSIGNER" verify --print-certs "$APK_PATH" | grep "SHA-256 digest:" | head -n1 | awk '{print $NF}')
-            CLEAN_ACTUAL=$(echo "$ACTUAL_SHA256" | tr -d ':' | tr '[:lower:]' '[:upper:]')
-            CLEAN_EXPECTED=$(echo "$EXPECTED_CERT_SHA256" | tr -d ':' | tr '[:lower:]' '[:upper:]')
-            if [ "$CLEAN_ACTUAL" != "$CLEAN_EXPECTED" ]; then
-              echo "::error::Signer SHA-256 fingerprint ($CLEAN_ACTUAL) does not match EXPECTED_CERT_SHA256 ($CLEAN_EXPECTED)!"
+
+            ACTUAL_SHA256=$(
+              "$APKSIGNER" verify --print-certs "$APK_PATH" \
+              | sed -n 's/.*certificate SHA-256 digest: //p' \
+              | head -n1
+            )
+
+            if [ -z "$ACTUAL_SHA256" ]; then
+              echo "::error::Failed to extract signer certificate SHA-256 fingerprint."
               exit 1
             fi
-            echo "Certificate SHA-256 fingerprint matched successfully."
+
+            CLEAN_ACTUAL=$(echo "$ACTUAL_SHA256" | tr -d ':' | tr '[:lower:]' '[:upper:]')
+            CLEAN_EXPECTED=$(echo "$EXPECTED_CERT_SHA256" | tr -d ':' | tr '[:lower:]' '[:upper:]')
+
+            if [ "$CLEAN_ACTUAL" != "$CLEAN_EXPECTED" ]; then
+              echo "::error::Signer SHA-256 fingerprint mismatch."
+              echo "::error::Expected: $CLEAN_EXPECTED"
+              echo "::error::Actual:   $CLEAN_ACTUAL"
+              exit 1
+            fi
+
+            echo "✓ Certificate SHA-256 fingerprint verified."
           fi
 
-          cd build/app/outputs/flutter-apk
-          sha256sum app-release.apk > app-release.apk.sha256
+          sha256sum "$APK_PATH" > "${APK_PATH}.sha256"
 
       - name: Zip debug symbols
         run: cd build && zip -r debug-info.zip debug-info
