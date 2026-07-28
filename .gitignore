@@ -83,4 +83,8 @@ app.*.symbols
 !/dev/ci/**/Gemfile.lock
 ci-cd_test_logs/
 
+# iOS ephemeral files
+ios/Flutter/ephemeral/
+
+
 
