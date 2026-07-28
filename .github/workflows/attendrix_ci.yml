@@ -40,9 +40,16 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ steps.extract.outputs.tag }}
         run: |
+          RELEASE_EXISTS="false"
           if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            RELEASE_EXISTS="true"
+          fi
+
+          if [ "$RELEASE_EXISTS" = "true" ]; then
+            echo "::notice::Version $TAG was already released. Skipping build."
             echo "should_release=false" >> "$GITHUB_OUTPUT"
           else
+            echo "::notice::Version $TAG has not been released yet. Proceeding with release build."
             echo "should_release=true" >> "$GITHUB_OUTPUT"
           fi
 
