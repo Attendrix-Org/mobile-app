@@ -3,7 +3,7 @@ name: Release APK
 on:
   push:
     branches: [main, native]
-  workflow_dispatch:
+  workflow_dispatch: {}
 
 concurrency:
   group: release-${{ github.ref }}
