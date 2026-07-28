@@ -1,10 +1,9 @@
 name: Release APK
 
 on:
-  workflow_dispatch:
-    inputs: {}
   push:
     branches: [main, native]
+  workflow_dispatch:
 
 concurrency:
   group: release-main
@@ -39,8 +38,9 @@ jobs:
         id: compare
         env:
           GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.extract.outputs.tag }}
         run: |
-          if gh release view "${{ steps.extract.outputs.tag }}" --repo "${{ github.repository }}" > /dev/null 2>&1; then
+          if gh release view "$TAG" --repo "${{ github.repository }}" > /dev/null 2>&1; then
             echo "should_release=false" >> "$GITHUB_OUTPUT"
           else
             echo "should_release=true" >> "$GITHUB_OUTPUT"
