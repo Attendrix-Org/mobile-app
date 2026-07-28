@@ -2,12 +2,12 @@ name: Release APK
 
 on:
   push:
-    branches: [main, native]
-  workflow_dispatch: {}
+    branches:
+      - main
+      - native
+  workflow_dispatch:
 
-concurrency:
-  group: release-main
-  cancel-in-progress: false
+concurrency: release-main
 
 jobs:
   check-version:
