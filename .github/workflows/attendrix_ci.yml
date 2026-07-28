@@ -73,7 +73,6 @@ jobs:
           flutter-version: '3.38.6'
           channel: stable
           cache: true
-          cache-key: "flutter-:os:-:channel:-:version:-:arch:-:${{ hashFiles('**/pubspec.lock') }}"
 
       - name: Log environment metadata
         run: |
