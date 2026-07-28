@@ -1,11 +1,6 @@
 name: Release APK
 
-on:
-  push:
-    branches:
-      - main
-      - native
-  workflow_dispatch:
+on: [push, workflow_dispatch]
 
 concurrency: release-main
 
