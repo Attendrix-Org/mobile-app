@@ -1,13 +1,8 @@
 name: Release APK
 
-on:
-  push:
-    branches: [main]
-  workflow_dispatch: {}
+on: [push, workflow_dispatch]
 
-concurrency:
-  group: release-main
-  cancel-in-progress: false
+concurrency: release-main
 
 jobs:
   check-version:
@@ -37,11 +32,19 @@ jobs:
       - name: Skip if this version was already released
         id: compare
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.extract.outputs.tag }}
         run: |
-          if gh release view "${{ steps.extract.outputs.tag }}" --repo "${{ github.repository }}" > /dev/null 2>&1; then
+          RELEASE_EXISTS="false"
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            RELEASE_EXISTS="true"
+          fi
+
+          if [ "$RELEASE_EXISTS" = "true" ]; then
+            echo "::notice::Version $TAG was already released. Skipping build."
             echo "should_release=false" >> "$GITHUB_OUTPUT"
           else
+            echo "::notice::Version $TAG has not been released yet. Proceeding with release build."
             echo "should_release=true" >> "$GITHUB_OUTPUT"
           fi
 
@@ -70,15 +73,6 @@ jobs:
           flutter-version-file: pubspec.yaml
           channel: stable
           cache: true
-
-      - name: Cache pub packages
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.pub-cache
-          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pub-
 
       - name: Log environment metadata
         run: |
