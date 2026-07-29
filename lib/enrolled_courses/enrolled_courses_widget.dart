@@ -541,7 +541,6 @@ class _EnrolledCoursesWidgetState extends State<EnrolledCoursesWidget> {
                                 _model.courseEnrollmentComplete =
                                     await actions.completeCourseEnrollment(
                                   _model.combinedCourses!.toList(),
-                                  true,
                                 );
                                 if (_model.courseEnrollmentComplete!.success) {
                                   logFirebaseEvent('Button_update_app_state');

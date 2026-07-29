@@ -23,8 +23,12 @@ class AttendanceCalculatorModel
   AttendanceCalculatorDataStruct? initialData;
   // State field(s) for attend widget.
   int? attendValue;
+  // Stores action output result for [Custom Action - calculateProjectedAttendance] action in attend widget.
+  AttendanceCalculatorDataStruct? projectedAttendnaceResultByAttended;
   // State field(s) for skip widget.
   int? skipValue;
+  // Stores action output result for [Custom Action - calculateProjectedAttendance] action in skip widget.
+  AttendanceCalculatorDataStruct? projectedAttendnaceResultBySkip;
 
   @override
   void initState(BuildContext context) {}

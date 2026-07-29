@@ -41,4 +41,7 @@ class BatchCoursesRow extends SupabaseDataRow {
   int? get enrolledStudentCount => getField<int>('enrolled_student_count');
   set enrolledStudentCount(int? value) =>
       setField<int>('enrolled_student_count', value);
+
+  String? get venue => getField<String>('venue');
+  set venue(String? value) => setField<String>('venue', value);
 }

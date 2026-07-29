@@ -10,25 +10,29 @@ import 'package:flutter/material.dart';
 // Begin custom action code
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
-import 'package:supabase_flutter/supabase_flutter.dart';
-
 Future<List<EnrolledCourseStruct>> getLabCourses(
   String batchId,
 ) async {
-  final supabase = Supabase.instance.client;
+  try {
+    final dynamic response = await SupaFlow.client.rpc(
+      'get_lab_courses',
+      params: {
+        'p_batch_id': batchId,
+      },
+    );
 
-  final List<dynamic> response = await supabase.rpc(
-    'get_lab_courses',
-    params: {
-      'p_batch_id': batchId,
-    },
-  );
+    if (response is! List) return [];
 
-  return response
-      .map((item) => EnrolledCourseStruct.fromMap(
-            Map<String, dynamic>.from(item as Map),
-          ))
-      .toList();
+    return response
+        .whereType<Map>()
+        .map((item) =>
+            EnrolledCourseStruct.fromMap(Map<String, dynamic>.from(item)))
+        .toList();
+  } catch (e) {
+    debugPrint('getLabCourses failed: $e');
+    return [];
+  }
 }
+
 // Set your action name, define your arguments and return parameter,
 // and then add the boilerplate code using the `</>` button on the right!

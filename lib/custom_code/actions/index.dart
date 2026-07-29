@@ -16,12 +16,10 @@ export '/custom_code/actions/complete_user_onboarding.dart'
 export '/custom_code/actions/parse_roll_number.dart' show parseRollNumber;
 export '/custom_code/actions/complete_course_enrollment.dart'
     show completeCourseEnrollment;
-export '/custom_code/actions/load_user_profile.dart' show loadUserProfile;
 export '/custom_code/actions/execute_schedule_query.dart'
     show executeScheduleQuery;
 export '/custom_code/actions/generate_timeline.dart' show generateTimeline;
 export '/custom_code/actions/generate_date_range.dart' show generateDateRange;
-export '/custom_code/actions/load_latest_apod.dart' show loadLatestApod;
 export '/custom_code/actions/sync_app_data.dart' show syncAppData;
 export '/custom_code/actions/load_app_bootstrap_status.dart'
     show loadAppBootstrapStatus;
@@ -54,3 +52,4 @@ export '/custom_code/actions/opt_out_push_notifications.dart'
 export '/custom_code/actions/has_push_permission.dart' show hasPushPermission;
 export '/custom_code/actions/report_class_cancelled.dart'
     show reportClassCancelled;
+export '/custom_code/actions/calculate_walk_route.dart' show calculateWalkRoute;

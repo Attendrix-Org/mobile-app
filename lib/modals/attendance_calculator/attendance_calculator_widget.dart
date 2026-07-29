@@ -140,6 +140,10 @@ class _AttendanceCalculatorWidgetState
                     decoration: BoxDecoration(
                       color: FlutterFlowTheme.of(context).primaryBackground,
                       borderRadius: BorderRadius.circular(16.0),
+                      border: Border.all(
+                        color: FlutterFlowTheme.of(context).alternate,
+                        width: 2.0,
+                      ),
                     ),
                     child: Column(
                       mainAxisSize: MainAxisSize.max,
@@ -151,25 +155,29 @@ class _AttendanceCalculatorWidgetState
                           child: Container(
                             width: MediaQuery.sizeOf(context).width * 1.0,
                             decoration: BoxDecoration(),
-                            child: Text(
-                              valueOrDefault<String>(
-                                widget.classBlock?.courseName,
-                                'Fluid Mechanics and Machinary and Whatthe fduck',
+                            child: Padding(
+                              padding: EdgeInsetsDirectional.fromSTEB(
+                                  0.0, 4.0, 0.0, 0.0),
+                              child: Text(
+                                valueOrDefault<String>(
+                                  widget.classBlock?.courseName,
+                                  'Fluid Mechanics and Machinary',
+                                ),
+                                style: FlutterFlowTheme.of(context)
+                                    .labelMedium
+                                    .override(
+                                      fontFamily: FlutterFlowTheme.of(context)
+                                          .labelMediumFamily,
+                                      color: FlutterFlowTheme.of(context)
+                                          .primaryText,
+                                      fontSize: 20.0,
+                                      letterSpacing: 0.0,
+                                      fontWeight: FontWeight.bold,
+                                      useGoogleFonts:
+                                          !FlutterFlowTheme.of(context)
+                                              .labelMediumIsCustom,
+                                    ),
                               ),
-                              style: FlutterFlowTheme.of(context)
-                                  .labelMedium
-                                  .override(
-                                    fontFamily: FlutterFlowTheme.of(context)
-                                        .labelMediumFamily,
-                                    color: FlutterFlowTheme.of(context)
-                                        .primaryText,
-                                    fontSize: 20.0,
-                                    letterSpacing: 0.0,
-                                    fontWeight: FontWeight.bold,
-                                    useGoogleFonts:
-                                        !FlutterFlowTheme.of(context)
-                                            .labelMediumIsCustom,
-                                  ),
                             ),
                           ),
                         ),
@@ -311,7 +319,11 @@ class _AttendanceCalculatorWidgetState
                                 text: TextSpan(
                                   children: [
                                     TextSpan(
-                                      text: '17',
+                                      text: valueOrDefault<String>(
+                                        widget.classBlock?.attendance.attended
+                                            .toString(),
+                                        '0',
+                                      ),
                                       style: FlutterFlowTheme.of(context)
                                           .bodyMedium
                                           .override(
@@ -341,7 +353,20 @@ class _AttendanceCalculatorWidgetState
                                       ),
                                     ),
                                     TextSpan(
-                                      text: '20',
+                                      text: valueOrDefault<String>(
+                                        (valueOrDefault<int>(
+                                                  widget.classBlock?.attendance
+                                                      .attended,
+                                                  0,
+                                                ) +
+                                                valueOrDefault<int>(
+                                                  widget.classBlock?.attendance
+                                                      .missed,
+                                                  0,
+                                                ))
+                                            .toString(),
+                                        '0',
+                                      ),
                                       style: GoogleFonts.outfit(
                                         color: FlutterFlowTheme.of(context)
                                             .primaryText,
@@ -379,7 +404,12 @@ class _AttendanceCalculatorWidgetState
                                   text: TextSpan(
                                     children: [
                                       TextSpan(
-                                        text: '80',
+                                        text: valueOrDefault<String>(
+                                          widget.classBlock?.attendance
+                                              .percentage
+                                              .toString(),
+                                          '0',
+                                        ),
                                         style: FlutterFlowTheme.of(context)
                                             .bodyMedium
                                             .override(
@@ -496,8 +526,23 @@ class _AttendanceCalculatorWidgetState
                         safeSetState(() => _model.attendValue = count);
                         logFirebaseEvent(
                             'ATTENDANCE_CALCULATOR_attend_ON_FORM_WID');
+                        logFirebaseEvent('attend_custom_action');
+                        _model.projectedAttendnaceResultByAttended =
+                            await actions.calculateProjectedAttendance(
+                          widget.classBlock,
+                          _model.attendValue,
+                          valueOrDefault<int>(
+                            _model.addToSkip,
+                            0,
+                          ),
+                          FFAppState().userPreferences.preferredActionTone,
+                        );
                         logFirebaseEvent('attend_update_component_state');
                         _model.addToAttended = _model.attendValue!;
+                        _model.projectedAttendance =
+                            _model.projectedAttendnaceResultByAttended;
+                        safeSetState(() {});
+
                         safeSetState(() {});
                       },
                       stepSize: 1,
@@ -562,8 +607,20 @@ class _AttendanceCalculatorWidgetState
                           safeSetState(() => _model.skipValue = count);
                           logFirebaseEvent(
                               'ATTENDANCE_CALCULATOR_skip_ON_FORM_WIDGE');
+                          logFirebaseEvent('skip_custom_action');
+                          _model.projectedAttendnaceResultBySkip =
+                              await actions.calculateProjectedAttendance(
+                            widget.classBlock,
+                            _model.addToAttended,
+                            _model.skipValue,
+                            FFAppState().userPreferences.preferredActionTone,
+                          );
                           logFirebaseEvent('skip_update_component_state');
                           _model.addToSkip = _model.skipValue!;
+                          _model.projectedAttendance =
+                              _model.projectedAttendnaceResultByAttended;
+                          safeSetState(() {});
+
                           safeSetState(() {});
                         },
                         stepSize: 1,

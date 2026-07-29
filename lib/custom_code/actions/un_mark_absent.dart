@@ -95,9 +95,6 @@ Future<MarkAbsentResponseStruct> unMarkAbsent(
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────
-// AppState reconciliation after a successful unMarkAbsent call.
-// ─────────────────────────────────────────────────────────────────────────
 void _syncAbsentStatus(
   String classId,
   bool isAbsent,
@@ -170,7 +167,6 @@ List<ScheduledClassStruct>? _resolveMissedListUpdate(
   final idx = missed.indexWhere((c) => c.classId == classId);
 
   if (!isAbsent) {
-    // Server says class is no longer absent — remove it from missedClasses
     if (idx == -1) return null;
     return List<ScheduledClassStruct>.from(missed)..removeAt(idx);
   }
@@ -216,12 +212,19 @@ UserProfileStruct? _cloneUserProfileWithAttendance(
   final currentCourses = source.enrolledCourses;
   bool courseMatched = false;
   final target = courseId.trim().toLowerCase();
+  final targetPrefix = target.split('_').first;
 
   final updatedCourses = currentCourses.map((course) {
     final cId = course.courseId.trim().toLowerCase();
     final cCode = course.courseCode.trim().toLowerCase();
+    final cIdPrefix = cId.split('_').first;
 
-    if (cId == target || cCode == target || (cId.isNotEmpty && target == cId)) {
+    final isMatch = cId == target ||
+        cCode == target ||
+        cIdPrefix == targetPrefix ||
+        cCode == targetPrefix;
+
+    if (isMatch) {
       courseMatched = true;
       debugPrint(
           '✅ Found matching course ($courseId) in UserProfile. Updating attendance: ${newAttendance.toMap()}');
@@ -233,10 +236,6 @@ UserProfileStruct? _cloneUserProfileWithAttendance(
   if (!courseMatched) {
     debugPrint(
         '⚠️ Warning: Course ID "$courseId" did NOT match any course in UserProfile!');
-    debugPrint(
-        'Available Course IDs: ${currentCourses.map((e) => e.courseId).toList()}');
-    debugPrint(
-        'Available Course Codes: ${currentCourses.map((e) => e.courseCode).toList()}');
     return null;
   }
 

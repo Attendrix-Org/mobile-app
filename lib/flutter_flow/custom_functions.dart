@@ -1,6 +1,5 @@
 export '/custom_code/functions/get_random_onboarding_status.dart';
 export '/custom_code/functions/get_mess_menu.dart';
-export '/custom_code/functions/build_course_hours_table.dart';
 export '/custom_code/functions/get_schedule_progress.dart';
 export '/custom_code/functions/parse_course_syllabus.dart';
 export '/custom_code/functions/format_class_time.dart';
@@ -12,3 +11,5 @@ export '/custom_code/functions/deterministic_index.dart';
 export '/custom_code/functions/attendance_status.dart';
 export '/custom_code/functions/get_empty_state_message.dart';
 export '/custom_code/functions/map_core_courses.dart';
+export '/custom_code/functions/subtract_duration.dart';
+export '/custom_code/functions/map_lat_lng.dart';

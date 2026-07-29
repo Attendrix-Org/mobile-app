@@ -14,28 +14,10 @@ import '/backend/schema/enums/enums.dart';
 import '/backend/supabase/supabase.dart';
 import '/auth/supabase_auth/auth_util.dart';
 
-List<CourseHourRowStruct> buildCourseHoursTable(
-  int lectureHours,
-  int tutorialHours,
-  int practicalHours,
-  int outsideHours,
+LatLng mapLatLng(
+  double lat,
+  double lng,
 ) {
-  return [
-    CourseHourRowStruct(
-      label: 'L',
-      value: lectureHours,
-    ),
-    CourseHourRowStruct(
-      label: 'T',
-      value: tutorialHours,
-    ),
-    CourseHourRowStruct(
-      label: 'P',
-      value: practicalHours,
-    ),
-    CourseHourRowStruct(
-      label: 'O',
-      value: outsideHours,
-    ),
-  ];
+  // A Function which will convert lat and lng to a LatLng Variable
+  return LatLng(lat, lng);
 }
