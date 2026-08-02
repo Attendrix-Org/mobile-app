@@ -52,5 +52,6 @@ Future<List<EnrolledCourseStruct>> combineEnrolledCourses(
 
   return combinedList;
 }
+
 // Set your action name, define your arguments and return parameter,
 // and then add the boilerplate code using the `</>` button on the right!

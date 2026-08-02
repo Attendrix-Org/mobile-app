@@ -46,13 +46,10 @@ Future<FeedbackStruct> completeCourseEnrollment(
       final added = map['added'] ?? 0;
       final removed = map['removed'] ?? 0;
       final retained = map['retained'] ?? 0;
-      message =
-          'Enrollment updated: $added added, $removed removed, $retained retained.';
+      message = 'Enrollment updated: $added added, $removed removed, $retained retained.';
     } else if (response is bool) {
       isSuccess = response;
-      message = isSuccess
-          ? 'Course enrollment completed.'
-          : 'Course enrollment failed.';
+      message = isSuccess ? 'Course enrollment completed.' : 'Course enrollment failed.';
     }
 
     return FeedbackStruct(
@@ -74,6 +71,3 @@ Future<FeedbackStruct> completeCourseEnrollment(
     );
   }
 }
-
-// Set your action name, define your arguments and return parameter,
-// and then add the boilerplate code using the `</>` button on the right!

@@ -21,14 +21,10 @@ Future<List<ElectiveCourseStruct>> getElectiveCourses(String batchId) async {
 
     return response
         .whereType<Map>()
-        .map((item) =>
-            ElectiveCourseStruct.fromMap(Map<String, dynamic>.from(item)))
+        .map((item) => ElectiveCourseStruct.fromMap(Map<String, dynamic>.from(item)))
         .toList();
   } catch (e) {
     debugPrint('getElectiveCourses failed: $e');
     return [];
   }
 }
-
-// Set your action name, define your arguments and return parameter,
-// and then add the boilerplate code using the `</>` button on the right!

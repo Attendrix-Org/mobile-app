@@ -55,9 +55,7 @@ Future<FeedbackStruct> scheduleClass(
             : (isSuccess ? 200 : 500));
 
     final String msg = rawData['message']?.toString() ??
-        (isSuccess
-            ? 'Class scheduled successfully.'
-            : 'Failed to schedule class.');
+        (isSuccess ? 'Class scheduled successfully.' : 'Failed to schedule class.');
 
     return FeedbackStruct(
       success: isSuccess,
@@ -96,6 +94,3 @@ Future<FeedbackStruct> scheduleClass(
     );
   }
 }
-
-// Set your action name, define your arguments and return parameter,
-// and then add the boilerplate code using the `</>` button on the right!

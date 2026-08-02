@@ -21,8 +21,7 @@ Future<void> optOutPushNotifications() async {
         await SupaFlow.client.rpc('deactivate_device', params: {
           'p_subscription_id': subscriptionId,
         });
-        debugPrint(
-            'Deactivated device $subscriptionId (is_active = false) in Supabase.');
+        debugPrint('Deactivated device $subscriptionId (is_active = false) in Supabase.');
       } catch (rpcErr) {
         debugPrint('RPC deactivate_device error: $rpcErr');
       }

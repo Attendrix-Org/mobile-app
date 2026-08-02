@@ -42,5 +42,3 @@ Future<AppBootstrapStruct> loadAppBootstrapStatus(
     return AppBootstrapStruct(onboardingCompleted: false, hasError: true);
   }
 }
-// Set your action name, define your arguments and return parameter,
-// and then add the boilerplate code using the `</>` button on the right!

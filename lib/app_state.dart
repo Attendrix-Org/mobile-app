@@ -639,22 +639,34 @@ class FFAppState extends ChangeNotifier {
   void clearCurrentDayAcademicCalendarCacheKey(String? uniqueKey) =>
       _currentDayAcademicCalendarManager.clearRequest(uniqueKey);
 
-  final _appVersionMetadataCacheManager =
-      FutureRequestManager<List<AppVersionControlRow>>();
-  Future<List<AppVersionControlRow>> appVersionMetadataCache({
-    String? uniqueQueryKey,
-    bool? overrideCache,
-    required Future<List<AppVersionControlRow>> Function() requestFn,
-  }) =>
-      _appVersionMetadataCacheManager.performRequest(
-        uniqueQueryKey: uniqueQueryKey,
-        overrideCache: overrideCache,
-        requestFn: requestFn,
-      );
-  void clearAppVersionMetadataCacheCache() =>
-      _appVersionMetadataCacheManager.clear();
-  void clearAppVersionMetadataCacheCacheKey(String? uniqueKey) =>
-      _appVersionMetadataCacheManager.clearRequest(uniqueKey);
+  List<CampusBuildingStruct> _campusBuildingData = [];
+  List<CampusBuildingStruct> get campusBuildingData => _campusBuildingData;
+  set campusBuildingData(List<CampusBuildingStruct> value) {
+    _campusBuildingData = value;
+  }
+
+  void addToCampusBuildingData(CampusBuildingStruct value) {
+    _campusBuildingData.add(value);
+  }
+
+  void removeFromCampusBuildingData(CampusBuildingStruct value) {
+    _campusBuildingData.remove(value);
+  }
+
+  void removeAtIndexFromCampusBuildingData(int index) {
+    _campusBuildingData.removeAt(index);
+  }
+
+  void updateCampusBuildingDataAtIndex(
+    int index,
+    CampusBuildingStruct Function(CampusBuildingStruct) updateFn,
+  ) {
+    _campusBuildingData[index] = updateFn(_campusBuildingData[index]);
+  }
+
+  void insertAtIndexInCampusBuildingData(int index, CampusBuildingStruct value) {
+    _campusBuildingData.insert(index, value);
+  }
 }
 
 void _safeInit(Function() initializeField) {

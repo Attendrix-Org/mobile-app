@@ -30,12 +30,10 @@ Future<void> loginOneSignalUser(String? userId) async {
       try {
         await SupaFlow.client.rpc('register_device', params: {
           'p_subscription_id': subscriptionId,
-          'p_platform':
-              defaultTargetPlatform == TargetPlatform.iOS ? 'ios' : 'android',
+          'p_platform': defaultTargetPlatform == TargetPlatform.iOS ? 'ios' : 'android',
           'p_app_version': FFAppConstants.appVersion,
         });
-        debugPrint(
-            'Registered device subscription $subscriptionId with Supabase (v${FFAppConstants.appVersion}).');
+        debugPrint('Registered device subscription $subscriptionId with Supabase (v${FFAppConstants.appVersion}).');
       } catch (rpcErr) {
         debugPrint('RPC register_device error: $rpcErr');
       }

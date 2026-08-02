@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart' hide Provider;
 
+export 'package:supabase_flutter/supabase_flutter.dart' hide Provider;
 export 'database/database.dart';
 
 String _kSupabaseUrl = 'https://ilcyfpwlcucwzxapccop.supabase.co';

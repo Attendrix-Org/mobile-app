@@ -267,20 +267,22 @@ class _BusTimeCardWidgetState extends State<BusTimeCardWidget> {
     // On component load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
       logFirebaseEvent('BUS_TIME_CARD_busTimeCard_ON_INIT_STATE');
-      currentUserLocationValue =
-          await getCurrentUserLocation(defaultLocation: LatLng(0.0, 0.0));
-      logFirebaseEvent('busTimeCard_start_periodic_action');
-      _model.nextBusFetchTimer = InstantTimer.periodic(
-        duration: Duration(milliseconds: 30000),
-        callback: (timer) async {
-          currentUserLocationValue =
-              await getCurrentUserLocation(defaultLocation: LatLng(0.0, 0.0));
-          if (await getPermissionStatus(locationPermission)) {
+      logFirebaseEvent('busTimeCard_custom_action');
+      _model.nextBusInfoDataPrimary = (await actions.getNextBusInfo(
+        FFAppState().BusRoutes.toList(),
+      )).firstOrNull;
+      logFirebaseEvent('busTimeCard_update_component_state');
+      _model.nextBusInfoState = _model.nextBusInfoDataPrimary;
+      safeSetState(() {});
+      if (await getPermissionStatus(locationPermission)) {
+        logFirebaseEvent('busTimeCard_start_periodic_action');
+        _model.nextBusFetchTimer = InstantTimer.periodic(
+          duration: Duration(milliseconds: 30000),
+          callback: (timer) async {
             logFirebaseEvent('busTimeCard_custom_action');
-            _model.nextBusInfoData = await actions.getNextBusInfo(
+            _model.nextBusInfoData = (await actions.getNextBusInfo(
               FFAppState().BusRoutes.toList(),
-              currentUserLocationValue,
-            );
+            )).firstOrNull;
             logFirebaseEvent('busTimeCard_update_component_state');
             _model.nextBusInfoState =
                 _model.nextBusInfoData!.toList().cast<NextBusInfoStruct>();
@@ -1263,11 +1265,9 @@ class _BusTimeCardWidgetState extends State<BusTimeCardWidget> {
                       currentUserLocationValue = await getCurrentUserLocation(
                           defaultLocation: LatLng(0.0, 0.0));
                       logFirebaseEvent('Button_custom_action');
-                      _model.nextBusInfoDataRefresh =
-                          await actions.getNextBusInfo(
+                      _model.nextBusInfoDataCopy = (await actions.getNextBusInfo(
                         FFAppState().BusRoutes.toList(),
-                        currentUserLocationValue,
-                      );
+                      )).firstOrNull;
                       logFirebaseEvent('Button_update_component_state');
                       _model.nextBusInfoState = _model.nextBusInfoDataRefresh!
                           .toList()

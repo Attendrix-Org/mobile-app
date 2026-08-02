@@ -55,8 +55,8 @@ Future<MarkAbsentResponseStruct> markAbsent(
       try {
         final decoded = jsonDecode(resMap['attendance'] as String);
         if (decoded is Map) {
-          newAttendance =
-              AttendanceStruct.fromMap(Map<String, dynamic>.from(decoded));
+          newAttendance = AttendanceStruct.fromMap(
+              Map<String, dynamic>.from(decoded));
         }
       } catch (e) {
         debugPrint('Failed to decode attendance JSON string: $e');
@@ -275,5 +275,3 @@ EnrolledCourseStruct _cloneEnrolledCourseWithAttendance(
     attendance: newAttendance,
   );
 }
-// Set your action name, define your arguments and return parameter,
-// and then add the boilerplate code using the `</>` button on the right!

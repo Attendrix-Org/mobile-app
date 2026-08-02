@@ -84,8 +84,7 @@ Future<String?> _downloadAndSaveApodImage(String url) async {
   if (url.isEmpty || !url.startsWith('http')) return null;
   try {
     final client = HttpClient();
-    final request =
-        await client.getUrl(Uri.parse(url)).timeout(const Duration(seconds: 8));
+    final request = await client.getUrl(Uri.parse(url)).timeout(const Duration(seconds: 8));
     final response = await request.close().timeout(const Duration(seconds: 10));
     if (response.statusCode == 200) {
       final bytes = await response
@@ -150,8 +149,7 @@ Future<void> syncAppData(
         serverMeta = localMeta;
       }
     } catch (e) {
-      debugPrint(
-          'syncAppData: get_cache_metadata failed: $e. Using local fallback.');
+      debugPrint('syncAppData: get_cache_metadata failed: $e. Using local fallback.');
       serverMeta = localMeta;
     }
 
@@ -160,12 +158,12 @@ Future<void> syncAppData(
         localMeta.appVersion != _currentAppVersion;
 
     // Standard TTL values (in milliseconds)
-    const int profileTtl = 5 * 60 * 1000; // 5 mins
-    const int dashboardTtl = 2 * 60 * 1000; // 2 mins
-    const int calendarTtl = 5 * 60 * 1000; // 5 mins
-    const int missedTtl = 2 * 60 * 1000; // 2 mins
-    const int busTtl = 60 * 60 * 1000; // 60 mins
-    const int messTtl = 60 * 60 * 1000; // 60 mins
+    const int profileTtl = 5 * 60 * 1000;       // 5 mins
+    const int dashboardTtl = 2 * 60 * 1000;     // 2 mins
+    const int calendarTtl = 5 * 60 * 1000;      // 5 mins
+    const int missedTtl = 2 * 60 * 1000;        // 2 mins
+    const int busTtl = 60 * 60 * 1000;          // 60 mins
+    const int messTtl = 60 * 60 * 1000;         // 60 mins
 
     bool isDatasetStale({
       required bool force,
@@ -318,6 +316,12 @@ Future<void> syncAppData(
       await updateAndroidWidgetFromAppState();
     } catch (_) {}
 
+    try {
+      await syncLocalNotificationsAction();
+    } catch (e) {
+      debugPrint('syncAppData: local notifications sync failed - $e');
+    }
+
     debugPrint(
         '⚡ syncAppData: completed in ${stopwatch.elapsedMilliseconds}ms - '
         'firstTime=$firstTimeSync force=$doForceSync | '
@@ -329,8 +333,7 @@ Future<void> syncAppData(
         'mess=${outcome.mess.fetched} (${outcome.mess.latencyMs}ms) '
         'apod=${outcome.apod.fetched} (${outcome.apod.latencyMs}ms)');
   } catch (globalErr, stack) {
-    debugPrint(
-        'syncAppData: global non-fatal exception caught: $globalErr\n$stack');
+    debugPrint('syncAppData: global non-fatal exception caught: $globalErr\n$stack');
   } finally {
     _isSyncRunning = false;
   }
@@ -444,13 +447,11 @@ ScheduledClassStruct _parseScheduledClass(Map<String, dynamic> raw) {
     courseName: (raw['courseName'] ?? raw['course_name'])?.toString() ?? '',
     batchId: (raw['batchId'] ?? raw['batch_id'])?.toString() ?? '',
     courseCategory: _parseCourseType(raw['courseCategory'] ??
-            raw['course_category'] ??
-            raw['courseType'] ??
-            raw['course_type']) ??
-        CourseType.PC,
+        raw['course_category'] ??
+        raw['courseType'] ??
+        raw['course_type']) ?? CourseType.theory,
     scheduledStart:
-        _parseDateTimeValue(raw['scheduledStart'] ?? raw['scheduled_start']) ??
-            now,
+        _parseDateTimeValue(raw['scheduledStart'] ?? raw['scheduled_start']) ?? now,
     scheduledEnd:
         _parseDateTimeValue(raw['scheduledEnd'] ?? raw['scheduled_end']) ?? now,
     venue: (raw['venue'])?.toString() ?? '',
@@ -475,8 +476,7 @@ UserProfileStruct _parseUserProfile(Map<String, dynamic> raw) {
     username: (raw['username'])?.toString() ?? '',
     email: (raw['email'])?.toString() ?? '',
     role: (raw['role'])?.toString() ?? '',
-    departmentId:
-        (raw['departmentId'] ?? raw['department_id'])?.toString() ?? '',
+    departmentId: (raw['departmentId'] ?? raw['department_id'])?.toString() ?? '',
     batchId: (raw['batchId'] ?? raw['batch_id'])?.toString() ?? '',
     currentSemester: _readInt(raw, 'currentSemester', 'current_semester') ?? 1,
     enrolledCourses: (raw['enrolledCourses'] ?? raw['enrolled_courses']) is List
@@ -485,48 +485,21 @@ UserProfileStruct _parseUserProfile(Map<String, dynamic> raw) {
             if (e is Map) {
               final map = Map<String, dynamic>.from(e as Map);
               return EnrolledCourseStruct(
-                courseId:
-                    (map['courseId'] ?? map['course_id'])?.toString() ?? '',
-                courseCode:
-                    (map['courseCode'] ?? map['course_code'])?.toString() ?? '',
-                courseName:
-                    (map['courseName'] ?? map['course_name'])?.toString() ?? '',
-                courseType:
-                    (map['courseType'] ?? map['course_type'])?.toString() ?? '',
+                courseId: (map['courseId'] ?? map['course_id'])?.toString() ?? '',
+                courseCode: (map['courseCode'] ?? map['course_code'])?.toString() ?? '',
+                courseName: (map['courseName'] ?? map['course_name'])?.toString() ?? '',
+                courseType: (map['courseType'] ?? map['course_type'])?.toString() ?? '',
                 slot: (map['slot'])?.toString() ?? '',
                 credits: _readInt(map, 'credits', 'credits') ?? 0,
                 isLab: map['isLab'] == true || map['is_lab'] == true,
-                isElective:
-                    map['isElective'] == true || map['is_elective'] == true,
-                electiveCategory:
-                    (map['electiveCategory'] ?? map['elective_category'])
-                            ?.toString() ??
-                        '',
+                isElective: map['isElective'] == true || map['is_elective'] == true,
+                electiveCategory: (map['electiveCategory'] ?? map['elective_category'])?.toString() ?? '',
                 attendance: map['attendance'] is Map
                     ? AttendanceStruct(
-                        attended: _readInt(
-                                Map<String, dynamic>.from(
-                                    map['attendance'] as Map),
-                                'attended',
-                                'attended') ??
-                            0,
-                        missed: _readInt(
-                                Map<String, dynamic>.from(
-                                    map['attendance'] as Map),
-                                'missed',
-                                'missed') ??
-                            0,
-                        percentage: (Map<String, dynamic>.from(
-                                        map['attendance'] as Map)['percentage']
-                                    as num?)
-                                ?.toDouble() ??
-                            0.0,
-                        required: _readInt(
-                                Map<String, dynamic>.from(
-                                    map['attendance'] as Map),
-                                'required',
-                                'required') ??
-                            80,
+                        attended: _readInt(Map<String, dynamic>.from(map['attendance'] as Map), 'attended', 'attended') ?? 0,
+                        missed: _readInt(Map<String, dynamic>.from(map['attendance'] as Map), 'missed', 'missed') ?? 0,
+                        percentage: (Map<String, dynamic>.from(map['attendance'] as Map)['percentage'] as num?)?.toDouble() ?? 0.0,
+                        required: _readInt(Map<String, dynamic>.from(map['attendance'] as Map), 'required', 'required') ?? 80,
                       )
                     : AttendanceStruct(),
               );
@@ -539,8 +512,7 @@ UserProfileStruct _parseUserProfile(Map<String, dynamic> raw) {
         : <EnrolledCourseStruct>[],
     amplixBalance: _readInt(raw, 'amplixBalance', 'amplix_balance') ?? 0,
     profileUpdatedAt: _parseDateTimeValue(
-            raw['profileUpdatedAt'] ?? raw['profile_updated_at']) ??
-        now,
+        raw['profileUpdatedAt'] ?? raw['profile_updated_at']) ?? now,
     onboardingComplete: raw['onboardingComplete'] == true ||
         raw['onboarding_complete'] == true ||
         raw['onboarding_completed'] == true,
@@ -552,8 +524,7 @@ BusRouteStruct _parseBusRoute(Map<String, dynamic> raw) {
   return BusRouteStruct(
     busId: (raw['busId'] ?? raw['bus_id'])?.toString() ?? '',
     routeName: (raw['routeName'] ?? raw['route_name'])?.toString() ?? '',
-    stopsSummary:
-        (raw['stopsSummary'] ?? raw['stops_summary'])?.toString() ?? '',
+    stopsSummary: (raw['stopsSummary'] ?? raw['stops_summary'])?.toString() ?? '',
     isActive: raw['isActive'] == true ||
         raw['is_active'] == true ||
         raw['isActive'] == 'true',
@@ -562,13 +533,9 @@ BusRouteStruct _parseBusRoute(Map<String, dynamic> raw) {
             if (e is Map) {
               final map = Map<String, dynamic>.from(e as Map);
               return BusTimingStruct(
-                timingId:
-                    (map['timingId'] ?? map['timing_id'])?.toString() ?? '',
-                departureTime: (map['departureTime'] ?? map['departure_time'])
-                        ?.toString() ??
-                    '',
-                isSpecial:
-                    map['isSpecial'] == true || map['is_special'] == true,
+                timingId: (map['timingId'] ?? map['timing_id'])?.toString() ?? '',
+                departureTime: (map['departureTime'] ?? map['departure_time'])?.toString() ?? '',
+                isSpecial: map['isSpecial'] == true || map['is_special'] == true,
                 sortOrder: _readInt(map, 'sortOrder', 'sort_order') ?? 0,
               );
             }

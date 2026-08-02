@@ -12,6 +12,8 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
+import '/app_state.dart';
+import '/app_constants.dart';
 
 Future<void> initOneSignal() async {
   try {
@@ -33,8 +35,7 @@ Future<void> initOneSignal() async {
             'p_old_subscription_id': oldId,
             'p_new_subscription_id': newId,
           });
-          debugPrint(
-              'Refreshed device subscription in Supabase: $oldId -> $newId');
+          debugPrint('Refreshed device subscription in Supabase: $oldId -> $newId');
         } catch (rpcErr) {
           debugPrint('RPC refresh_device_subscription failed: $rpcErr');
         }
@@ -60,8 +61,7 @@ Future<void> initOneSignal() async {
 
     final accepted = await OneSignal.Notifications.requestPermission(true);
 
-    debugPrint(
-        'OneSignal permission granted ($accepted) [AppVersion: ${FFAppConstants.appVersion}]');
+    debugPrint('OneSignal permission granted ($accepted) [AppVersion: ${FFAppConstants.appVersion}]');
   } catch (e, stackTrace) {
     debugPrint('OneSignal initialization failed: $e');
     debugPrintStack(stackTrace: stackTrace);

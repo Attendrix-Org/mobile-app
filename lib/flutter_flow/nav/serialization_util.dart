@@ -59,7 +59,7 @@ String? serializeParam(
       case ParamType.double:
         data = param.toString();
       case ParamType.String:
-        data = param;
+        data = param.toString();
       case ParamType.bool:
         data = param ? 'true' : 'false';
       case ParamType.DateTime:

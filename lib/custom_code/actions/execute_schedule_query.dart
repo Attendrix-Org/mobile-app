@@ -113,7 +113,7 @@ ScheduledClassStruct _parseScheduleRow(Map<String, dynamic> data) {
   if (courseTypeRaw != null) {
     category = deserializeEnum<CourseType>(courseTypeRaw);
   }
-  category ??= CourseType.PC;
+  category ??= CourseType.theory;
 
   final startRaw =
       (data['scheduledStart'] ?? data['scheduled_start'])?.toString();
@@ -292,7 +292,8 @@ Future<List<ScheduledClassStruct>> _fetchAndCacheScheduleForDate({
       case 'PT404':
         throw ScheduleNotOnboardedException(message);
       default:
-        debugPrint('[get_classes_for_date] error ($code): $message');
+        debugPrint(
+            '[get_classes_for_date] error ($code): $message');
         throw ScheduleFetchException(message, code: code);
     }
   }
@@ -339,6 +340,33 @@ Future<List<ScheduledClassStruct>> _getScheduleForRange(
   if (totalDays > _maxRangeDays) {
     throw ArgumentError(
         'Range spans $totalDays days, exceeding the $_maxRangeDays-day cap.');
+  }
+
+  final dateStrings = List<String>.generate(
+    totalDays,
+    (i) => DateFormat('yyyy-MM-dd')
+        .format(normalizedStart.add(Duration(days: i))),
+  );
+
+  try {
+    final dynamic response = await _withRetry(
+      () => SupaFlow.client.rpc('get_classes_for_dates', params: {
+        'p_dates': dateStrings,
+      }).timeout(_rpcTimeout),
+    );
+
+    final dynamic rawData =
+        response is String ? jsonDecode(response) : response;
+    if (rawData is List) {
+      final parsed = _parseRows(rawData, 'get_classes_for_dates:range');
+      if (limit != null && parsed.length > limit) {
+        return parsed.take(limit).toList();
+      }
+      return parsed;
+    }
+  } catch (e) {
+    debugPrint(
+        '[executeScheduleQuery:get_classes_for_dates] range batch call failed ($e), falling back to per-date fetch.');
   }
 
   final dates = List<DateTime>.generate(
@@ -459,6 +487,3 @@ Future<List<ScheduledClassStruct>> executeScheduleQuery(
       throw ArgumentError('Unhandled ScheduleViewType: $viewType');
   }
 }
-
-// Set your action name, define your arguments and return parameter,
-// and then add the boilerplate code using the `</>` button on the right!

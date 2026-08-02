@@ -1,377 +1,144 @@
-// ignore_for_file: unnecessary_getters_setters
-
 import '/backend/schema/util/schema_util.dart';
-
-import 'index.dart';
 import '/flutter_flow/flutter_flow_util.dart';
+import 'package:flutter/material.dart';
 
 class RouteResultStruct extends BaseStruct {
   RouteResultStruct({
-    double? distanceM,
-    int? durationMin,
     List<LatLng>? polyline,
-    String? confidence,
     double? distanceMeters,
+    String? formattedDistance,
     int? durationSeconds,
-    String? statusMessage,
+    String? formattedDuration,
     int? walkMinutes,
     int? leaveInMinutes,
-    bool? isLeaveNow,
+    String? confidence,
     bool? isLate,
-    String? formattedDuration,
-    String? formattedDistance,
-  })  : _distanceM = distanceM,
-        _durationMin = durationMin,
-        _polyline = polyline,
-        _confidence = confidence,
+    bool? isLeaveNow,
+    String? statusMessage,
+    DateTime? departureTime,
+    DateTime? arrivalTime,
+  })  : _polyline = polyline,
         _distanceMeters = distanceMeters,
+        _formattedDistance = formattedDistance,
         _durationSeconds = durationSeconds,
-        _statusMessage = statusMessage,
+        _formattedDuration = formattedDuration,
         _walkMinutes = walkMinutes,
         _leaveInMinutes = leaveInMinutes,
-        _isLeaveNow = isLeaveNow,
+        _confidence = confidence,
         _isLate = isLate,
-        _formattedDuration = formattedDuration,
-        _formattedDistance = formattedDistance;
+        _isLeaveNow = isLeaveNow,
+        _statusMessage = statusMessage,
+        _departureTime = departureTime,
+        _arrivalTime = arrivalTime;
 
-  // "distanceM" field.
-  double? _distanceM;
-  double get distanceM => _distanceM ?? 0.0;
-  set distanceM(double? val) => _distanceM = val;
-
-  void incrementDistanceM(double amount) => distanceM = distanceM + amount;
-
-  bool hasDistanceM() => _distanceM != null;
-
-  // "durationMin" field.
-  int? _durationMin;
-  int get durationMin => _durationMin ?? 0;
-  set durationMin(int? val) => _durationMin = val;
-
-  void incrementDurationMin(int amount) => durationMin = durationMin + amount;
-
-  bool hasDurationMin() => _durationMin != null;
-
-  // "polyline" field.
   List<LatLng>? _polyline;
-  List<LatLng> get polyline => _polyline ?? const [];
+  List<LatLng> get polyline => _polyline ?? [];
   set polyline(List<LatLng>? val) => _polyline = val;
-
-  void updatePolyline(Function(List<LatLng>) updateFn) {
-    updateFn(_polyline ??= []);
-  }
-
   bool hasPolyline() => _polyline != null;
 
-  // "confidence" field.
-  String? _confidence;
-  String get confidence => _confidence ?? '';
-  set confidence(String? val) => _confidence = val;
-
-  bool hasConfidence() => _confidence != null;
-
-  // "distanceMeters" field.
   double? _distanceMeters;
   double get distanceMeters => _distanceMeters ?? 0.0;
   set distanceMeters(double? val) => _distanceMeters = val;
-
-  void incrementDistanceMeters(double amount) =>
-      distanceMeters = distanceMeters + amount;
-
   bool hasDistanceMeters() => _distanceMeters != null;
 
-  // "durationSeconds" field.
-  int? _durationSeconds;
-  int get durationSeconds => _durationSeconds ?? 0;
-  set durationSeconds(int? val) => _durationSeconds = val;
-
-  void incrementDurationSeconds(int amount) =>
-      durationSeconds = durationSeconds + amount;
-
-  bool hasDurationSeconds() => _durationSeconds != null;
-
-  // "statusMessage" field.
-  String? _statusMessage;
-  String get statusMessage => _statusMessage ?? '';
-  set statusMessage(String? val) => _statusMessage = val;
-
-  bool hasStatusMessage() => _statusMessage != null;
-
-  // "walkMinutes" field.
-  int? _walkMinutes;
-  int get walkMinutes => _walkMinutes ?? 0;
-  set walkMinutes(int? val) => _walkMinutes = val;
-
-  void incrementWalkMinutes(int amount) => walkMinutes = walkMinutes + amount;
-
-  bool hasWalkMinutes() => _walkMinutes != null;
-
-  // "leaveInMinutes" field.
-  int? _leaveInMinutes;
-  int get leaveInMinutes => _leaveInMinutes ?? 0;
-  set leaveInMinutes(int? val) => _leaveInMinutes = val;
-
-  void incrementLeaveInMinutes(int amount) =>
-      leaveInMinutes = leaveInMinutes + amount;
-
-  bool hasLeaveInMinutes() => _leaveInMinutes != null;
-
-  // "isLeaveNow" field.
-  bool? _isLeaveNow;
-  bool get isLeaveNow => _isLeaveNow ?? false;
-  set isLeaveNow(bool? val) => _isLeaveNow = val;
-
-  bool hasIsLeaveNow() => _isLeaveNow != null;
-
-  // "isLate" field.
-  bool? _isLate;
-  bool get isLate => _isLate ?? false;
-  set isLate(bool? val) => _isLate = val;
-
-  bool hasIsLate() => _isLate != null;
-
-  // "formattedDuration" field.
-  String? _formattedDuration;
-  String get formattedDuration => _formattedDuration ?? '';
-  set formattedDuration(String? val) => _formattedDuration = val;
-
-  bool hasFormattedDuration() => _formattedDuration != null;
-
-  // "formattedDistance" field.
   String? _formattedDistance;
   String get formattedDistance => _formattedDistance ?? '';
   set formattedDistance(String? val) => _formattedDistance = val;
-
   bool hasFormattedDistance() => _formattedDistance != null;
 
-  static RouteResultStruct fromMap(Map<String, dynamic> data) =>
-      RouteResultStruct(
-        distanceM: castToType<double>(data['distanceM']),
-        durationMin: castToType<int>(data['durationMin']),
-        polyline: getDataList(data['polyline']),
-        confidence: data['confidence'] as String?,
-        distanceMeters: castToType<double>(data['distanceMeters']),
-        durationSeconds: castToType<int>(data['durationSeconds']),
-        statusMessage: data['statusMessage'] as String?,
-        walkMinutes: castToType<int>(data['walkMinutes']),
-        leaveInMinutes: castToType<int>(data['leaveInMinutes']),
-        isLeaveNow: data['isLeaveNow'] as bool?,
-        isLate: data['isLate'] as bool?,
-        formattedDuration: data['formattedDuration'] as String?,
-        formattedDistance: data['formattedDistance'] as String?,
+  int? _durationSeconds;
+  int get durationSeconds => _durationSeconds ?? 0;
+  set durationSeconds(int? val) => _durationSeconds = val;
+  bool hasDurationSeconds() => _durationSeconds != null;
+
+  String? _formattedDuration;
+  String get formattedDuration => _formattedDuration ?? '';
+  set formattedDuration(String? val) => _formattedDuration = val;
+  bool hasFormattedDuration() => _formattedDuration != null;
+
+  int? _walkMinutes;
+  int get walkMinutes => _walkMinutes ?? 0;
+  set walkMinutes(int? val) => _walkMinutes = val;
+  bool hasWalkMinutes() => _walkMinutes != null;
+
+  int? _leaveInMinutes;
+  int get leaveInMinutes => _leaveInMinutes ?? 0;
+  set leaveInMinutes(int? val) => _leaveInMinutes = val;
+  bool hasLeaveInMinutes() => _leaveInMinutes != null;
+
+  String? _confidence;
+  String get confidence => _confidence ?? 'none';
+  set confidence(String? val) => _confidence = val;
+  bool hasConfidence() => _confidence != null;
+
+  bool? _isLate;
+  bool get isLate => _isLate ?? false;
+  set isLate(bool? val) => _isLate = val;
+  bool hasIsLate() => _isLate != null;
+
+  bool? _isLeaveNow;
+  bool get isLeaveNow => _isLeaveNow ?? false;
+  set isLeaveNow(bool? val) => _isLeaveNow = val;
+  bool hasIsLeaveNow() => _isLeaveNow != null;
+
+  String? _statusMessage;
+  String get statusMessage => _statusMessage ?? '';
+  set statusMessage(String? val) => _statusMessage = val;
+  bool hasStatusMessage() => _statusMessage != null;
+
+  DateTime? _departureTime;
+  DateTime? get departureTime => _departureTime;
+  set departureTime(DateTime? val) => _departureTime = val;
+  bool hasDepartureTime() => _departureTime != null;
+
+  DateTime? _arrivalTime;
+  DateTime? get arrivalTime => _arrivalTime;
+  set arrivalTime(DateTime? val) => _arrivalTime = val;
+  bool hasArrivalTime() => _arrivalTime != null;
+
+  static RouteResultStruct fromMap(Map<String, dynamic> data) => RouteResultStruct(
+        polyline: data['polyline'] != null
+            ? (data['polyline'] as List)
+                .map((e) => e is LatLng ? e : LatLng(e['latitude'] as double, e['longitude'] as double))
+                .toList()
+            : null,
+        distanceMeters: castToNum(data['distanceMeters'] ?? data['distance_meters'])?.toDouble(),
+        formattedDistance: (data['formattedDistance'] ?? data['formatted_distance'])?.toString(),
+        durationSeconds: castToNum(data['durationSeconds'] ?? data['duration_seconds'])?.toInt(),
+        formattedDuration: (data['formattedDuration'] ?? data['formatted_duration'])?.toString(),
+        walkMinutes: castToNum(data['walkMinutes'] ?? data['walk_minutes'])?.toInt(),
+        leaveInMinutes: castToNum(data['leaveInMinutes'] ?? data['leave_in_minutes'])?.toInt(),
+        confidence: data['confidence']?.toString(),
+        isLate: data['isLate'] ?? data['is_late'],
+        isLeaveNow: data['isLeaveNow'] ?? data['is_leave_now'],
+        statusMessage: (data['statusMessage'] ?? data['status_message'])?.toString(),
+        departureTime: data['departureTime'] != null
+            ? DateTime.tryParse(data['departureTime'].toString())
+            : null,
+        arrivalTime: data['arrivalTime'] != null
+            ? DateTime.tryParse(data['arrivalTime'].toString())
+            : null,
       );
 
-  static RouteResultStruct? maybeFromMap(dynamic data) => data is Map
-      ? RouteResultStruct.fromMap(data.cast<String, dynamic>())
-      : null;
-
+  @override
   Map<String, dynamic> toMap() => {
-        'distanceM': _distanceM,
-        'durationMin': _durationMin,
         'polyline': _polyline,
-        'confidence': _confidence,
         'distanceMeters': _distanceMeters,
+        'formattedDistance': _formattedDistance,
         'durationSeconds': _durationSeconds,
-        'statusMessage': _statusMessage,
+        'formattedDuration': _formattedDuration,
         'walkMinutes': _walkMinutes,
         'leaveInMinutes': _leaveInMinutes,
-        'isLeaveNow': _isLeaveNow,
+        'confidence': _confidence,
         'isLate': _isLate,
-        'formattedDuration': _formattedDuration,
-        'formattedDistance': _formattedDistance,
-      }.withoutNulls;
+        'isLeaveNow': _isLeaveNow,
+        'statusMessage': _statusMessage,
+        'departureTime': _departureTime?.toIso8601String(),
+        'arrivalTime': _arrivalTime?.toIso8601String(),
+      };
 
   @override
-  Map<String, dynamic> toSerializableMap() => {
-        'distanceM': serializeParam(
-          _distanceM,
-          ParamType.double,
-        ),
-        'durationMin': serializeParam(
-          _durationMin,
-          ParamType.int,
-        ),
-        'polyline': serializeParam(
-          _polyline,
-          ParamType.LatLng,
-          isList: true,
-        ),
-        'confidence': serializeParam(
-          _confidence,
-          ParamType.String,
-        ),
-        'distanceMeters': serializeParam(
-          _distanceMeters,
-          ParamType.double,
-        ),
-        'durationSeconds': serializeParam(
-          _durationSeconds,
-          ParamType.int,
-        ),
-        'statusMessage': serializeParam(
-          _statusMessage,
-          ParamType.String,
-        ),
-        'walkMinutes': serializeParam(
-          _walkMinutes,
-          ParamType.int,
-        ),
-        'leaveInMinutes': serializeParam(
-          _leaveInMinutes,
-          ParamType.int,
-        ),
-        'isLeaveNow': serializeParam(
-          _isLeaveNow,
-          ParamType.bool,
-        ),
-        'isLate': serializeParam(
-          _isLate,
-          ParamType.bool,
-        ),
-        'formattedDuration': serializeParam(
-          _formattedDuration,
-          ParamType.String,
-        ),
-        'formattedDistance': serializeParam(
-          _formattedDistance,
-          ParamType.String,
-        ),
-      }.withoutNulls;
+  Map<String, dynamic> toSerializableMap() => toMap();
 
-  static RouteResultStruct fromSerializableMap(Map<String, dynamic> data) =>
-      RouteResultStruct(
-        distanceM: deserializeParam(
-          data['distanceM'],
-          ParamType.double,
-          false,
-        ),
-        durationMin: deserializeParam(
-          data['durationMin'],
-          ParamType.int,
-          false,
-        ),
-        polyline: deserializeParam<LatLng>(
-          data['polyline'],
-          ParamType.LatLng,
-          true,
-        ),
-        confidence: deserializeParam(
-          data['confidence'],
-          ParamType.String,
-          false,
-        ),
-        distanceMeters: deserializeParam(
-          data['distanceMeters'],
-          ParamType.double,
-          false,
-        ),
-        durationSeconds: deserializeParam(
-          data['durationSeconds'],
-          ParamType.int,
-          false,
-        ),
-        statusMessage: deserializeParam(
-          data['statusMessage'],
-          ParamType.String,
-          false,
-        ),
-        walkMinutes: deserializeParam(
-          data['walkMinutes'],
-          ParamType.int,
-          false,
-        ),
-        leaveInMinutes: deserializeParam(
-          data['leaveInMinutes'],
-          ParamType.int,
-          false,
-        ),
-        isLeaveNow: deserializeParam(
-          data['isLeaveNow'],
-          ParamType.bool,
-          false,
-        ),
-        isLate: deserializeParam(
-          data['isLate'],
-          ParamType.bool,
-          false,
-        ),
-        formattedDuration: deserializeParam(
-          data['formattedDuration'],
-          ParamType.String,
-          false,
-        ),
-        formattedDistance: deserializeParam(
-          data['formattedDistance'],
-          ParamType.String,
-          false,
-        ),
-      );
-
-  @override
-  String toString() => 'RouteResultStruct(${toMap()})';
-
-  @override
-  bool operator ==(Object other) {
-    const listEquality = ListEquality();
-    return other is RouteResultStruct &&
-        distanceM == other.distanceM &&
-        durationMin == other.durationMin &&
-        listEquality.equals(polyline, other.polyline) &&
-        confidence == other.confidence &&
-        distanceMeters == other.distanceMeters &&
-        durationSeconds == other.durationSeconds &&
-        statusMessage == other.statusMessage &&
-        walkMinutes == other.walkMinutes &&
-        leaveInMinutes == other.leaveInMinutes &&
-        isLeaveNow == other.isLeaveNow &&
-        isLate == other.isLate &&
-        formattedDuration == other.formattedDuration &&
-        formattedDistance == other.formattedDistance;
-  }
-
-  @override
-  int get hashCode => const ListEquality().hash([
-        distanceM,
-        durationMin,
-        polyline,
-        confidence,
-        distanceMeters,
-        durationSeconds,
-        statusMessage,
-        walkMinutes,
-        leaveInMinutes,
-        isLeaveNow,
-        isLate,
-        formattedDuration,
-        formattedDistance
-      ]);
+  static RouteResultStruct fromSerializableMap(Map<String, dynamic> data) => fromMap(data);
 }
-
-RouteResultStruct createRouteResultStruct({
-  double? distanceM,
-  int? durationMin,
-  String? confidence,
-  double? distanceMeters,
-  int? durationSeconds,
-  String? statusMessage,
-  int? walkMinutes,
-  int? leaveInMinutes,
-  bool? isLeaveNow,
-  bool? isLate,
-  String? formattedDuration,
-  String? formattedDistance,
-}) =>
-    RouteResultStruct(
-      distanceM: distanceM,
-      durationMin: durationMin,
-      confidence: confidence,
-      distanceMeters: distanceMeters,
-      durationSeconds: durationSeconds,
-      statusMessage: statusMessage,
-      walkMinutes: walkMinutes,
-      leaveInMinutes: leaveInMinutes,
-      isLeaveNow: isLeaveNow,
-      isLate: isLate,
-      formattedDuration: formattedDuration,
-      formattedDistance: formattedDistance,
-    );

@@ -22,12 +22,10 @@ Future<void> optInPushNotifications() async {
       try {
         await SupaFlow.client.rpc('register_device', params: {
           'p_subscription_id': subscriptionId,
-          'p_platform':
-              defaultTargetPlatform == TargetPlatform.iOS ? 'ios' : 'android',
+          'p_platform': defaultTargetPlatform == TargetPlatform.iOS ? 'ios' : 'android',
           'p_app_version': FFAppConstants.appVersion,
         });
-        debugPrint(
-            'Reactivated device $subscriptionId (is_active = true) in Supabase.');
+        debugPrint('Reactivated device $subscriptionId (is_active = true) in Supabase.');
       } catch (rpcErr) {
         debugPrint('RPC register_device error: $rpcErr');
       }

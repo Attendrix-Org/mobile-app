@@ -36,13 +36,10 @@ Future<FeedbackStruct> cancelClass(
     } else if (response is Map) {
       final map = Map<String, dynamic>.from(response);
       isSuccess = map['success'] == true;
-      statusCode = (map['statusCode'] ??
-          map['status_code'] ??
-          (isSuccess ? 200 : 500)) as int;
+      statusCode =
+          (map['statusCode'] ?? map['status_code'] ?? (isSuccess ? 200 : 500)) as int;
       message = map['message']?.toString() ??
-          (isSuccess
-              ? 'Class cancelled successfully.'
-              : 'Failed to cancel class.');
+          (isSuccess ? 'Class cancelled successfully.' : 'Failed to cancel class.');
     }
 
     return FeedbackStruct(
@@ -76,6 +73,3 @@ Future<FeedbackStruct> cancelClass(
     );
   }
 }
-
-// Set your action name, define your arguments and return parameter,
-// and then add the boilerplate code using the `</>` button on the right!

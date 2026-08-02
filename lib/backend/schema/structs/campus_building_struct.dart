@@ -1,7 +1,6 @@
 // ignore_for_file: unnecessary_getters_setters
 
 import '/backend/schema/util/schema_util.dart';
-
 import 'index.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 
@@ -30,87 +29,71 @@ class CampusBuildingStruct extends BaseStruct {
   String? _id;
   String get id => _id ?? '';
   set id(String? val) => _id = val;
-
   bool hasId() => _id != null;
 
   // "name" field.
   String? _name;
   String get name => _name ?? '';
   set name(String? val) => _name = val;
-
   bool hasName() => _name != null;
 
   // "category" field.
   String? _category;
   String get category => _category ?? '';
   set category(String? val) => _category = val;
-
   bool hasCategory() => _category != null;
 
   // "lat" field.
   double? _lat;
   double get lat => _lat ?? 0.0;
   set lat(double? val) => _lat = val;
-
-  void incrementLat(double amount) => lat = lat + amount;
-
   bool hasLat() => _lat != null;
 
   // "lng" field.
   double? _lng;
   double get lng => _lng ?? 0.0;
   set lng(double? val) => _lng = val;
-
-  void incrementLng(double amount) => lng = lng + amount;
-
   bool hasLng() => _lng != null;
 
   // "nearest_node_id" field.
   String? _nearestNodeId;
   String get nearestNodeId => _nearestNodeId ?? '';
   set nearestNodeId(String? val) => _nearestNodeId = val;
-
   bool hasNearestNodeId() => _nearestNodeId != null;
 
   // "snap_dist_m" field.
   double? _snapDistM;
   double get snapDistM => _snapDistM ?? 0.0;
   set snapDistM(double? val) => _snapDistM = val;
-
-  void incrementSnapDistM(double amount) => snapDistM = snapDistM + amount;
-
   bool hasSnapDistM() => _snapDistM != null;
 
   // "description" field.
   String? _description;
   String get description => _description ?? '';
   set description(String? val) => _description = val;
-
   bool hasDescription() => _description != null;
 
   // "created_at" field.
   String? _createdAt;
   String get createdAt => _createdAt ?? '';
   set createdAt(String? val) => _createdAt = val;
-
   bool hasCreatedAt() => _createdAt != null;
 
   static CampusBuildingStruct fromMap(Map<String, dynamic> data) =>
       CampusBuildingStruct(
-        id: data['id'] as String?,
-        name: data['name'] as String?,
-        category: data['category'] as String?,
-        lat: castToType<double>(data['lat']),
-        lng: castToType<double>(data['lng']),
-        nearestNodeId: data['nearest_node_id'] as String?,
-        snapDistM: castToType<double>(data['snap_dist_m']),
-        description: data['description'] as String?,
-        createdAt: data['created_at'] as String?,
+        id: data['id']?.toString(),
+        name: data['name']?.toString(),
+        category: (data['category'] ?? data['building_type'] ?? data['amenity'])?.toString(),
+        lat: castToNum(data['lat'])?.toDouble(),
+        lng: castToNum(data['lng'] ?? data['lon'])?.toDouble(),
+        nearestNodeId: (data['nearest_node_id'] ?? data['nearestNodeId'])?.toString(),
+        snapDistM: castToNum(data['snap_dist_m'] ?? data['snapDistM'])?.toDouble(),
+        description: data['description']?.toString(),
+        createdAt: (data['created_at'] ?? data['createdAt'])?.toString(),
       );
 
-  static CampusBuildingStruct? maybeFromMap(dynamic data) => data is Map
-      ? CampusBuildingStruct.fromMap(data.cast<String, dynamic>())
-      : null;
+  static CampusBuildingStruct? maybeFromMap(dynamic data) =>
+      data is Map ? CampusBuildingStruct.fromMap(data.cast<String, dynamic>()) : null;
 
   Map<String, dynamic> toMap() => {
         'id': _id,
@@ -126,91 +109,28 @@ class CampusBuildingStruct extends BaseStruct {
 
   @override
   Map<String, dynamic> toSerializableMap() => {
-        'id': serializeParam(
-          _id,
-          ParamType.String,
-        ),
-        'name': serializeParam(
-          _name,
-          ParamType.String,
-        ),
-        'category': serializeParam(
-          _category,
-          ParamType.String,
-        ),
-        'lat': serializeParam(
-          _lat,
-          ParamType.double,
-        ),
-        'lng': serializeParam(
-          _lng,
-          ParamType.double,
-        ),
-        'nearest_node_id': serializeParam(
-          _nearestNodeId,
-          ParamType.String,
-        ),
-        'snap_dist_m': serializeParam(
-          _snapDistM,
-          ParamType.double,
-        ),
-        'description': serializeParam(
-          _description,
-          ParamType.String,
-        ),
-        'created_at': serializeParam(
-          _createdAt,
-          ParamType.String,
-        ),
+        'id': serializeParam(_id, ParamType.String),
+        'name': serializeParam(_name, ParamType.String),
+        'category': serializeParam(_category, ParamType.String),
+        'lat': serializeParam(_lat, ParamType.double),
+        'lng': serializeParam(_lng, ParamType.double),
+        'nearest_node_id': serializeParam(_nearestNodeId, ParamType.String),
+        'snap_dist_m': serializeParam(_snapDistM, ParamType.double),
+        'description': serializeParam(_description, ParamType.String),
+        'created_at': serializeParam(_createdAt, ParamType.String),
       }.withoutNulls;
 
   static CampusBuildingStruct fromSerializableMap(Map<String, dynamic> data) =>
       CampusBuildingStruct(
-        id: deserializeParam(
-          data['id'],
-          ParamType.String,
-          false,
-        ),
-        name: deserializeParam(
-          data['name'],
-          ParamType.String,
-          false,
-        ),
-        category: deserializeParam(
-          data['category'],
-          ParamType.String,
-          false,
-        ),
-        lat: deserializeParam(
-          data['lat'],
-          ParamType.double,
-          false,
-        ),
-        lng: deserializeParam(
-          data['lng'],
-          ParamType.double,
-          false,
-        ),
-        nearestNodeId: deserializeParam(
-          data['nearest_node_id'],
-          ParamType.String,
-          false,
-        ),
-        snapDistM: deserializeParam(
-          data['snap_dist_m'],
-          ParamType.double,
-          false,
-        ),
-        description: deserializeParam(
-          data['description'],
-          ParamType.String,
-          false,
-        ),
-        createdAt: deserializeParam(
-          data['created_at'],
-          ParamType.String,
-          false,
-        ),
+        id: deserializeParam(data['id'], ParamType.String, false),
+        name: deserializeParam(data['name'], ParamType.String, false),
+        category: deserializeParam(data['category'], ParamType.String, false),
+        lat: deserializeParam(data['lat'], ParamType.double, false),
+        lng: deserializeParam(data['lng'], ParamType.double, false),
+        nearestNodeId: deserializeParam(data['nearest_node_id'], ParamType.String, false),
+        snapDistM: deserializeParam(data['snap_dist_m'], ParamType.double, false),
+        description: deserializeParam(data['description'], ParamType.String, false),
+        createdAt: deserializeParam(data['created_at'], ParamType.String, false),
       );
 
   @override
@@ -240,7 +160,7 @@ class CampusBuildingStruct extends BaseStruct {
         nearestNodeId,
         snapDistM,
         description,
-        createdAt
+        createdAt,
       ]);
 }
 

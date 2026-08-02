@@ -1831,11 +1831,184 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                                                     .fontStyle,
                                           ),
                                     ),
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsetsDirectional.fromSTEB(
-                                        6.0, 0.0, 6.0, 0.0),
-                                    child: Container(
+                                    Align(
+                                      alignment: AlignmentDirectional(0.0, 0.0),
+                                      child: Container(
+                                        decoration: BoxDecoration(),
+                                        child: Padding(
+                                          padding:
+                                              EdgeInsetsDirectional.fromSTEB(
+                                                  0.0, 4.0, 0.0, 0.0),
+                                          child: FlutterFlowChoiceChips(
+                                            options: ActionTone.values
+                                                .map((e) => e.name)
+                                                .toList()
+                                                .map((label) =>
+                                                    ChipData(label))
+                                                .toList(),
+                                            onChanged: (val) async {
+                                              safeSetState(() =>
+                                                  _model.choiceChipsValue2 =
+                                                      val?.firstOrNull);
+                                              logFirebaseEvent(
+                                                  'SETTINGS_ChoiceChips_33l2491w_ON_FORM_WI');
+                                              logFirebaseEvent(
+                                                  'ChoiceChips_update_app_state');
+                                              FFAppState()
+                                                  .updateUserPreferencesStruct(
+                                                (e) => e
+                                                  ..preferredActionTone = () {
+                                                    if (_model
+                                                            .choiceChipsValue2 ==
+                                                        ActionTone
+                                                            .playful.name) {
+                                                      return ActionTone
+                                                          .playful;
+                                                    } else if (_model
+                                                            .choiceChipsValue2 ==
+                                                        ActionTone
+                                                            .direct.name) {
+                                                      return ActionTone
+                                                          .direct;
+                                                    } else if (_model
+                                                            .choiceChipsValue2 ==
+                                                        ActionTone
+                                                            .motivational
+                                                            .name) {
+                                                      return ActionTone
+                                                          .motivational;
+                                                    } else {
+                                                      return ActionTone.roast;
+                                                    }
+                                                  }(),
+                                              );
+                                              safeSetState(() {});
+                                            },
+                                            selectedChipStyle: ChipStyle(
+                                              backgroundColor:
+                                                  FlutterFlowTheme.of(context)
+                                                      .primary,
+                                              textStyle: FlutterFlowTheme.of(
+                                                      context)
+                                                  .bodyMedium
+                                                  .override(
+                                                    fontFamily:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .bodyMediumFamily,
+                                                    color:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .info,
+                                                    fontSize: 12.0,
+                                                    letterSpacing: 0.0,
+                                                    fontWeight:
+                                                        FontWeight.w900,
+                                                    useGoogleFonts:
+                                                        !FlutterFlowTheme.of(
+                                                                context)
+                                                            .bodyMediumIsCustom,
+                                                  ),
+                                              iconColor:
+                                                  FlutterFlowTheme.of(context)
+                                                      .info,
+                                              iconSize: 16.0,
+                                              elevation: 1.0,
+                                              borderRadius:
+                                                  BorderRadius.circular(16.0),
+                                            ),
+                                            unselectedChipStyle: ChipStyle(
+                                              backgroundColor:
+                                                  FlutterFlowTheme.of(context)
+                                                      .secondaryBackground,
+                                              textStyle: FlutterFlowTheme.of(
+                                                      context)
+                                                  .bodyMedium
+                                                  .override(
+                                                    fontFamily:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .bodyMediumFamily,
+                                                    color:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .secondaryText,
+                                                    fontSize: 12.0,
+                                                    letterSpacing: 0.0,
+                                                    useGoogleFonts:
+                                                        !FlutterFlowTheme.of(
+                                                                context)
+                                                            .bodyMediumIsCustom,
+                                                  ),
+                                              iconColor:
+                                                  FlutterFlowTheme.of(context)
+                                                      .secondaryText,
+                                              iconSize: 16.0,
+                                              elevation: 0.0,
+                                              borderColor:
+                                                  FlutterFlowTheme.of(context)
+                                                      .alternate,
+                                              borderWidth: 2.0,
+                                              borderRadius:
+                                                  BorderRadius.circular(16.0),
+                                            ),
+                                            chipSpacing: 8.0,
+                                            rowSpacing: 8.0,
+                                            multiselect: false,
+                                            initialized:
+                                                _model.choiceChipsValue2 !=
+                                                    null,
+                                            alignment: WrapAlignment.start,
+                                            controller: _model
+                                                    .choiceChipsValueController2 ??=
+                                                FormFieldController<
+                                                    List<String>>(
+                                              [
+                                                FFAppState()
+                                                    .userPreferences
+                                                    .preferredActionTone
+                                                    .name
+                                              ],
+                                            ),
+                                            wrapped: true,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Align(
+                                      alignment:
+                                          AlignmentDirectional(-1.0, -1.0),
+                                      child: Padding(
+                                        padding: EdgeInsetsDirectional.fromSTEB(
+                                            0.0, 4.0, 0.0, 0.0),
+                                        child: Text(
+                                          'Preview',
+                                          style: FlutterFlowTheme.of(context)
+                                              .bodyMedium
+                                              .override(
+                                                font: GoogleFonts.outfit(
+                                                  fontWeight: FontWeight.w500,
+                                                  fontStyle:
+                                                      FlutterFlowTheme.of(
+                                                              context)
+                                                          .bodyMedium
+                                                          .fontStyle,
+                                                ),
+                                                fontSize: 14.0,
+                                                letterSpacing: 0.0,
+                                                fontWeight: FontWeight.w500,
+                                                fontStyle:
+                                                    FlutterFlowTheme.of(context)
+                                                        .bodyMedium
+                                                        .fontStyle,
+                                              ),
+                                        ),
+                                      ),
+                                    ),
+                                    Container(
+                                      width: MediaQuery.sizeOf(context).width *
+                                          1.0,
+                                      height: 28.0,
                                       decoration: BoxDecoration(
                                         color: FlutterFlowTheme.of(context)
                                             .primaryBackground,

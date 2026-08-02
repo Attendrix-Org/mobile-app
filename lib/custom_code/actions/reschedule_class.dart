@@ -49,9 +49,7 @@ Future<FeedbackStruct> rescheduleClass(
             : (isSuccess ? 200 : 500));
 
     final String msg = rawData['message']?.toString() ??
-        (isSuccess
-            ? 'Class rescheduled successfully.'
-            : 'Failed to reschedule class.');
+        (isSuccess ? 'Class rescheduled successfully.' : 'Failed to reschedule class.');
 
     return FeedbackStruct(
       success: isSuccess,
@@ -88,6 +86,3 @@ Future<FeedbackStruct> rescheduleClass(
     );
   }
 }
-
-// Set your action name, define your arguments and return parameter,
-// and then add the boilerplate code using the `</>` button on the right!

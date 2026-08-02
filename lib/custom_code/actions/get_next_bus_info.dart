@@ -11,20 +11,34 @@ import 'package:flutter/material.dart';
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
 import 'dart:async';
+import 'dart:convert';
 import 'package:geolocator/geolocator.dart';
 
 /// Pure Server-Side Bus Info Action using Supabase RPC `get_upcoming_buses`.
 ///
 /// Automatically queries Supabase Postgres database directly (`buses`, `bus_timings`, `bus_stops`).
-/// Takes optional `routes` list and `userLocation` as a FlutterFlow LatLng.
-Future<List<NextBusInfoStruct>> getNextBusInfo(
-  List<BusRouteStruct>? routes,
-  LatLng? userLocation,
-) async {
-  double lat = userLocation?.latitude ?? 0.0;
-  double lng = userLocation?.longitude ?? 0.0;
+/// Supports all signature invocations:
+/// - getNextBusInfo()
+/// - getNextBusInfo(routes)
+/// - getNextBusInfo(userLat, userLng)
+/// - getNextBusInfo(routes, userLat, userLng)
+Future<List<NextBusInfoStruct>> getNextBusInfo([
+  dynamic param1,
+  double? userLat,
+  double? userLng,
+]) async {
+  double lat = 0.0;
+  double lng = 0.0;
 
-  // Fetch device GPS location if location wasn't passed or is 0.0
+  if (param1 is num) {
+    lat = param1.toDouble();
+    lng = userLat ?? 0.0;
+  } else {
+    lat = userLat ?? 0.0;
+    lng = userLng ?? 0.0;
+  }
+
+  // Fetch location if not provided
   if (lat == 0.0 || lng == 0.0) {
     try {
       final position = await Geolocator.getCurrentPosition(
@@ -34,7 +48,7 @@ Future<List<NextBusInfoStruct>> getNextBusInfo(
       lat = position.latitude;
       lng = position.longitude;
     } catch (_) {
-      // Default fallback to central NIT Calicut coordinates
+      // Default to central NIT Calicut coordinates
       lat = 11.321333;
       lng = 75.934083;
     }
@@ -55,8 +69,8 @@ Future<List<NextBusInfoStruct>> getNextBusInfo(
           : (response as List<dynamic>);
 
       return list
-          .map((item) =>
-              NextBusInfoStruct.fromMap(Map<String, dynamic>.from(item as Map)))
+          .map((item) => NextBusInfoStruct.fromMap(
+              Map<String, dynamic>.from(item as Map)))
           .toList();
     }
   } catch (e) {
@@ -65,6 +79,3 @@ Future<List<NextBusInfoStruct>> getNextBusInfo(
 
   return [];
 }
-
-// Set your action name, define your arguments and return parameter,
-// and then add the boilerplate code using the `</>` button on the right!

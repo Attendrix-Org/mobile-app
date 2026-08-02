@@ -25,14 +25,10 @@ Future<List<EnrolledCourseStruct>> getLabCourses(
 
     return response
         .whereType<Map>()
-        .map((item) =>
-            EnrolledCourseStruct.fromMap(Map<String, dynamic>.from(item)))
+        .map((item) => EnrolledCourseStruct.fromMap(Map<String, dynamic>.from(item)))
         .toList();
   } catch (e) {
     debugPrint('getLabCourses failed: $e');
     return [];
   }
 }
-
-// Set your action name, define your arguments and return parameter,
-// and then add the boilerplate code using the `</>` button on the right!

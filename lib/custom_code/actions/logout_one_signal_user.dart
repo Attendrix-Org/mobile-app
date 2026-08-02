@@ -15,6 +15,17 @@ import 'package:onesignal_flutter/onesignal_flutter.dart';
 
 Future<void> logoutOneSignalUser() async {
   try {
+    final subscriptionId = OneSignal.User.pushSubscription.id;
+    if (subscriptionId != null && subscriptionId.isNotEmpty) {
+      try {
+        await SupaFlow.client.rpc('deactivate_device', params: {
+          'p_subscription_id': subscriptionId,
+        });
+        debugPrint('Deactivated device $subscriptionId in Supabase.');
+      } catch (rpcErr) {
+        debugPrint('RPC deactivate_device failed: $rpcErr');
+      }
+    }
     await OneSignal.logout();
     debugPrint('OneSignal user logged out.');
   } catch (e, stackTrace) {

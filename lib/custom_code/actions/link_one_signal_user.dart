@@ -40,12 +40,10 @@ Future linkOneSignalUser(
       try {
         await SupaFlow.client.rpc('register_device', params: {
           'p_subscription_id': subscriptionId,
-          'p_platform':
-              defaultTargetPlatform == TargetPlatform.iOS ? 'ios' : 'android',
+          'p_platform': defaultTargetPlatform == TargetPlatform.iOS ? 'ios' : 'android',
           'p_app_version': FFAppConstants.appVersion,
         });
-        print(
-            "Registered device subscription $subscriptionId with Supabase (v${FFAppConstants.appVersion}).");
+        print("Registered device subscription $subscriptionId with Supabase (v${FFAppConstants.appVersion}).");
       } catch (rpcErr) {
         print("RPC register_device error: $rpcErr");
       }

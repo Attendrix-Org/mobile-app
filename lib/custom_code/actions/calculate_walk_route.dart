@@ -1,12 +1,7 @@
 // Automatic FlutterFlow imports
 import '/backend/schema/structs/index.dart';
-import '/backend/schema/enums/enums.dart';
 import '/backend/supabase/supabase.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
-import '/custom_code/actions/index.dart'; // Imports other custom actions
-import '/flutter_flow/custom_functions.dart'; // Imports custom functions
-import 'package:flutter/material.dart';
 // Begin custom action code
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
@@ -28,8 +23,7 @@ Future<RouteResultStruct> calculateWalkRoute(
   final double destLat = destination.latitude;
   final double destLng = destination.longitude;
 
-  if (!_isValidCoordinate(originLat, originLng) ||
-      !_isValidCoordinate(destLat, destLng)) {
+  if (!_isValidCoordinate(originLat, originLng) || !_isValidCoordinate(destLat, destLng)) {
     return _buildEmptyResult(confidence: 'none');
   }
 
@@ -50,8 +44,7 @@ Future<RouteResultStruct> calculateWalkRoute(
     );
 
     if (response == null) {
-      return _localHaversineFallback(
-          originLat, originLng, destLat, destLng, targetArrivalTime);
+      return _localHaversineFallback(originLat, originLng, destLat, destLng, targetArrivalTime);
     }
 
     final Map<String, dynamic> data = response is String
@@ -59,29 +52,23 @@ Future<RouteResultStruct> calculateWalkRoute(
         : Map<String, dynamic>.from(response as Map);
 
     if (data.containsKey('error')) {
-      return _localHaversineFallback(
-          originLat, originLng, destLat, destLng, targetArrivalTime);
+      return _localHaversineFallback(originLat, originLng, destLat, destLng, targetArrivalTime);
     }
 
     return RouteResultStruct.fromMap(data);
   } catch (e) {
     developer.log('calculateWalkRoute RPC exception: $e', name: 'Navigation');
-    return _localHaversineFallback(
-        originLat, originLng, destLat, destLng, targetArrivalTime);
+    return _localHaversineFallback(originLat, originLng, destLat, destLng, targetArrivalTime);
   }
 }
 
 RouteResultStruct _localHaversineFallback(
-  double oLat,
-  double oLng,
-  double dLat,
-  double dLng,
+  double oLat, double oLng, double dLat, double dLng,
   DateTime? targetArrivalTime,
 ) {
   final estimatedMeters = _haversineMeters(oLat, oLng, dLat, dLng) * 1.18;
   final durationSeconds = (estimatedMeters / 1.30).round();
-  final walkMinutes =
-      durationSeconds == 0 ? 0 : max(1, (durationSeconds / 60.0).ceil());
+  final walkMinutes = durationSeconds == 0 ? 0 : max(1, (durationSeconds / 60.0).ceil());
 
   int leaveInMinutes = 0;
   bool isLeaveNow = false;
@@ -102,8 +89,7 @@ RouteResultStruct _localHaversineFallback(
       isLeaveNow = true;
       statusMsg = 'Leave now';
     } else {
-      statusMsg =
-          'Leave in $leaveInMinutes ${leaveInMinutes == 1 ? 'min' : 'mins'}';
+      statusMsg = 'Leave in $leaveInMinutes ${leaveInMinutes == 1 ? 'min' : 'mins'}';
     }
   }
 
@@ -141,24 +127,13 @@ RouteResultStruct _buildEmptyResult({required String confidence}) {
 }
 
 bool _isValidCoordinate(double lat, double lng) =>
-    !lat.isNaN &&
-    !lng.isNaN &&
-    lat >= -90.0 &&
-    lat <= 90.0 &&
-    lng >= -180.0 &&
-    lng <= 180.0;
+    !lat.isNaN && !lng.isNaN && lat >= -90.0 && lat <= 90.0 && lng >= -180.0 && lng <= 180.0;
 
 double _haversineMeters(double lat1, double lon1, double lat2, double lon2) {
   const R = 6371000.0;
   final dLat = (lat2 - lat1) * (pi / 180.0);
   final dLon = (lon2 - lon1) * (pi / 180.0);
   final a = sin(dLat / 2) * sin(dLat / 2) +
-      cos(lat1 * pi / 180.0) *
-          cos(lat2 * pi / 180.0) *
-          sin(dLon / 2) *
-          sin(dLon / 2);
+      cos(lat1 * pi / 180.0) * cos(lat2 * pi / 180.0) * sin(dLon / 2) * sin(dLon / 2);
   return R * 2 * atan2(sqrt(a), sqrt(1 - a));
 }
-
-// Set your action name, define your arguments and return parameter,
-// and then add the boilerplate code using the `</>` button on the right!

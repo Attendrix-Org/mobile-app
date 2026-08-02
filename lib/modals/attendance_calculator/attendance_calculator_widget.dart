@@ -402,7 +402,98 @@ class _AttendanceCalculatorWidgetState
                                                     .bodyMedium
                                                     .fontStyle,
                                           ),
-                                          fontSize: 42.0,
+                                    ),
+                                    TextSpan(
+                                      text: '/',
+                                      style: GoogleFonts.outfit(
+                                        color: FlutterFlowTheme.of(context)
+                                            .primaryText,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 20.0,
+                                      ),
+                                    ),
+                                    TextSpan(
+                                      text: '20',
+                                      style: GoogleFonts.outfit(
+                                        color: FlutterFlowTheme.of(context)
+                                            .primaryText,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 20.0,
+                                      ),
+                                    ),
+                                    TextSpan(
+                                      text: ' Attended',
+                                      style: GoogleFonts.outfit(
+                                        color: FlutterFlowTheme.of(context)
+                                            .tertiary,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 12.0,
+                                      ),
+                                    )
+                                  ],
+                                  style: FlutterFlowTheme.of(context)
+                                      .labelSmall
+                                      .override(
+                                        fontFamily: FlutterFlowTheme.of(context)
+                                            .labelSmallFamily,
+                                        letterSpacing: 0.0,
+                                        useGoogleFonts:
+                                            !FlutterFlowTheme.of(context)
+                                                .labelSmallIsCustom,
+                                      ),
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsetsDirectional.fromSTEB(
+                                    8.0, 0.0, 0.0, 0.0),
+                                child: RichText(
+                                  textScaler: MediaQuery.of(context).textScaler,
+                                  text: TextSpan(
+                                    children: [
+                                      TextSpan(
+                                        text: valueOrDefault<String>(
+                                          widget.classBlock?.attendance
+                                              .percentage
+                                              .toStringAsFixed(0),
+                                          '0',
+                                        ),
+                                        style: FlutterFlowTheme.of(context)
+                                            .bodyMedium
+                                            .override(
+                                              font: GoogleFonts.outfit(
+                                                fontWeight: FontWeight.bold,
+                                                fontStyle:
+                                                    FlutterFlowTheme.of(context)
+                                                        .bodyMedium
+                                                        .fontStyle,
+                                              ),
+                                              fontSize: 42.0,
+                                              letterSpacing: 0.0,
+                                              fontWeight: FontWeight.bold,
+                                              fontStyle:
+                                                  FlutterFlowTheme.of(context)
+                                                      .bodyMedium
+                                                      .fontStyle,
+                                            ),
+                                      ),
+                                      TextSpan(
+                                        text: '%',
+                                        style: GoogleFonts.outfit(
+                                          color: FlutterFlowTheme.of(context)
+                                              .primaryText,
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 20.0,
+                                        ),
+                                      )
+                                    ],
+                                    style: FlutterFlowTheme.of(context)
+                                        .labelSmall
+                                        .override(
+                                          fontFamily:
+                                              FlutterFlowTheme.of(context)
+                                                  .labelSmallFamily,
+                                          color: FlutterFlowTheme.of(context)
+                                              .success,
                                           letterSpacing: 0.0,
                                           fontWeight: FontWeight.bold,
                                           fontStyle:
@@ -706,55 +797,209 @@ class _AttendanceCalculatorWidgetState
                       ),
                     ),
                   ),
+                  Divider(
+                    thickness: 1.0,
+                    indent: 24.0,
+                    endIndent: 24.0,
+                    color: FlutterFlowTheme.of(context).alternate,
+                  ),
                   Padding(
-                    padding: EdgeInsetsDirectional.fromSTEB(8.0, 0.0, 0.0, 0.0),
-                    child: RichText(
-                      textScaler: MediaQuery.of(context).textScaler,
-                      text: TextSpan(
-                        children: [
-                          TextSpan(
-                            text: valueOrDefault<String>(
-                              _model.projectedAttendance?.projectedAttendance
-                                  .toString(),
-                              '0',
-                            ),
-                            style: FlutterFlowTheme.of(context)
-                                .bodyMedium
-                                .override(
-                                  font: GoogleFonts.outfit(
-                                    fontWeight: FontWeight.bold,
-                                    fontStyle: FlutterFlowTheme.of(context)
+                    padding:
+                        EdgeInsetsDirectional.fromSTEB(0.0, 12.0, 0.0, 0.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.max,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Projected Attendance',
+                          style: FlutterFlowTheme.of(context)
+                              .labelMedium
+                              .override(
+                                fontFamily: FlutterFlowTheme.of(context)
+                                    .labelMediumFamily,
+                                color:
+                                    FlutterFlowTheme.of(context).primaryText,
+                                letterSpacing: 0.0,
+                                useGoogleFonts: !FlutterFlowTheme.of(context)
+                                    .labelMediumIsCustom,
+                              ),
+                        ),
+                        Row(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            RichText(
+                              textScaler: MediaQuery.of(context).textScaler,
+                              text: TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: valueOrDefault<String>(
+                                      _model.projectedAttendance
+                                          ?.projectedAttended
+                                          .toString(),
+                                      '0',
+                                    ),
+                                    style: FlutterFlowTheme.of(context)
                                         .bodyMedium
-                                        .fontStyle,
+                                        .override(
+                                          font: GoogleFonts.outfit(
+                                            fontWeight: FontWeight.bold,
+                                            fontStyle:
+                                                FlutterFlowTheme.of(context)
+                                                    .bodyMedium
+                                                    .fontStyle,
+                                          ),
+                                          fontSize: 42.0,
+                                          letterSpacing: 0.0,
+                                          fontWeight: FontWeight.bold,
+                                          fontStyle:
+                                              FlutterFlowTheme.of(context)
+                                                  .bodyMedium
+                                                  .fontStyle,
+                                        ),
                                   ),
-                                  fontSize: 42.0,
-                                  letterSpacing: 0.0,
-                                  fontWeight: FontWeight.bold,
-                                  fontStyle: FlutterFlowTheme.of(context)
-                                      .bodyMedium
-                                      .fontStyle,
-                                ),
-                          ),
-                          TextSpan(
-                            text: '%',
-                            style: GoogleFonts.outfit(
-                              color: FlutterFlowTheme.of(context).primaryText,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 20.0,
+                                  TextSpan(
+                                    text: '/',
+                                    style: GoogleFonts.outfit(
+                                      color: FlutterFlowTheme.of(context)
+                                          .primaryText,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 20.0,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: valueOrDefault<String>(
+                                      _model
+                                          .projectedAttendance?.projectedTotal
+                                          .toString(),
+                                      '0',
+                                    ),
+                                    style: GoogleFonts.outfit(
+                                      color: FlutterFlowTheme.of(context)
+                                          .primaryText,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 20.0,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: ' Attended',
+                                    style: GoogleFonts.outfit(
+                                      color: FlutterFlowTheme.of(context)
+                                          .tertiary,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 12.0,
+                                    ),
+                                  )
+                                ],
+                                style: FlutterFlowTheme.of(context)
+                                    .labelSmall
+                                    .override(
+                                      fontFamily: FlutterFlowTheme.of(context)
+                                          .labelSmallFamily,
+                                      letterSpacing: 0.0,
+                                      useGoogleFonts:
+                                          !FlutterFlowTheme.of(context)
+                                              .labelSmallIsCustom,
+                                    ),
+                              ),
                             ),
-                          )
-                        ],
-                        style: FlutterFlowTheme.of(context).labelSmall.override(
-                              fontFamily:
-                                  FlutterFlowTheme.of(context).labelSmallFamily,
-                              color: FlutterFlowTheme.of(context).success,
-                              letterSpacing: 0.0,
-                              useGoogleFonts: !FlutterFlowTheme.of(context)
-                                  .labelSmallIsCustom,
+                            Padding(
+                              padding: EdgeInsetsDirectional.fromSTEB(
+                                  8.0, 0.0, 0.0, 0.0),
+                              child: RichText(
+                                textScaler: MediaQuery.of(context).textScaler,
+                                text: TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: valueOrDefault<String>(
+                                        _model.projectedAttendance
+                                            ?.projectedAttendance
+                                            .toString(),
+                                        '0',
+                                      ),
+                                      style: FlutterFlowTheme.of(context)
+                                          .bodyMedium
+                                          .override(
+                                            font: GoogleFonts.outfit(
+                                              fontWeight: FontWeight.bold,
+                                              fontStyle:
+                                                  FlutterFlowTheme.of(context)
+                                                      .bodyMedium
+                                                      .fontStyle,
+                                            ),
+                                            fontSize: 42.0,
+                                            letterSpacing: 0.0,
+                                            fontWeight: FontWeight.bold,
+                                            fontStyle:
+                                                FlutterFlowTheme.of(context)
+                                                    .bodyMedium
+                                                    .fontStyle,
+                                          ),
+                                    ),
+                                    TextSpan(
+                                      text: '%',
+                                      style: GoogleFonts.outfit(
+                                        color: FlutterFlowTheme.of(context)
+                                            .primaryText,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 20.0,
+                                      ),
+                                    )
+                                  ],
+                                  style: FlutterFlowTheme.of(context)
+                                      .labelSmall
+                                      .override(
+                                        fontFamily:
+                                            FlutterFlowTheme.of(context)
+                                                .labelSmallFamily,
+                                        color: FlutterFlowTheme.of(context)
+                                            .success,
+                                        letterSpacing: 0.0,
+                                        useGoogleFonts:
+                                            !FlutterFlowTheme.of(context)
+                                                .labelSmallIsCustom,
+                                      ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        LinearPercentIndicator(
+                          percent: valueOrDefault<double>(
+                            ((_model.projectedAttendance?.projectedAttendance ??
+                                        0.0) /
+                                    100.0)
+                                .clamp(0.0, 1.0),
+                            0.0,
+                          ),
+                            lineHeight: 14.0,
+                            animation: true,
+                            animateFromLastPercent: true,
+                            progressColor: FlutterFlowTheme.of(context).primary,
+                            backgroundColor:
+                                FlutterFlowTheme.of(context).accent1,
+                            center: Text(
+                              valueOrDefault<String>(
+                                _model.projectedAttendance?.projectedAttendance
+                                    .toString(),
+                                '0%',
+                              ),
+                              style: FlutterFlowTheme.of(context)
+                                  .headlineSmall
+                                  .override(
+                                    fontFamily: FlutterFlowTheme.of(context)
+                                        .headlineSmallFamily,
+                                    color: FlutterFlowTheme.of(context).info,
+                                    fontSize: 10.0,
+                                    letterSpacing: 0.0,
+                                    useGoogleFonts:
+                                        !FlutterFlowTheme.of(context)
+                                            .headlineSmallIsCustom,
+                                  ),
                             ),
                       ),
                     ),
-                  ),
                 ],
               ),
             ),

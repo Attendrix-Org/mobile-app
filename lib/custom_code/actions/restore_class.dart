@@ -34,13 +34,10 @@ Future<FeedbackStruct> restoreClass(
     } else if (response is Map) {
       final map = Map<String, dynamic>.from(response);
       isSuccess = map['success'] == true;
-      statusCode = (map['statusCode'] ??
-          map['status_code'] ??
-          (isSuccess ? 200 : 500)) as int;
+      statusCode =
+          (map['statusCode'] ?? map['status_code'] ?? (isSuccess ? 200 : 500)) as int;
       message = map['message']?.toString() ??
-          (isSuccess
-              ? 'Class restored successfully.'
-              : 'Failed to restore class.');
+          (isSuccess ? 'Class restored successfully.' : 'Failed to restore class.');
     }
 
     return FeedbackStruct(
@@ -74,6 +71,3 @@ Future<FeedbackStruct> restoreClass(
     );
   }
 }
-
-// Set your action name, define your arguments and return parameter,
-// and then add the boilerplate code using the `</>` button on the right!

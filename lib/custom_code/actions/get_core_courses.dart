@@ -21,14 +21,10 @@ Future<List<CoreCourseStruct>> getCoreCourses(String batchId) async {
 
     return response
         .whereType<Map>()
-        .map(
-            (item) => CoreCourseStruct.fromMap(Map<String, dynamic>.from(item)))
+        .map((item) => CoreCourseStruct.fromMap(Map<String, dynamic>.from(item)))
         .toList();
   } catch (e) {
     debugPrint('getCoreCourses failed: $e');
     return [];
   }
 }
-
-// Set your action name, define your arguments and return parameter,
-// and then add the boilerplate code using the `</>` button on the right!
