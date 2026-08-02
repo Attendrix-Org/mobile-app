@@ -484,6 +484,35 @@ class FFAppState extends ChangeNotifier {
       _currentDayAcademicCalendarManager.clear();
   void clearCurrentDayAcademicCalendarCacheKey(String? uniqueKey) =>
       _currentDayAcademicCalendarManager.clearRequest(uniqueKey);
+
+  List<CampusBuildingStruct> _campusBuildingData = [];
+  List<CampusBuildingStruct> get campusBuildingData => _campusBuildingData;
+  set campusBuildingData(List<CampusBuildingStruct> value) {
+    _campusBuildingData = value;
+  }
+
+  void addToCampusBuildingData(CampusBuildingStruct value) {
+    _campusBuildingData.add(value);
+  }
+
+  void removeFromCampusBuildingData(CampusBuildingStruct value) {
+    _campusBuildingData.remove(value);
+  }
+
+  void removeAtIndexFromCampusBuildingData(int index) {
+    _campusBuildingData.removeAt(index);
+  }
+
+  void updateCampusBuildingDataAtIndex(
+    int index,
+    CampusBuildingStruct Function(CampusBuildingStruct) updateFn,
+  ) {
+    _campusBuildingData[index] = updateFn(_campusBuildingData[index]);
+  }
+
+  void insertAtIndexInCampusBuildingData(int index, CampusBuildingStruct value) {
+    _campusBuildingData.insert(index, value);
+  }
 }
 
 void _safeInit(Function() initializeField) {

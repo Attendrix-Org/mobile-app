@@ -21,29 +21,68 @@ Future<FeedbackStruct> rescheduleClass(
       'reschedule_class',
       params: {
         'p_class_id': classId,
-        'p_start': scheduledStart.toUtc().toIso8601String(),
-        'p_end': scheduledEnd.toUtc().toIso8601String(),
+        'p_scheduled_start': scheduledStart.toUtc().toIso8601String(),
+        'p_scheduled_end': scheduledEnd.toUtc().toIso8601String(),
         'p_venue': venue,
       },
     );
 
-    if (response is! Map<String, dynamic>) {
+    Map<String, dynamic>? rawData;
+    if (response is Map<String, dynamic>) {
+      rawData = response;
+    } else if (response is Map) {
+      rawData = Map<String, dynamic>.from(response);
+    }
+
+    if (rawData == null) {
       throw const FormatException('Unexpected RPC response format.');
     }
 
+    final bool isSuccess = rawData['success'] == true ||
+        rawData.containsKey('class_id') ||
+        rawData.containsKey('classId');
+
+    final int status = rawData['statusCode'] is int
+        ? rawData['statusCode'] as int
+        : (rawData['status_code'] is int
+            ? rawData['status_code'] as int
+            : (isSuccess ? 200 : 500));
+
+    final String msg = rawData['message']?.toString() ??
+        (isSuccess ? 'Class rescheduled successfully.' : 'Failed to reschedule class.');
+
     return FeedbackStruct(
-      success: response['success'] == true,
-      statusCode:
-          (response['statusCode'] ?? response['status_code'] ?? 500) as int,
-      message: response['message']?.toString() ?? '',
+      success: isSuccess,
+      statusCode: status,
+      message: msg,
     );
-  } catch (e) {
+  } catch (e, stackTrace) {
+    debugPrint('rescheduleClass failed: $e');
+    debugPrint(stackTrace.toString());
+
+    String? code;
+    String message = e.toString();
+    try {
+      final dynamic err = e;
+      if (err.code != null) code = err.code.toString();
+      if (err.message != null) message = err.message.toString();
+    } catch (_) {}
+
+    int statusCode = 500;
+    if (code == 'PT401' || code == '401') {
+      statusCode = 401;
+    } else if (code == 'PT404' || code == '404') {
+      statusCode = 404;
+    } else if (code == 'PT409' || code == '409' || code == '23505') {
+      statusCode = 409;
+    } else if (code == 'PT422' || code == '422') {
+      statusCode = 422;
+    }
+
     return FeedbackStruct(
       success: false,
-      statusCode: 500,
-      message: e.toString(),
+      statusCode: statusCode,
+      message: message,
     );
   }
 }
-// Set your action name, define your arguments and return parameter,
-// and then add the boilerplate code using the `</>` button on the right!

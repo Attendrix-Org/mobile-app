@@ -10,13 +10,12 @@ import 'package:flutter/material.dart';
 // Begin custom action code
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/foundation.dart';
 
 Future<AppBootstrapStruct> loadAppBootstrapStatus(
     String? storedVersionId) async {
   try {
-    final response = await Supabase.instance.client.rpc(
+    final response = await SupaFlow.client.rpc(
       'get_app_bootstrap_status',
       params: {'p_version_id': storedVersionId},
     );
@@ -38,13 +37,8 @@ Future<AppBootstrapStruct> loadAppBootstrapStatus(
       releaseNotes: row['release_notes'] as String?,
       isWebAvailable: row['is_web_available'] ?? false,
     );
-  } on PostgrestException catch (e) {
-    debugPrint('loadAppBootstrapStatus: Postgrest error: ${e.message}');
-    return AppBootstrapStruct(onboardingCompleted: false, hasError: true);
   } catch (e, st) {
-    debugPrint('loadAppBootstrapStatus: unexpected error: $e\n$st');
+    debugPrint('loadAppBootstrapStatus error: $e\n$st');
     return AppBootstrapStruct(onboardingCompleted: false, hasError: true);
   }
 }
-// Set your action name, define your arguments and return parameter,
-// and then add the boilerplate code using the `</>` button on the right!

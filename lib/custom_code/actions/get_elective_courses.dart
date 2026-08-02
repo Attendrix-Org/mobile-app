@@ -13,14 +13,20 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 Future<List<ElectiveCourseStruct>> getElectiveCourses(String batchId) async {
-  final supabase = Supabase.instance.client;
+  try {
+    final dynamic response = await SupaFlow.client.rpc(
+      'get_elective_courses_for_batch',
+      params: {'p_batch_id': batchId},
+    );
 
-  final List<dynamic> response = await supabase.rpc(
-    'get_elective_courses_for_batch',
-    params: {'p_batch_id': batchId},
-  );
+    if (response is! List) return [];
 
-  return response.map((item) => ElectiveCourseStruct.fromMap(item)).toList();
+    return response
+        .whereType<Map>()
+        .map((item) => ElectiveCourseStruct.fromMap(Map<String, dynamic>.from(item)))
+        .toList();
+  } catch (e) {
+    debugPrint('getElectiveCourses failed: $e');
+    return [];
+  }
 }
-// Set your action name, define your arguments and return parameter,
-// and then add the boilerplate code using the `</>` button on the right!

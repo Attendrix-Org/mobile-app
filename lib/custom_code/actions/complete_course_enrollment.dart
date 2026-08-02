@@ -10,41 +10,64 @@ import 'package:flutter/material.dart';
 // Begin custom action code
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
-import 'package:supabase_flutter/supabase_flutter.dart';
-
 Future<FeedbackStruct> completeCourseEnrollment(
   List<EnrolledCourseStruct> enrolledCourses,
 ) async {
   try {
-    final payload = enrolledCourses.map((e) => e.toMap()).toList();
+    final Map<String, EnrolledCourseStruct> uniqueCourses = {};
+    for (var course in enrolledCourses) {
+      final key = course.courseId.isNotEmpty
+          ? course.courseId
+          : '${course.courseCode}_${course.slot}';
+      if (key.isNotEmpty) {
+        if (!uniqueCourses.containsKey(key)) {
+          uniqueCourses[key] = course;
+        }
+      } else {
+        uniqueCourses[course.hashCode.toString()] = course;
+      }
+    }
 
-    final success = await Supabase.instance.client.rpc(
+    final payload = uniqueCourses.values.map((e) => e.toMap()).toList();
+
+    final response = await SupaFlow.client.rpc(
       'update_enrolled_courses',
       params: {
         'p_enrolled_courses': payload,
       },
-    ) as bool;
+    );
+
+    bool isSuccess = false;
+    String message = 'Course enrollment updated.';
+
+    if (response is Map) {
+      final map = Map<String, dynamic>.from(response);
+      isSuccess = true;
+      final added = map['added'] ?? 0;
+      final removed = map['removed'] ?? 0;
+      final retained = map['retained'] ?? 0;
+      message = 'Enrollment updated: $added added, $removed removed, $retained retained.';
+    } else if (response is bool) {
+      isSuccess = response;
+      message = isSuccess ? 'Course enrollment completed.' : 'Course enrollment failed.';
+    }
 
     return FeedbackStruct(
-      success: success,
-      statusCode: success ? 200 : 400,
-      message: success
-          ? 'Course enrollment completed successfully.'
-          : 'Course enrollment failed.',
+      success: isSuccess,
+      statusCode: isSuccess ? 200 : 400,
+      message: message,
     );
-  } on PostgrestException catch (e) {
+  } catch (e) {
+    String message = e.toString();
+    try {
+      final dynamic err = e;
+      if (err.message != null) message = err.message.toString();
+    } catch (_) {}
+
     return FeedbackStruct(
       success: false,
       statusCode: 400,
-      message: e.message,
-    );
-  } catch (e) {
-    return FeedbackStruct(
-      success: false,
-      statusCode: 500,
-      message: e.toString(),
+      message: message,
     );
   }
 }
-// Set your action name, define your arguments and return parameter,
-// and then add the boilerplate code using the `</>` button on the right!

@@ -11,7 +11,9 @@ import 'package:flutter/material.dart';
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
 // Automatic FlutterFlow Imports
+import 'package:flutter/foundation.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
+import '/app_constants.dart';
 
 Future linkOneSignalUser(
   String? supabaseUserId,
@@ -32,7 +34,22 @@ Future linkOneSignalUser(
     // 1. Link the primary identity token
     await OneSignal.login(sanitizedUserId);
 
-    // 2. Build the tagging map safely based on what arguments are available
+    // 2. Register subscription ID with Supabase backend
+    final subscriptionId = OneSignal.User.pushSubscription.id;
+    if (subscriptionId != null && subscriptionId.isNotEmpty) {
+      try {
+        await SupaFlow.client.rpc('register_device', params: {
+          'p_subscription_id': subscriptionId,
+          'p_platform': defaultTargetPlatform == TargetPlatform.iOS ? 'ios' : 'android',
+          'p_app_version': FFAppConstants.appVersion,
+        });
+        print("Registered device subscription $subscriptionId with Supabase (v${FFAppConstants.appVersion}).");
+      } catch (rpcErr) {
+        print("RPC register_device error: $rpcErr");
+      }
+    }
+
+    // 3. Build the tagging map safely based on what arguments are available
     final Map<String, String> userTags = {};
 
     if (email != null && email.trim().isNotEmpty) {
@@ -45,13 +62,12 @@ Future linkOneSignalUser(
       userTags['batchId'] = batchId.trim();
     }
 
-    // 3. Send the tags to OneSignal if we have any data
+    // 4. Send the tags to OneSignal if we have any data
     if (userTags.isNotEmpty) {
       print("Sending target tags to OneSignal: $userTags");
       await OneSignal.User.addTags(userTags);
     }
   } catch (e) {
-    // Edge Case 2: Handles API network drops or initialization lag gracefully
     print("Failed to sync identity and tags with OneSignal: $e");
   }
 }

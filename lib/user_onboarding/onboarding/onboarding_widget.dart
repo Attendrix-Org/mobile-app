@@ -1902,6 +1902,7 @@ class _OnboardingWidgetState extends State<OnboardingWidget>
                                                       );
                                                     }(),
                                                   );
+                                                  _model.enrolledCoreCourses.clear();
                                                   await Future.wait([
                                                     Future(() async {
                                                       logFirebaseEvent(
@@ -3079,6 +3080,7 @@ class _OnboardingWidgetState extends State<OnboardingWidget>
                                                   );
                                                 }(),
                                               );
+                                              _model.enrolledCoreCourses.clear();
                                               for (int loop1Index = 0;
                                                   loop1Index <
                                                       _model.coreCourseData!

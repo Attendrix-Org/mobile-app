@@ -265,9 +265,9 @@ class _BusTimeCardWidgetState extends State<BusTimeCardWidget> {
     SchedulerBinding.instance.addPostFrameCallback((_) async {
       logFirebaseEvent('BUS_TIME_CARD_busTimeCard_ON_INIT_STATE');
       logFirebaseEvent('busTimeCard_custom_action');
-      _model.nextBusInfoDataPrimary = await actions.getNextBusInfo(
+      _model.nextBusInfoDataPrimary = (await actions.getNextBusInfo(
         FFAppState().BusRoutes.toList(),
-      );
+      )).firstOrNull;
       logFirebaseEvent('busTimeCard_update_component_state');
       _model.nextBusInfoState = _model.nextBusInfoDataPrimary;
       safeSetState(() {});
@@ -277,9 +277,9 @@ class _BusTimeCardWidgetState extends State<BusTimeCardWidget> {
           duration: Duration(milliseconds: 30000),
           callback: (timer) async {
             logFirebaseEvent('busTimeCard_custom_action');
-            _model.nextBusInfoData = await actions.getNextBusInfo(
+            _model.nextBusInfoData = (await actions.getNextBusInfo(
               FFAppState().BusRoutes.toList(),
-            );
+            )).firstOrNull;
             logFirebaseEvent('busTimeCard_update_component_state');
             _model.nextBusInfoState = _model.nextBusInfoData;
             safeSetState(() {});
@@ -1316,9 +1316,9 @@ class _BusTimeCardWidgetState extends State<BusTimeCardWidget> {
                     onPressed: () async {
                       logFirebaseEvent('BUS_TIME_CARD_REFRESH_DATA_BTN_ON_TAP');
                       logFirebaseEvent('Button_custom_action');
-                      _model.nextBusInfoDataCopy = await actions.getNextBusInfo(
+                      _model.nextBusInfoDataCopy = (await actions.getNextBusInfo(
                         FFAppState().BusRoutes.toList(),
-                      );
+                      )).firstOrNull;
                       logFirebaseEvent('Button_update_component_state');
                       _model.nextBusInfoState = _model.nextBusInfoDataCopy;
                       safeSetState(() {});

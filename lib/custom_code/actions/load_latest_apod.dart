@@ -10,43 +10,42 @@ import 'package:flutter/material.dart';
 // Begin custom action code
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
-import 'package:supabase_flutter/supabase_flutter.dart';
-
 Future<ApodStruct> loadLatestApod() async {
   try {
-    final response = await Supabase.instance.client.rpc('get_latest_apod');
+    final response = await SupaFlow.client.rpc('get_latest_apod');
 
     if (response == null) {
       return ApodStruct();
     }
 
-    final row = (response as List).firstOrNull;
-    if (row == null) {
+    Map<String, dynamic>? data;
+    if (response is List && response.isNotEmpty) {
+      data = Map<String, dynamic>.from(response.first as Map);
+    } else if (response is Map) {
+      data = Map<String, dynamic>.from(response);
+    }
+
+    if (data == null) {
       return ApodStruct();
     }
 
-    final data = Map<String, dynamic>.from(row as Map);
-
     return ApodStruct(
-      apodDate: data['apod_date'] as String? ?? '',
-      title: data['title'] as String? ?? '',
-      description: data['description'] as String? ?? '',
-      imageUrl: data['image_url'] as String? ?? '',
-      hdImageUrl: data['hd_image_url'] as String? ?? '',
-      mediaType: data['media_type'] as String? ?? '',
-      shareUrl: data['share_url'] as String? ?? '',
-      copyright: data['copyright'] as String? ?? '',
-      fetchedAt: data['fetched_at'] != null
-          ? DateTime.parse(data['fetched_at']).toLocal()
-          : null,
+      apodDate: (data['apodDate'] ?? data['apod_date'])?.toString() ?? '',
+      title: data['title']?.toString() ?? '',
+      description: data['description']?.toString() ?? '',
+      imageUrl: (data['imageUrl'] ?? data['image_url'])?.toString() ?? '',
+      hdImageUrl: (data['hdImageUrl'] ?? data['hd_image_url'])?.toString() ?? '',
+      mediaType: (data['mediaType'] ?? data['media_type'])?.toString() ?? '',
+      shareUrl: (data['shareUrl'] ?? data['share_url'] ?? data['shareurl'])?.toString() ?? '',
+      copyright: data['copyright']?.toString() ?? '',
+      fetchedAt: data['fetchedAt'] != null
+          ? DateTime.tryParse(data['fetchedAt'].toString())?.toLocal()
+          : (data['fetched_at'] != null
+              ? DateTime.tryParse(data['fetched_at'].toString())?.toLocal()
+              : null),
     );
-  } on PostgrestException catch (e) {
-    debugPrint('loadLatestApod RPC failed: ${e.message}');
-    return ApodStruct();
   } catch (e) {
     debugPrint('loadLatestApod failed: $e');
     return ApodStruct();
   }
 }
-// Set your action name, define your arguments and return parameter,
-// and then add the boilerplate code using the `</>` button on the right!

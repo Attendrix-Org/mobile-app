@@ -26,3 +26,6 @@ export 'elective_rule_struct.dart';
 export 'enrolled_course_struct.dart';
 export 'feedback_struct.dart';
 export 'user_preferences_struct.dart';
+export 'route_result_struct.dart';
+export 'campus_building_struct.dart';
+export 'walk_calculation_result_struct.dart';

@@ -1,3 +1,4 @@
+import 'dart:io';
 import '/flutter_flow/flutter_flow_expanded_image_view.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
@@ -74,6 +75,66 @@ class _ApodWidgetState extends State<ApodWidget> {
     super.dispose();
   }
 
+  Widget _buildApodImage(
+    String pathOrUrl, {
+    BoxFit fit = BoxFit.cover,
+    double? width,
+    double? height,
+  }) {
+    if (pathOrUrl.isEmpty) {
+      return Container(
+        width: width,
+        height: height,
+        color: const Color(0xFF1A1F2E),
+        child: const Center(
+          child: Icon(Icons.image_not_supported, color: Colors.white54, size: 40),
+        ),
+      );
+    }
+
+    if (pathOrUrl.startsWith('http://') || pathOrUrl.startsWith('https://')) {
+      return CachedNetworkImage(
+        fadeInDuration: const Duration(milliseconds: 0),
+        fadeOutDuration: const Duration(milliseconds: 0),
+        imageUrl: pathOrUrl,
+        width: width,
+        height: height,
+        fit: fit,
+        errorWidget: (context, url, error) => Container(
+          color: const Color(0xFF1A1F2E),
+          child: const Center(
+            child: Icon(Icons.error_outline, color: Colors.white54, size: 40),
+          ),
+        ),
+      );
+    }
+
+    final file = File(pathOrUrl);
+    if (file.existsSync()) {
+      return Image.file(
+        file,
+        width: width,
+        height: height,
+        fit: fit,
+        errorBuilder: (context, error, stackTrace) => Container(
+          color: const Color(0xFF1A1F2E),
+          child: const Center(
+            child: Icon(Icons.error_outline, color: Colors.white54, size: 40),
+          ),
+        ),
+      );
+    }
+
+    return Container(
+      width: width,
+      height: height,
+      color: const Color(0xFF1A1F2E),
+      child: const Center(
+        child: Icon(Icons.image_not_supported, color: Colors.white54, size: 40),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     context.watch<FFAppState>();
@@ -144,12 +205,8 @@ class _ApodWidgetState extends State<ApodWidget> {
                                           PageTransition(
                                             type: PageTransitionType.fade,
                                             child: FlutterFlowExpandedImageView(
-                                              image: CachedNetworkImage(
-                                                fadeInDuration:
-                                                    Duration(milliseconds: 0),
-                                                fadeOutDuration:
-                                                    Duration(milliseconds: 0),
-                                                imageUrl: '',
+                                              image: _buildApodImage(
+                                                FFAppState().apodData.imageUrl,
                                                 fit: BoxFit.contain,
                                               ),
                                               allowRotation: false,
@@ -165,12 +222,8 @@ class _ApodWidgetState extends State<ApodWidget> {
                                         child: ClipRRect(
                                           borderRadius:
                                               BorderRadius.circular(0.0),
-                                          child: CachedNetworkImage(
-                                            fadeInDuration:
-                                                Duration(milliseconds: 0),
-                                            fadeOutDuration:
-                                                Duration(milliseconds: 0),
-                                            imageUrl: '',
+                                          child: _buildApodImage(
+                                            FFAppState().apodData.imageUrl,
                                             width: double.infinity,
                                             height: double.infinity,
                                             fit: BoxFit.cover,

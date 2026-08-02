@@ -54,3 +54,8 @@ export '/custom_code/actions/opt_out_push_notifications.dart'
     show optOutPushNotifications;
 export '/custom_code/actions/is_push_enabled.dart' show isPushEnabled;
 export '/custom_code/actions/has_push_permission.dart' show hasPushPermission;
+export '/custom_code/actions/calculate_walk_route.dart' show calculateWalkRoute;
+export '/custom_code/actions/get_campus_building_data.dart' show getCampusBuildingData;
+export '/custom_code/actions/sync_local_notifications_action.dart' show syncLocalNotificationsAction;
+export '/custom_code/actions/generate_notification_message.dart' show generateNotificationMessage;
+

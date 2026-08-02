@@ -14,37 +14,50 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 Future<UserProfileStruct> loadUserProfile() async {
   try {
-    final response = await Supabase.instance.client.rpc('get_user_profile');
+    final response = await SupaFlow.client.rpc('get_user_profile');
 
-    final row = (response as List).first as Map<String, dynamic>;
+    Map<String, dynamic>? row;
+    if (response is Map) {
+      row = Map<String, dynamic>.from(response);
+    } else if (response is List && response.isNotEmpty && response.first is Map) {
+      row = Map<String, dynamic>.from(response.first as Map);
+    }
+
+    if (row == null) return UserProfileStruct();
+
+    final enrolledList = (row['enrolledCourses'] ?? row['enrolled_courses']);
 
     return UserProfileStruct(
-      userId: row['user_id'],
-      username: row['username'] ?? '',
-      email: row['email'] ?? '',
-      role: row['role'] ?? '',
-      departmentId: row['department_id'] ?? '',
-      batchId: row['batch_id'] ?? '',
-      currentSemester: row['current_semester'] ?? 1,
-      amplixBalance: row['amplix_balance'] ?? 0,
-      odometer: row['odometer'] ?? 0,
-      onboardingComplete: row['onboarding_completed'] ?? false,
-      profileUpdatedAt: row['profile_updated_at'] != null
-          ? DateTime.parse(row['profile_updated_at'])
-          : null,
-      enrolledCourses: (row['enrolled_courses'] as List<dynamic>)
-          .map(
-            (e) => EnrolledCourseStruct.fromMap(
-              Map<String, dynamic>.from(e),
-            ),
-          )
-          .toList(),
+      userId: (row['userId'] ?? row['user_id'])?.toString(),
+      username: row['username']?.toString() ?? '',
+      email: row['email']?.toString() ?? '',
+      role: row['role']?.toString() ?? '',
+      departmentId: (row['departmentId'] ?? row['department_id'])?.toString() ?? '',
+      batchId: (row['batchId'] ?? row['batch_id'])?.toString() ?? '',
+      currentSemester: row['currentSemester'] ?? row['current_semester'] ?? 1,
+      amplixBalance: row['amplixBalance'] ?? row['amplix_balance'] ?? 0,
+      odometer: row['odometer'] ?? row['streak'] ?? 0,
+      onboardingComplete: row['onboardingComplete'] == true ||
+          row['onboarding_complete'] == true ||
+          row['onboarding_completed'] == true,
+      profileUpdatedAt: row['profileUpdatedAt'] != null
+          ? DateTime.tryParse(row['profileUpdatedAt'].toString())
+          : (row['profile_updated_at'] != null
+              ? DateTime.tryParse(row['profile_updated_at'].toString())
+              : null),
+      enrolledCourses: enrolledList is List
+          ? enrolledList.map((e) {
+              if (e is Map) {
+                return EnrolledCourseStruct.fromMap(Map<String, dynamic>.from(e));
+              } else if (e is String) {
+                return EnrolledCourseStruct(courseId: e, courseCode: e);
+              }
+              return EnrolledCourseStruct();
+            }).toList()
+          : [],
     );
-  } on PostgrestException catch (_) {
-    return UserProfileStruct();
-  } catch (_) {
+  } catch (e) {
+    debugPrint('loadUserProfile failed: $e');
     return UserProfileStruct();
   }
 }
-// Set your action name, define your arguments and return parameter,
-// and then add the boilerplate code using the `</>` button on the right!
