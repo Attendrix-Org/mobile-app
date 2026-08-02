@@ -28,10 +28,6 @@ String subtractDuration(
   int hours = difference.inHours;
   int minutes = difference.inMinutes.remainder(60);
 
-  if (hours == 0 && minutes == 0) {
-    return "Less than 1 Minute Left";
-  }
-
   String hourPart = hours > 0 ? '$hours Hour${hours > 1 ? 's' : ''} ' : '';
   String minutePart =
       minutes > 0 ? '$minutes Minute${minutes > 1 ? 's' : ''} ' : '';

@@ -11,9 +11,8 @@ import 'package:flutter/material.dart';
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
 Future<FeedbackStruct> completeCourseEnrollment(
-  List<EnrolledCourseStruct> enrolledCourses, [
-  bool? debug,
-]) async {
+  List<EnrolledCourseStruct> enrolledCourses,
+) async {
   try {
     final Map<String, EnrolledCourseStruct> uniqueCourses = {};
     for (var course in enrolledCourses) {

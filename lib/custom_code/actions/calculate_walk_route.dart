@@ -10,7 +10,6 @@ import 'package:flutter/material.dart';
 // Begin custom action code
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
-import 'dart:convert';
 import 'dart:developer' as developer;
 import 'dart:math';
 
@@ -34,53 +33,8 @@ Future<RouteResultStruct> calculateWalkRoute(
     return _buildEmptyResult(confidence: 'none');
   }
 
-  final rawHaversineMeters = _haversineMeters(origin, destination);
-  if (rawHaversineMeters < _zeroDistanceThresholdM) {
-    return _buildResult(
-      distanceMeters: 0.0,
-      durationSeconds: 0,
-      polyline: [],
-      confidence: 'exact',
-      targetArrivalTime: targetArrivalTime,
-    );
-  }
-
-  // Cache path — only for time-only requests (dashboard/timetable), never for the drawn map route.
-  if (!includeGeometry && destinationBuildingId != null) {
-    final originBuildingId = await _nearestBuildingId(origin);
-    if (originBuildingId != null) {
-      final cached = await _readCache(originBuildingId, destinationBuildingId);
-      if (cached != null) {
-        return _buildResult(
-          distanceMeters: (cached['distance_meters'] as num).toDouble(),
-          durationSeconds: (cached['duration_seconds'] as num).toInt(),
-          polyline: [],
-          confidence: (cached['confidence'] ?? 'approximate').toString(),
-          targetArrivalTime: targetArrivalTime,
-        );
-      }
-    }
-
-    final result =
-        await _callOrsAndFallback(origin, destination, false, orsApiKey);
-
-    if (originBuildingId != null && result['confidence'] != 'none') {
-      unawaited(_writeCache(
-        originBuildingId,
-        destinationBuildingId,
-        result['distanceMeters'] as double,
-        result['durationSeconds'] as int,
-        result['confidence'] as String,
-      ));
-    }
-
-    return _buildResult(
-      distanceMeters: result['distanceMeters'] as double,
-      durationSeconds: result['durationSeconds'] as int,
-      polyline: const [],
-      confidence: result['confidence'] as String,
-      targetArrivalTime: targetArrivalTime,
-    );
+  if (_haversineMeters(originLat, originLng, destLat, destLng) < 15.0) {
+    return _buildEmptyResult(confidence: 'exact');
   }
 
   try {
@@ -117,96 +71,11 @@ Future<RouteResultStruct> calculateWalkRoute(
   }
 }
 
-Map<String, dynamic> _fallbackData(
-  LatLng origin,
-  LatLng destination,
-  String confidence,
-) {
-  final straightLineMeters = _haversineMeters(origin, destination);
-  final estimatedMeters = straightLineMeters * _campusDetourFactor;
-  final durationSeconds = (estimatedMeters / _fallbackWalkSpeedMps).round();
-  return {
-    'distanceMeters': estimatedMeters,
-    'durationSeconds': durationSeconds,
-    'polyline': null,
-    'confidence': confidence,
-  };
-}
-
-Future<String?> _nearestBuildingId(LatLng point) async {
-  try {
-    final rows =
-        await SupaFlow.client.from('campus_buildings').select('id, lat, lng');
-    String? bestId;
-    double bestDist = double.infinity;
-    for (final row in rows as List) {
-      final latVal = row['lat'];
-      final lngVal = row['lng'] ?? row['lon'];
-      if (latVal != null && lngVal != null) {
-        final d = _haversineMeters(
-          point,
-          LatLng((latVal as num).toDouble(), (lngVal as num).toDouble()),
-        );
-        if (d < bestDist) {
-          bestDist = d;
-          bestId = row['id'] as String;
-        }
-      }
-    }
-    return bestId;
-  } catch (e) {
-    developer.log('Nearest-building lookup failed: $e', name: 'Navigation');
-    return null; // caller falls through to a live ORS call, uncached — safe degradation
-  }
-}
-
-Future<Map<String, dynamic>?> _readCache(String originId, String destId) async {
-  try {
-    final rows = await SupaFlow.client
-        .from('route_cache')
-        .select('distance_meters, duration_seconds, confidence, computed_at')
-        .eq('origin_building_id', originId)
-        .eq('destination_building_id', destId)
-        .limit(1);
-    if (rows is List && rows.isNotEmpty) {
-      final row = rows.first;
-      final computedAt = DateTime.parse(row['computed_at'] as String);
-      if (DateTime.now().difference(computedAt) < _cacheTtl) {
-        return row as Map<String, dynamic>;
-      }
-    }
-  } catch (e) {
-    developer.log('Cache read failed: $e', name: 'Navigation');
-  }
-  return null;
-}
-
-Future<void> _writeCache(
-  String originId,
-  String destId,
-  double distanceMeters,
-  int durationSeconds,
-  String confidence,
-) async {
-  try {
-    await SupaFlow.client.from('route_cache').upsert({
-      'origin_building_id': originId,
-      'destination_building_id': destId,
-      'distance_meters': distanceMeters,
-      'duration_seconds': durationSeconds,
-      'confidence': confidence,
-      'computed_at': DateTime.now().toIso8601String(),
-    });
-  } catch (e) {
-    developer.log('Cache write failed: $e', name: 'Navigation');
-  }
-}
-
-RouteResultStruct _buildResult({
-  required double distanceMeters,
-  required int durationSeconds,
-  required List<LatLng> polyline,
-  required String confidence,
+RouteResultStruct _localHaversineFallback(
+  double oLat,
+  double oLng,
+  double dLat,
+  double dLng,
   DateTime? targetArrivalTime,
 ) {
   final estimatedMeters = _haversineMeters(oLat, oLng, dLat, dLng) * 1.18;
