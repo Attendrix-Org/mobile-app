@@ -704,54 +704,61 @@ class _AttendanceCalculatorWidgetState
                                   .labelSmallIsCustom,
                             ),
                       ),
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsetsDirectional.fromSTEB(8.0, 0.0, 0.0, 0.0),
-                    child: RichText(
-                      textScaler: MediaQuery.of(context).textScaler,
-                      text: TextSpan(
-                        children: [
-                          TextSpan(
-                            text: valueOrDefault<String>(
-                              _model.projectedAttendance?.projectedAttendance
-                                  .toString(),
-                              '0',
-                            ),
-                            style: FlutterFlowTheme.of(context)
-                                .bodyMedium
-                                .override(
-                                  font: GoogleFonts.outfit(
-                                    fontWeight: FontWeight.bold,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .bodyMedium
-                                        .fontStyle,
-                                  ),
-                                  fontSize: 42.0,
-                                  letterSpacing: 0.0,
-                                  fontWeight: FontWeight.bold,
-                                  fontStyle: FlutterFlowTheme.of(context)
-                                      .bodyMedium
-                                      .fontStyle,
-                                ),
-                          ),
-                          TextSpan(
-                            text: '%',
-                            style: GoogleFonts.outfit(
-                              color: FlutterFlowTheme.of(context).primaryText,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 20.0,
-                            ),
-                          )
-                        ],
-                        style: FlutterFlowTheme.of(context).labelSmall.override(
-                              fontFamily:
-                                  FlutterFlowTheme.of(context).labelSmallFamily,
-                              color: FlutterFlowTheme.of(context).success,
-                              letterSpacing: 0.0,
-                              useGoogleFonts: !FlutterFlowTheme.of(context)
-                                  .labelSmallIsCustom,
-                            ),
+                      child: FlutterFlowCountController(
+                        decrementIconBuilder: (enabled) => Icon(
+                          Icons.remove_rounded,
+                          color: enabled
+                              ? FlutterFlowTheme.of(context).error
+                              : FlutterFlowTheme.of(context).alternate,
+                          size: 32.0,
+                        ),
+                        incrementIconBuilder: (enabled) => Icon(
+                          Icons.add_rounded,
+                          color: enabled
+                              ? FlutterFlowTheme.of(context).primary
+                              : FlutterFlowTheme.of(context).alternate,
+                          size: 32.0,
+                        ),
+                        countBuilder: (count) => Text(
+                          count.toString(),
+                          style: FlutterFlowTheme.of(context)
+                              .titleLarge
+                              .override(
+                                fontFamily: FlutterFlowTheme.of(context)
+                                    .titleLargeFamily,
+                                color: FlutterFlowTheme.of(context).error,
+                                fontSize: 32.0,
+                                letterSpacing: 0.0,
+                                useGoogleFonts: !FlutterFlowTheme.of(context)
+                                    .titleLargeIsCustom,
+                              ),
+                        ),
+                        count: _model.skipValue ??= 0,
+                        updateCount: (count) async {
+                          safeSetState(() => _model.skipValue = count);
+                          logFirebaseEvent(
+                              'ATTENDANCE_CALCULATOR_skip_ON_FORM_WIDGE');
+                          logFirebaseEvent('skip_custom_action');
+                          _model.projectedAttendnaceResultBySkip =
+                              await actions.calculateProjectedAttendance(
+                            widget.classBlock,
+                            _model.addToAttended,
+                            _model.skipValue,
+                            FFAppState().userPreferences.preferredActionTone,
+                          );
+                          logFirebaseEvent('skip_update_component_state');
+                          _model.addToSkip = _model.skipValue!;
+                          _model.projectedAttendance =
+                              _model.projectedAttendnaceResultBySkip;
+                          safeSetState(() {});
+
+                          safeSetState(() {});
+                        },
+                        stepSize: 1,
+                        minimum: 0,
+                        maximum: 30,
+                        contentPadding: EdgeInsetsDirectional.fromSTEB(
+                            12.0, 0.0, 12.0, 0.0),
                       ),
                     ),
                   ),

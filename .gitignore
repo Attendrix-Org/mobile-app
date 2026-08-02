@@ -54,8 +54,19 @@ unlinked_spec.ds
 **/android/gradlew.bat
 **/android/local.properties
 **/android/**/GeneratedPluginRegistrant.java
-**/android/key.properties
+
+# Keystore & Signing Secrets
+key.properties
+release.keystore
+android/key.properties
+android/release.keystore
+*.keystore
 *.jks
+*.p12
+**/android/key.properties
+**/android/*.keystore
+**/android/*.jks
+**/android/*.p12
 
 # Coverage
 coverage/
@@ -69,7 +80,11 @@ app.*.symbols
 !**/ios/**/default.pbxuser
 !**/ios/**/default.perspectivev3
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
-!/dev/ci/**/Gemfile.lockandroid/keys/
-android/key.properties
+!/dev/ci/**/Gemfile.lock
 ci-cd_test_logs/
+
+# iOS ephemeral files
+ios/Flutter/ephemeral/
+
+
 
