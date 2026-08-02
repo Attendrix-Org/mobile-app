@@ -618,7 +618,7 @@ class _AttendanceCalculatorWidgetState
                           logFirebaseEvent('skip_update_component_state');
                           _model.addToSkip = _model.skipValue!;
                           _model.projectedAttendance =
-                              _model.projectedAttendnaceResultByAttended;
+                              _model.projectedAttendnaceResultBySkip;
                           safeSetState(() {});
 
                           safeSetState(() {});

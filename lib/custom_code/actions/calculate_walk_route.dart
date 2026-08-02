@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 // Begin custom action code
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
+import 'dart:convert';
 import 'dart:developer' as developer;
 import 'dart:math';
 import 'package:http/http.dart' as http;
@@ -60,10 +61,10 @@ Future<RouteResultStruct> calculateWalkRoute(
       final cached = await _readCache(originBuildingId, destinationBuildingId);
       if (cached != null) {
         return _buildResult(
-          distanceMeters: cached['distance_meters'] as double,
-          durationSeconds: cached['duration_seconds'] as int,
+          distanceMeters: (cached['distance_meters'] as num).toDouble(),
+          durationSeconds: (cached['duration_seconds'] as num).toInt(),
           polyline: [],
-          confidence: cached['confidence'] as String,
+          confidence: (cached['confidence'] ?? 'approximate').toString(),
           targetArrivalTime: targetArrivalTime,
         );
       }
@@ -182,17 +183,21 @@ Map<String, dynamic> _fallbackData(
 Future<String?> _nearestBuildingId(LatLng point) async {
   try {
     final rows =
-        await SupaFlow.client.from('campus_buildings').select('id, lat, lon');
+        await SupaFlow.client.from('campus_buildings').select('id, lat, lng');
     String? bestId;
     double bestDist = double.infinity;
     for (final row in rows as List) {
-      final d = _haversineMeters(
-        point,
-        LatLng((row['lat'] as num).toDouble(), (row['lon'] as num).toDouble()),
-      );
-      if (d < bestDist) {
-        bestDist = d;
-        bestId = row['id'] as String;
+      final latVal = row['lat'];
+      final lngVal = row['lng'] ?? row['lon'];
+      if (latVal != null && lngVal != null) {
+        final d = _haversineMeters(
+          point,
+          LatLng((latVal as num).toDouble(), (lngVal as num).toDouble()),
+        );
+        if (d < bestDist) {
+          bestDist = d;
+          bestId = row['id'] as String;
+        }
       }
     }
     return bestId;
