@@ -3204,7 +3204,6 @@ class _OnboardingWidgetState extends State<OnboardingWidget>
                                                         .userProfile
                                                         .enrolledCourses
                                                         .toList(),
-                                                    true,
                                                   );
                                                   if (_model
                                                           .onboardingComplete! &&

@@ -78,8 +78,8 @@ Future<dynamic> _callRpcWithRetry(
 
 Future<String?> _downloadAndSaveApodImage(String url) async {
   if (url.isEmpty || !url.startsWith('http')) return null;
+  final client = HttpClient();
   try {
-    final client = HttpClient();
     final request = await client.getUrl(Uri.parse(url));
     final response = await request.close();
     if (response.statusCode == 200) {
@@ -92,6 +92,8 @@ Future<String?> _downloadAndSaveApodImage(String url) async {
     }
   } catch (e) {
     debugPrint('syncAppData: failed to download APOD image - $e');
+  } finally {
+    client.close();
   }
   return null;
 }
@@ -619,11 +621,8 @@ Future<void> _fetchApod(_SyncOutcome outcome) async {
           ? parsedApod.hdImageUrl
           : parsedApod.imageUrl;
 
-      if (rawImageUrl.isNotEmpty) {
-        final localPath = await _downloadAndSaveApodImage(rawImageUrl);
-        if (localPath != null) {
-          parsedApod.imageUrl = localPath;
-        }
+      if (rawImageUrl.isNotEmpty && rawImageUrl.startsWith('http')) {
+        unawaited(_downloadAndSaveApodImage(rawImageUrl));
       }
       outcome.apod.data = parsedApod;
       outcome.apod.fetched = true;
