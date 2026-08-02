@@ -14,18 +14,21 @@ import '/backend/schema/enums/enums.dart';
 import '/backend/supabase/supabase.dart';
 import '/auth/supabase_auth/auth_util.dart';
 
-int calendarItemHeight(
-  DateTime startTime,
-  DateTime endTime,
+int relativeTime(
+  DateTime currentTime,
+  DateTime? classStart,
+  DateTime? classEnd,
 ) {
-  double pixelsPerMinute = 1.2;
-  int minimumHeight = 100;
-  final duration = endTime.difference(startTime).inMinutes;
+  // A Custom Function which will output a string based on the relativeTime as upcoming, ongoing, completed
+  if (classStart == null || classEnd == null) {
+    return 0;
+  }
 
-  if (duration <= 0) return minimumHeight;
-
-  return (duration * pixelsPerMinute).round().clamp(
-        minimumHeight,
-        1000000,
-      );
+  if (currentTime.isBefore(classStart)) {
+    return 0;
+  } else if (currentTime.isAfter(classEnd)) {
+    return 1;
+  } else {
+    return 2;
+  }
 }

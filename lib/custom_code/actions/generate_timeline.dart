@@ -12,13 +12,16 @@ import 'package:flutter/material.dart';
 
 Future<List<DateTime>> generateTimeline(
   DateTime selectedDate,
-  List<DateTime> startTimes,
-  List<DateTime> endTimes,
+  List<DateTime>? startTimes,
+  List<DateTime>? endTimes,
 ) async {
   const int startHour = 7;
   const int endHour = 18;
 
-  assert(startTimes.length == endTimes.length);
+  final starts = startTimes ?? [];
+  final ends = endTimes ?? [];
+
+  assert(starts.length == ends.length);
 
   final timeline = <DateTime>{};
 
@@ -33,21 +36,21 @@ Future<List<DateTime>> generateTimeline(
 
     bool insideClass = false;
 
-    for (int i = 0; i < startTimes.length; i++) {
+    for (int i = 0; i < starts.length; i++) {
       final start = DateTime(
         selectedDate.year,
         selectedDate.month,
         selectedDate.day,
-        startTimes[i].hour,
-        startTimes[i].minute,
+        starts[i].hour,
+        starts[i].minute,
       );
 
       final end = DateTime(
         selectedDate.year,
         selectedDate.month,
         selectedDate.day,
-        endTimes[i].hour,
-        endTimes[i].minute,
+        ends[i].hour,
+        ends[i].minute,
       );
 
       if (marker.isAfter(start) && marker.isBefore(end)) {
@@ -62,16 +65,16 @@ Future<List<DateTime>> generateTimeline(
   }
 
   // Always include every class start.
-  for (final start in startTimes) {
-    final normalized = DateTime(
-      selectedDate.year,
-      selectedDate.month,
-      selectedDate.day,
-      start.hour,
-      start.minute,
+  for (final start in starts) {
+    timeline.add(
+      DateTime(
+        selectedDate.year,
+        selectedDate.month,
+        selectedDate.day,
+        start.hour,
+        start.minute,
+      ),
     );
-
-    timeline.add(normalized);
   }
 
   return timeline.toList()..sort();

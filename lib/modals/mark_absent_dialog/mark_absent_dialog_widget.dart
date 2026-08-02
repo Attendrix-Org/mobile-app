@@ -179,28 +179,42 @@ class _MarkAbsentDialogWidgetState extends State<MarkAbsentDialogWidget> {
                 onPressed: () async {
                   logFirebaseEvent('MARK_ABSENT_DIALOG_MARK_AS_ABSENT_BTN_ON');
                   logFirebaseEvent('Button_custom_action');
-                  _model.markAbsentResponse = await actions.markAbsent(
+                  _model.markAbsentfeedback = await actions.markAbsent(
                     widget.classBlock!,
                     'student',
-                    'marked absent by user',
+                    'Marked By Student',
                   );
-                  if (_model.markAbsentResponse?.success != true) {
-                    logFirebaseEvent('Button_show_snack_bar');
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          'Couldn\'t update your attendance. Give it another try.',
-                          style: GoogleFonts.outfit(
-                            color: FlutterFlowTheme.of(context).info,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 12.0,
-                          ),
+                  logFirebaseEvent('Button_show_snack_bar');
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        valueOrDefault<String>(
+                          _model.markAbsentfeedback!.success
+                              ? 'Absence recorded successfully.'
+                              : 'Failed to record absence. Please try again.',
+                          'Failed to record absence. Please try again.',
                         ),
-                        duration: Duration(milliseconds: 4000),
-                        backgroundColor: FlutterFlowTheme.of(context).error,
+                        style: GoogleFonts.outfit(
+                          color: FlutterFlowTheme.of(context).info,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 12.0,
+                        ),
                       ),
-                    );
-                  }
+                      duration: Duration(milliseconds: 2000),
+                      backgroundColor: _model.markAbsentfeedback!.success
+                          ? FlutterFlowTheme.of(context).primary
+                          : FlutterFlowTheme.of(context).error,
+                      action: SnackBarAction(
+                        label: 'Undo',
+                        textColor: FlutterFlowTheme.of(context).info,
+                        onPressed: () async {
+                          await actions.unMarkAbsent(
+                            widget.classBlock!,
+                          );
+                        },
+                      ),
+                    ),
+                  );
                   logFirebaseEvent('Button_dismiss_dialog');
                   Navigator.pop(context);
 

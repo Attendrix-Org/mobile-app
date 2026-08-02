@@ -15,6 +15,18 @@ import 'package:onesignal_flutter/onesignal_flutter.dart';
 
 Future<void> optOutPushNotifications() async {
   try {
+    final subscriptionId = OneSignal.User.pushSubscription.id;
+    if (subscriptionId != null && subscriptionId.isNotEmpty) {
+      try {
+        await SupaFlow.client.rpc('deactivate_device', params: {
+          'p_subscription_id': subscriptionId,
+        });
+        debugPrint(
+            'Deactivated device $subscriptionId (is_active = false) in Supabase.');
+      } catch (rpcErr) {
+        debugPrint('RPC deactivate_device error: $rpcErr');
+      }
+    }
     OneSignal.User.pushSubscription.optOut();
     debugPrint('Push notifications opted out.');
   } catch (e, stackTrace) {
@@ -22,5 +34,6 @@ Future<void> optOutPushNotifications() async {
     debugPrintStack(stackTrace: stackTrace);
   }
 }
+
 // Set your action name, define your arguments and return parameter,
 // and then add the boilerplate code using the `</>` button on the right!

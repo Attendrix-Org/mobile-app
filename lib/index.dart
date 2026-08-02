@@ -21,7 +21,6 @@ export '/apod/apod_widget.dart' show ApodWidget;
 export '/under_maintainance/under_maintainance_widget.dart'
     show UnderMaintainanceWidget;
 export '/course_catalog/course_catalog_widget.dart' show CourseCatalogWidget;
-export '/quick_notes/quick_notes_widget.dart' show QuickNotesWidget;
 export '/enrolled_courses/enrolled_courses_widget.dart'
     show EnrolledCoursesWidget;
 export '/settings/settings_widget.dart' show SettingsWidget;

@@ -41,6 +41,9 @@ class _ClassesWidgetState extends State<ClassesWidget>
     // On page load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
       logFirebaseEvent('CLASSES_PAGE_classes_ON_INIT_STATE');
+      logFirebaseEvent('classes_update_page_state');
+      _model.dateRange = DateRange.sevenDays;
+      _model.weekendPolicy = WeekendPolicy.excludeAll;
       logFirebaseEvent('classes_custom_action');
       _model.generatedDates = await actions.generatePastDateRange(
         getCurrentTimestamp,
@@ -57,7 +60,7 @@ class _ClassesWidgetState extends State<ClassesWidget>
         false,
         false,
         true,
-        false,
+        true,
         false,
         false,
         _model.generatedDatesState.toList(),
@@ -732,13 +735,13 @@ class _ClassesWidgetState extends State<ClassesWidget>
                                                           AlignmentDirectional(
                                                               -1.0, 0.0),
                                                       child: Text(
-                                                        'Missed Classes [${valueOrDefault<String>(
+                                                        'Missed Classes (${valueOrDefault<String>(
                                                           FFAppState()
                                                               .missedClasses
                                                               .length
                                                               .toString(),
                                                           '0',
-                                                        )}]',
+                                                        )})',
                                                         style: FlutterFlowTheme
                                                                 .of(context)
                                                             .headlineSmall
@@ -747,7 +750,7 @@ class _ClassesWidgetState extends State<ClassesWidget>
                                                                   FlutterFlowTheme.of(
                                                                           context)
                                                                       .headlineSmallFamily,
-                                                              fontSize: 20.0,
+                                                              fontSize: 18.0,
                                                               letterSpacing:
                                                                   0.0,
                                                               useGoogleFonts:

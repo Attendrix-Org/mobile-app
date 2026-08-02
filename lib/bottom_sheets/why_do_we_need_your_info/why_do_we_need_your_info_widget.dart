@@ -263,31 +263,27 @@ class _WhyDoWeNeedYourInfoWidgetState extends State<WhyDoWeNeedYourInfoWidget> {
                                                             .bodyMediumIsCustom,
                                                   ),
                                             ),
-                                            Expanded(
-                                              flex: 1,
-                                              child: Text(
-                                                'Assign your courses and manage your timetable.',
-                                                style: FlutterFlowTheme.of(
-                                                        context)
-                                                    .bodyMedium
-                                                    .override(
-                                                      fontFamily:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .bodyMediumFamily,
-                                                      color:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .secondaryText,
-                                                      fontSize: 16.0,
-                                                      letterSpacing: 0.0,
-                                                      lineHeight: 1.4,
-                                                      useGoogleFonts:
-                                                          !FlutterFlowTheme.of(
-                                                                  context)
-                                                              .bodyMediumIsCustom,
-                                                    ),
-                                              ),
+                                            Text(
+                                              'Assign your courses and manage your timetable.',
+                                              style: FlutterFlowTheme.of(
+                                                      context)
+                                                  .bodyMedium
+                                                  .override(
+                                                    fontFamily:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .bodyMediumFamily,
+                                                    color: FlutterFlowTheme.of(
+                                                            context)
+                                                        .secondaryText,
+                                                    fontSize: 16.0,
+                                                    letterSpacing: 0.0,
+                                                    lineHeight: 1.4,
+                                                    useGoogleFonts:
+                                                        !FlutterFlowTheme.of(
+                                                                context)
+                                                            .bodyMediumIsCustom,
+                                                  ),
                                             ),
                                           ].divide(SizedBox(width: 8.0)),
                                         ),
@@ -320,31 +316,27 @@ class _WhyDoWeNeedYourInfoWidgetState extends State<WhyDoWeNeedYourInfoWidget> {
                                                             .bodyMediumIsCustom,
                                                   ),
                                             ),
-                                            Expanded(
-                                              flex: 1,
-                                              child: Text(
-                                                'Generate your course schedule.',
-                                                style: FlutterFlowTheme.of(
-                                                        context)
-                                                    .bodyMedium
-                                                    .override(
-                                                      fontFamily:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .bodyMediumFamily,
-                                                      color:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .secondaryText,
-                                                      fontSize: 16.0,
-                                                      letterSpacing: 0.0,
-                                                      lineHeight: 1.4,
-                                                      useGoogleFonts:
-                                                          !FlutterFlowTheme.of(
-                                                                  context)
-                                                              .bodyMediumIsCustom,
-                                                    ),
-                                              ),
+                                            Text(
+                                              'Generate your course schedule.',
+                                              style: FlutterFlowTheme.of(
+                                                      context)
+                                                  .bodyMedium
+                                                  .override(
+                                                    fontFamily:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .bodyMediumFamily,
+                                                    color: FlutterFlowTheme.of(
+                                                            context)
+                                                        .secondaryText,
+                                                    fontSize: 16.0,
+                                                    letterSpacing: 0.0,
+                                                    lineHeight: 1.4,
+                                                    useGoogleFonts:
+                                                        !FlutterFlowTheme.of(
+                                                                context)
+                                                            .bodyMediumIsCustom,
+                                                  ),
                                             ),
                                           ].divide(SizedBox(width: 8.0)),
                                         ),
@@ -377,31 +369,27 @@ class _WhyDoWeNeedYourInfoWidgetState extends State<WhyDoWeNeedYourInfoWidget> {
                                                             .bodyMediumIsCustom,
                                                   ),
                                             ),
-                                            Expanded(
-                                              flex: 1,
-                                              child: Text(
-                                                'Track attendance and academic progress.',
-                                                style: FlutterFlowTheme.of(
-                                                        context)
-                                                    .bodyMedium
-                                                    .override(
-                                                      fontFamily:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .bodyMediumFamily,
-                                                      color:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .secondaryText,
-                                                      fontSize: 16.0,
-                                                      letterSpacing: 0.0,
-                                                      lineHeight: 1.4,
-                                                      useGoogleFonts:
-                                                          !FlutterFlowTheme.of(
-                                                                  context)
-                                                              .bodyMediumIsCustom,
-                                                    ),
-                                              ),
+                                            Text(
+                                              'Track attendance and academic progress.',
+                                              style: FlutterFlowTheme.of(
+                                                      context)
+                                                  .bodyMedium
+                                                  .override(
+                                                    fontFamily:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .bodyMediumFamily,
+                                                    color: FlutterFlowTheme.of(
+                                                            context)
+                                                        .secondaryText,
+                                                    fontSize: 16.0,
+                                                    letterSpacing: 0.0,
+                                                    lineHeight: 1.4,
+                                                    useGoogleFonts:
+                                                        !FlutterFlowTheme.of(
+                                                                context)
+                                                            .bodyMediumIsCustom,
+                                                  ),
                                             ),
                                           ].divide(SizedBox(width: 8.0)),
                                         ),
@@ -434,31 +422,27 @@ class _WhyDoWeNeedYourInfoWidgetState extends State<WhyDoWeNeedYourInfoWidget> {
                                                             .bodyMediumIsCustom,
                                                   ),
                                             ),
-                                            Expanded(
-                                              flex: 1,
-                                              child: Text(
-                                                'Personalize your academic experience.',
-                                                style: FlutterFlowTheme.of(
-                                                        context)
-                                                    .bodyMedium
-                                                    .override(
-                                                      fontFamily:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .bodyMediumFamily,
-                                                      color:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .secondaryText,
-                                                      fontSize: 16.0,
-                                                      letterSpacing: 0.0,
-                                                      lineHeight: 1.4,
-                                                      useGoogleFonts:
-                                                          !FlutterFlowTheme.of(
-                                                                  context)
-                                                              .bodyMediumIsCustom,
-                                                    ),
-                                              ),
+                                            Text(
+                                              'Personalize your academic experience.',
+                                              style: FlutterFlowTheme.of(
+                                                      context)
+                                                  .bodyMedium
+                                                  .override(
+                                                    fontFamily:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .bodyMediumFamily,
+                                                    color: FlutterFlowTheme.of(
+                                                            context)
+                                                        .secondaryText,
+                                                    fontSize: 16.0,
+                                                    letterSpacing: 0.0,
+                                                    lineHeight: 1.4,
+                                                    useGoogleFonts:
+                                                        !FlutterFlowTheme.of(
+                                                                context)
+                                                            .bodyMediumIsCustom,
+                                                  ),
                                             ),
                                           ].divide(SizedBox(width: 8.0)),
                                         ),

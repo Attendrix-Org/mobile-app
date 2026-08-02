@@ -8,6 +8,8 @@ class CancelClassConfirmationModel
     extends FlutterFlowModel<CancelClassConfirmationWidget> {
   ///  State fields for stateful widgets in this component.
 
+  // State field(s) for Checkbox widget.
+  bool? checkboxValue;
   // Stores action output result for [Custom Action - cancelClass] action in Button widget.
   FeedbackStruct? cancelClassFeedback;
 

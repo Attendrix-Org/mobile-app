@@ -174,18 +174,20 @@ class FFAppState extends ChangeNotifier {
               _selectedDateClasses;
     });
     await _safeInitAsync(() async {
-      if (await secureStorage.read(key: 'ff_currentClassBuildingData') !=
-          null) {
-        try {
-          final serializedData =
-              await secureStorage.getString('ff_currentClassBuildingData') ??
-                  '{}';
-          _currentClassBuildingData = CampusBuildingStruct.fromSerializableMap(
-              jsonDecode(serializedData));
-        } catch (e) {
-          print("Can't decode persisted data type. Error: $e.");
-        }
-      }
+      _campusBuildingData =
+          (await secureStorage.getStringList('ff_campusBuildingData'))
+                  ?.map((x) {
+                    try {
+                      return CampusBuildingStruct.fromSerializableMap(
+                          jsonDecode(x));
+                    } catch (e) {
+                      print("Can't decode persisted data type. Error: $e.");
+                      return null;
+                    }
+                  })
+                  .withoutNulls
+                  .toList() ??
+              _campusBuildingData;
     });
   }
 
@@ -559,23 +561,50 @@ class FFAppState extends ChangeNotifier {
         _selectedDateClasses.map((x) => x.serialize()).toList());
   }
 
-  CampusBuildingStruct _currentClassBuildingData = CampusBuildingStruct();
-  CampusBuildingStruct get currentClassBuildingData =>
-      _currentClassBuildingData;
-  set currentClassBuildingData(CampusBuildingStruct value) {
-    _currentClassBuildingData = value;
-    secureStorage.setString('ff_currentClassBuildingData', value.serialize());
+  List<CampusBuildingStruct> _campusBuildingData = [];
+  List<CampusBuildingStruct> get campusBuildingData => _campusBuildingData;
+  set campusBuildingData(List<CampusBuildingStruct> value) {
+    _campusBuildingData = value;
+    secureStorage.setStringList(
+        'ff_campusBuildingData', value.map((x) => x.serialize()).toList());
   }
 
-  void deleteCurrentClassBuildingData() {
-    secureStorage.delete(key: 'ff_currentClassBuildingData');
+  void deleteCampusBuildingData() {
+    secureStorage.delete(key: 'ff_campusBuildingData');
   }
 
-  void updateCurrentClassBuildingDataStruct(
-      Function(CampusBuildingStruct) updateFn) {
-    updateFn(_currentClassBuildingData);
-    secureStorage.setString(
-        'ff_currentClassBuildingData', _currentClassBuildingData.serialize());
+  void addToCampusBuildingData(CampusBuildingStruct value) {
+    campusBuildingData.add(value);
+    secureStorage.setStringList('ff_campusBuildingData',
+        _campusBuildingData.map((x) => x.serialize()).toList());
+  }
+
+  void removeFromCampusBuildingData(CampusBuildingStruct value) {
+    campusBuildingData.remove(value);
+    secureStorage.setStringList('ff_campusBuildingData',
+        _campusBuildingData.map((x) => x.serialize()).toList());
+  }
+
+  void removeAtIndexFromCampusBuildingData(int index) {
+    campusBuildingData.removeAt(index);
+    secureStorage.setStringList('ff_campusBuildingData',
+        _campusBuildingData.map((x) => x.serialize()).toList());
+  }
+
+  void updateCampusBuildingDataAtIndex(
+    int index,
+    CampusBuildingStruct Function(CampusBuildingStruct) updateFn,
+  ) {
+    campusBuildingData[index] = updateFn(_campusBuildingData[index]);
+    secureStorage.setStringList('ff_campusBuildingData',
+        _campusBuildingData.map((x) => x.serialize()).toList());
+  }
+
+  void insertAtIndexInCampusBuildingData(
+      int index, CampusBuildingStruct value) {
+    campusBuildingData.insert(index, value);
+    secureStorage.setStringList('ff_campusBuildingData',
+        _campusBuildingData.map((x) => x.serialize()).toList());
   }
 
   final _courseCatalogManager = FutureRequestManager<List<CourseSyllabiRow>>();

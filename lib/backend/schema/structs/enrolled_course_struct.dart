@@ -16,7 +16,6 @@ class EnrolledCourseStruct extends BaseStruct {
     bool? isElective,
     String? electiveCategory,
     AttendanceStruct? attendance,
-    LabSubBatchStruct? labSubBatch,
   })  : _courseId = courseId,
         _courseCode = courseCode,
         _courseName = courseName,
@@ -26,8 +25,7 @@ class EnrolledCourseStruct extends BaseStruct {
         _isLab = isLab,
         _isElective = isElective,
         _electiveCategory = electiveCategory,
-        _attendance = attendance,
-        _labSubBatch = labSubBatch;
+        _attendance = attendance;
 
   // "courseId" field.
   String? _courseId;
@@ -105,17 +103,6 @@ class EnrolledCourseStruct extends BaseStruct {
 
   bool hasAttendance() => _attendance != null;
 
-  // "labSubBatch" field.
-  LabSubBatchStruct? _labSubBatch;
-  LabSubBatchStruct get labSubBatch => _labSubBatch ?? LabSubBatchStruct();
-  set labSubBatch(LabSubBatchStruct? val) => _labSubBatch = val;
-
-  void updateLabSubBatch(Function(LabSubBatchStruct) updateFn) {
-    updateFn(_labSubBatch ??= LabSubBatchStruct());
-  }
-
-  bool hasLabSubBatch() => _labSubBatch != null;
-
   static EnrolledCourseStruct fromMap(Map<String, dynamic> data) =>
       EnrolledCourseStruct(
         courseId: data['courseId'] as String?,
@@ -130,9 +117,6 @@ class EnrolledCourseStruct extends BaseStruct {
         attendance: data['attendance'] is AttendanceStruct
             ? data['attendance']
             : AttendanceStruct.maybeFromMap(data['attendance']),
-        labSubBatch: data['labSubBatch'] is LabSubBatchStruct
-            ? data['labSubBatch']
-            : LabSubBatchStruct.maybeFromMap(data['labSubBatch']),
       );
 
   static EnrolledCourseStruct? maybeFromMap(dynamic data) => data is Map
@@ -150,7 +134,6 @@ class EnrolledCourseStruct extends BaseStruct {
         'isElective': _isElective,
         'electiveCategory': _electiveCategory,
         'attendance': _attendance?.toMap(),
-        'labSubBatch': _labSubBatch?.toMap(),
       }.withoutNulls;
 
   @override
@@ -193,10 +176,6 @@ class EnrolledCourseStruct extends BaseStruct {
         ),
         'attendance': serializeParam(
           _attendance,
-          ParamType.DataStruct,
-        ),
-        'labSubBatch': serializeParam(
-          _labSubBatch,
           ParamType.DataStruct,
         ),
       }.withoutNulls;
@@ -254,12 +233,6 @@ class EnrolledCourseStruct extends BaseStruct {
           false,
           structBuilder: AttendanceStruct.fromSerializableMap,
         ),
-        labSubBatch: deserializeStructParam(
-          data['labSubBatch'],
-          ParamType.DataStruct,
-          false,
-          structBuilder: LabSubBatchStruct.fromSerializableMap,
-        ),
       );
 
   @override
@@ -277,8 +250,7 @@ class EnrolledCourseStruct extends BaseStruct {
         isLab == other.isLab &&
         isElective == other.isElective &&
         electiveCategory == other.electiveCategory &&
-        attendance == other.attendance &&
-        labSubBatch == other.labSubBatch;
+        attendance == other.attendance;
   }
 
   @override
@@ -292,8 +264,7 @@ class EnrolledCourseStruct extends BaseStruct {
         isLab,
         isElective,
         electiveCategory,
-        attendance,
-        labSubBatch
+        attendance
       ]);
 }
 
@@ -308,7 +279,6 @@ EnrolledCourseStruct createEnrolledCourseStruct({
   bool? isElective,
   String? electiveCategory,
   AttendanceStruct? attendance,
-  LabSubBatchStruct? labSubBatch,
 }) =>
     EnrolledCourseStruct(
       courseId: courseId,
@@ -321,5 +291,4 @@ EnrolledCourseStruct createEnrolledCourseStruct({
       isElective: isElective,
       electiveCategory: electiveCategory,
       attendance: attendance ?? AttendanceStruct(),
-      labSubBatch: labSubBatch ?? LabSubBatchStruct(),
     );

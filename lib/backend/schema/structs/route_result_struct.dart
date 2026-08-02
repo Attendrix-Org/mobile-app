@@ -14,11 +14,12 @@ class RouteResultStruct extends BaseStruct {
     double? distanceMeters,
     int? durationSeconds,
     String? statusMessage,
-    String? formattedDistance,
     int? walkMinutes,
     int? leaveInMinutes,
     bool? isLeaveNow,
     bool? isLate,
+    String? formattedDuration,
+    String? formattedDistance,
   })  : _distanceM = distanceM,
         _durationMin = durationMin,
         _polyline = polyline,
@@ -26,11 +27,12 @@ class RouteResultStruct extends BaseStruct {
         _distanceMeters = distanceMeters,
         _durationSeconds = durationSeconds,
         _statusMessage = statusMessage,
-        _formattedDistance = formattedDistance,
         _walkMinutes = walkMinutes,
         _leaveInMinutes = leaveInMinutes,
         _isLeaveNow = isLeaveNow,
-        _isLate = isLate;
+        _isLate = isLate,
+        _formattedDuration = formattedDuration,
+        _formattedDistance = formattedDistance;
 
   // "distanceM" field.
   double? _distanceM;
@@ -95,13 +97,6 @@ class RouteResultStruct extends BaseStruct {
 
   bool hasStatusMessage() => _statusMessage != null;
 
-  // "formattedDistance" field.
-  String? _formattedDistance;
-  String get formattedDistance => _formattedDistance ?? '';
-  set formattedDistance(String? val) => _formattedDistance = val;
-
-  bool hasFormattedDistance() => _formattedDistance != null;
-
   // "walkMinutes" field.
   int? _walkMinutes;
   int get walkMinutes => _walkMinutes ?? 0;
@@ -135,6 +130,20 @@ class RouteResultStruct extends BaseStruct {
 
   bool hasIsLate() => _isLate != null;
 
+  // "formattedDuration" field.
+  String? _formattedDuration;
+  String get formattedDuration => _formattedDuration ?? '';
+  set formattedDuration(String? val) => _formattedDuration = val;
+
+  bool hasFormattedDuration() => _formattedDuration != null;
+
+  // "formattedDistance" field.
+  String? _formattedDistance;
+  String get formattedDistance => _formattedDistance ?? '';
+  set formattedDistance(String? val) => _formattedDistance = val;
+
+  bool hasFormattedDistance() => _formattedDistance != null;
+
   static RouteResultStruct fromMap(Map<String, dynamic> data) =>
       RouteResultStruct(
         distanceM: castToType<double>(data['distanceM']),
@@ -144,11 +153,12 @@ class RouteResultStruct extends BaseStruct {
         distanceMeters: castToType<double>(data['distanceMeters']),
         durationSeconds: castToType<int>(data['durationSeconds']),
         statusMessage: data['statusMessage'] as String?,
-        formattedDistance: data['formattedDistance'] as String?,
         walkMinutes: castToType<int>(data['walkMinutes']),
         leaveInMinutes: castToType<int>(data['leaveInMinutes']),
         isLeaveNow: data['isLeaveNow'] as bool?,
         isLate: data['isLate'] as bool?,
+        formattedDuration: data['formattedDuration'] as String?,
+        formattedDistance: data['formattedDistance'] as String?,
       );
 
   static RouteResultStruct? maybeFromMap(dynamic data) => data is Map
@@ -163,11 +173,12 @@ class RouteResultStruct extends BaseStruct {
         'distanceMeters': _distanceMeters,
         'durationSeconds': _durationSeconds,
         'statusMessage': _statusMessage,
-        'formattedDistance': _formattedDistance,
         'walkMinutes': _walkMinutes,
         'leaveInMinutes': _leaveInMinutes,
         'isLeaveNow': _isLeaveNow,
         'isLate': _isLate,
+        'formattedDuration': _formattedDuration,
+        'formattedDistance': _formattedDistance,
       }.withoutNulls;
 
   @override
@@ -201,10 +212,6 @@ class RouteResultStruct extends BaseStruct {
           _statusMessage,
           ParamType.String,
         ),
-        'formattedDistance': serializeParam(
-          _formattedDistance,
-          ParamType.String,
-        ),
         'walkMinutes': serializeParam(
           _walkMinutes,
           ParamType.int,
@@ -220,6 +227,14 @@ class RouteResultStruct extends BaseStruct {
         'isLate': serializeParam(
           _isLate,
           ParamType.bool,
+        ),
+        'formattedDuration': serializeParam(
+          _formattedDuration,
+          ParamType.String,
+        ),
+        'formattedDistance': serializeParam(
+          _formattedDistance,
+          ParamType.String,
         ),
       }.withoutNulls;
 
@@ -260,11 +275,6 @@ class RouteResultStruct extends BaseStruct {
           ParamType.String,
           false,
         ),
-        formattedDistance: deserializeParam(
-          data['formattedDistance'],
-          ParamType.String,
-          false,
-        ),
         walkMinutes: deserializeParam(
           data['walkMinutes'],
           ParamType.int,
@@ -285,6 +295,16 @@ class RouteResultStruct extends BaseStruct {
           ParamType.bool,
           false,
         ),
+        formattedDuration: deserializeParam(
+          data['formattedDuration'],
+          ParamType.String,
+          false,
+        ),
+        formattedDistance: deserializeParam(
+          data['formattedDistance'],
+          ParamType.String,
+          false,
+        ),
       );
 
   @override
@@ -301,11 +321,12 @@ class RouteResultStruct extends BaseStruct {
         distanceMeters == other.distanceMeters &&
         durationSeconds == other.durationSeconds &&
         statusMessage == other.statusMessage &&
-        formattedDistance == other.formattedDistance &&
         walkMinutes == other.walkMinutes &&
         leaveInMinutes == other.leaveInMinutes &&
         isLeaveNow == other.isLeaveNow &&
-        isLate == other.isLate;
+        isLate == other.isLate &&
+        formattedDuration == other.formattedDuration &&
+        formattedDistance == other.formattedDistance;
   }
 
   @override
@@ -317,11 +338,12 @@ class RouteResultStruct extends BaseStruct {
         distanceMeters,
         durationSeconds,
         statusMessage,
-        formattedDistance,
         walkMinutes,
         leaveInMinutes,
         isLeaveNow,
-        isLate
+        isLate,
+        formattedDuration,
+        formattedDistance
       ]);
 }
 
@@ -332,11 +354,12 @@ RouteResultStruct createRouteResultStruct({
   double? distanceMeters,
   int? durationSeconds,
   String? statusMessage,
-  String? formattedDistance,
   int? walkMinutes,
   int? leaveInMinutes,
   bool? isLeaveNow,
   bool? isLate,
+  String? formattedDuration,
+  String? formattedDistance,
 }) =>
     RouteResultStruct(
       distanceM: distanceM,
@@ -345,9 +368,10 @@ RouteResultStruct createRouteResultStruct({
       distanceMeters: distanceMeters,
       durationSeconds: durationSeconds,
       statusMessage: statusMessage,
-      formattedDistance: formattedDistance,
       walkMinutes: walkMinutes,
       leaveInMinutes: leaveInMinutes,
       isLeaveNow: isLeaveNow,
       isLate: isLate,
+      formattedDuration: formattedDuration,
+      formattedDistance: formattedDistance,
     );

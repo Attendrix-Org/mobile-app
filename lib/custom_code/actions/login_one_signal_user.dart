@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
+import '/app_constants.dart';
 
 Future<void> loginOneSignalUser(String? userId) async {
   if (userId == null || userId.trim().isEmpty) {
@@ -20,12 +21,30 @@ Future<void> loginOneSignalUser(String? userId) async {
   }
 
   try {
-    await OneSignal.login(userId.trim());
-    debugPrint('OneSignal logged in as $userId');
+    final sanitizedUserId = userId.trim();
+    await OneSignal.login(sanitizedUserId);
+    debugPrint('OneSignal logged in as $sanitizedUserId');
+
+    final subscriptionId = OneSignal.User.pushSubscription.id;
+    if (subscriptionId != null && subscriptionId.isNotEmpty) {
+      try {
+        await SupaFlow.client.rpc('register_device', params: {
+          'p_subscription_id': subscriptionId,
+          'p_platform':
+              defaultTargetPlatform == TargetPlatform.iOS ? 'ios' : 'android',
+          'p_app_version': FFAppConstants.appVersion,
+        });
+        debugPrint(
+            'Registered device subscription $subscriptionId with Supabase (v${FFAppConstants.appVersion}).');
+      } catch (rpcErr) {
+        debugPrint('RPC register_device error: $rpcErr');
+      }
+    }
   } catch (e, stackTrace) {
     debugPrint('OneSignal login failed: $e');
     debugPrintStack(stackTrace: stackTrace);
   }
 }
+
 // Set your action name, define your arguments and return parameter,
 // and then add the boilerplate code using the `</>` button on the right!

@@ -1,8 +1,9 @@
 import '/flutter_flow/flutter_flow_util.dart';
-import 'mime_image_icon_widget.dart' show MimeImageIconWidget;
+import 'empty_state_calendar_widget.dart' show EmptyStateCalendarWidget;
 import 'package:flutter/material.dart';
 
-class MimeImageIconModel extends FlutterFlowModel<MimeImageIconWidget> {
+class EmptyStateCalendarModel
+    extends FlutterFlowModel<EmptyStateCalendarWidget> {
   @override
   void initState(BuildContext context) {}
 

@@ -15,7 +15,21 @@ Future<FeedbackStruct> completeCourseEnrollment(
   bool? debug,
 ]) async {
   try {
-    final payload = enrolledCourses.map((e) => e.toMap()).toList();
+    final Map<String, EnrolledCourseStruct> uniqueCourses = {};
+    for (var course in enrolledCourses) {
+      final key = course.courseId.isNotEmpty
+          ? course.courseId
+          : '${course.courseCode}_${course.slot}';
+      if (key.isNotEmpty) {
+        if (!uniqueCourses.containsKey(key)) {
+          uniqueCourses[key] = course;
+        }
+      } else {
+        uniqueCourses[course.hashCode.toString()] = course;
+      }
+    }
+
+    final payload = uniqueCourses.values.map((e) => e.toMap()).toList();
 
     final response = await SupaFlow.client.rpc(
       'update_enrolled_courses',

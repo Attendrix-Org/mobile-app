@@ -10,9 +10,7 @@ import 'package:flutter/material.dart';
 // Begin custom action code
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
-import '/app_state.dart';
 import 'dart:async';
-import 'dart:convert';
 
 Future<MarkAbsentResponseStruct> unMarkAbsent(
   ScheduledClassStruct classData,
@@ -32,7 +30,7 @@ Future<MarkAbsentResponseStruct> unMarkAbsent(
           'Unexpected RPC response format: expected Map, got ${response.runtimeType}');
     }
 
-    final resMap = Map<String, dynamic>.from(response as Map);
+    final resMap = Map<String, dynamic>.from(response);
 
     final result = MarkAbsentResponseStruct(
       success: resMap['success'] == true,
@@ -53,8 +51,8 @@ Future<MarkAbsentResponseStruct> unMarkAbsent(
       try {
         final decoded = jsonDecode(resMap['attendance'] as String);
         if (decoded is Map) {
-          newAttendance = AttendanceStruct.fromMap(
-              Map<String, dynamic>.from(decoded as Map));
+          newAttendance =
+              AttendanceStruct.fromMap(Map<String, dynamic>.from(decoded));
         }
       } catch (e) {
         debugPrint('Failed to decode attendance JSON string: $e');
@@ -270,9 +268,7 @@ EnrolledCourseStruct _cloneEnrolledCourseWithAttendance(
     isElective: source.isElective,
     electiveCategory: source.electiveCategory,
     attendance: newAttendance,
-    labSubBatch: source.labSubBatch,
   );
 }
-
 // Set your action name, define your arguments and return parameter,
 // and then add the boilerplate code using the `</>` button on the right!

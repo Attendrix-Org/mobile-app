@@ -311,31 +311,28 @@ class _UnderstandingLTPOWidgetState extends State<UnderstandingLTPOWidget> {
                                                               .bodyMediumIsCustom,
                                                     ),
                                               ),
-                                              Expanded(
-                                                flex: 1,
-                                                child: Text(
-                                                  'L (Lecture): Classroom teaching hours per week.',
-                                                  style: FlutterFlowTheme.of(
-                                                          context)
-                                                      .bodyMedium
-                                                      .override(
-                                                        fontFamily:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodyMediumFamily,
-                                                        color:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .secondaryText,
-                                                        fontSize: 16.0,
-                                                        letterSpacing: 0.0,
-                                                        lineHeight: 1.0,
-                                                        useGoogleFonts:
-                                                            !FlutterFlowTheme
-                                                                    .of(context)
-                                                                .bodyMediumIsCustom,
-                                                      ),
-                                                ),
+                                              Text(
+                                                'L (Lecture): Classroom teaching hours per week.',
+                                                style: FlutterFlowTheme.of(
+                                                        context)
+                                                    .bodyMedium
+                                                    .override(
+                                                      fontFamily:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .bodyMediumFamily,
+                                                      color:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .secondaryText,
+                                                      fontSize: 16.0,
+                                                      letterSpacing: 0.0,
+                                                      lineHeight: 1.0,
+                                                      useGoogleFonts:
+                                                          !FlutterFlowTheme.of(
+                                                                  context)
+                                                              .bodyMediumIsCustom,
+                                                    ),
                                               ),
                                             ].divide(SizedBox(width: 8.0)),
                                           ),
@@ -369,8 +366,12 @@ class _UnderstandingLTPOWidgetState extends State<UnderstandingLTPOWidget> {
                                                               .bodyMediumIsCustom,
                                                     ),
                                               ),
-                                              Expanded(
-                                                flex: 1,
+                                              Container(
+                                                width:
+                                                    MediaQuery.sizeOf(context)
+                                                            .width *
+                                                        0.85,
+                                                decoration: BoxDecoration(),
                                                 child: Text(
                                                   'T (Tutorial): Tutorial or problem-solving sessions per week.',
                                                   style: FlutterFlowTheme.of(
@@ -427,8 +428,12 @@ class _UnderstandingLTPOWidgetState extends State<UnderstandingLTPOWidget> {
                                                               .bodyMediumIsCustom,
                                                     ),
                                               ),
-                                              Expanded(
-                                                flex: 1,
+                                              Container(
+                                                width:
+                                                    MediaQuery.sizeOf(context)
+                                                            .width *
+                                                        0.85,
+                                                decoration: BoxDecoration(),
                                                 child: Text(
                                                   'P (Practical): Laboratory or practical session hours per week.',
                                                   style: FlutterFlowTheme.of(
@@ -485,8 +490,12 @@ class _UnderstandingLTPOWidgetState extends State<UnderstandingLTPOWidget> {
                                                               .bodyMediumIsCustom,
                                                     ),
                                               ),
-                                              Expanded(
-                                                flex: 1,
+                                              Container(
+                                                width:
+                                                    MediaQuery.sizeOf(context)
+                                                            .width *
+                                                        0.85,
+                                                decoration: BoxDecoration(),
                                                 child: Text(
                                                   'O (Outside Hours): Recommended self-study, assignments, and preparation outside the classroom.',
                                                   style: FlutterFlowTheme.of(

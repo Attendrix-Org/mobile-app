@@ -225,12 +225,6 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               builder: (context, params) => CourseCatalogWidget(),
             ),
             FFRoute(
-              name: QuickNotesWidget.routeName,
-              path: QuickNotesWidget.routePath,
-              requireAuth: true,
-              builder: (context, params) => QuickNotesWidget(),
-            ),
-            FFRoute(
               name: EnrolledCoursesWidget.routeName,
               path: EnrolledCoursesWidget.routePath,
               requireAuth: true,
