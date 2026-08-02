@@ -10,7 +10,6 @@ import 'package:flutter/material.dart';
 // Begin custom action code
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '/app_state.dart';
 import 'dart:async';
 import 'dart:convert';
@@ -101,21 +100,6 @@ Future<MarkAbsentResponseStruct> markAbsent(
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────
-// AppState reconciliation after a successful markAbsent call.
-//
-// dashboardClasses / calendarClasses: updated in place ONLY if the class is
-// already present — these are date/window-scoped views, so a class outside
-// their current range should never be force-inserted into them.
-//
-// missedClasses: always upserted using classData — this is the source of
-// truth for "classes the user was marked absent for", regardless of
-// whether the class still appears in the current dashboard/calendar
-// window.
-//
-// userProfile: attendance statistics for the affected enrolled course are
-// reconciled immediately from the RPC response.
-// ─────────────────────────────────────────────────────────────────────────
 void _syncAbsentStatus(
   String classId,
   bool isAbsent,
@@ -142,7 +126,6 @@ void _syncAbsentStatus(
     );
   }
 
-  // Skip state notify & persistent store writes if nothing changed
   if (updatedDashboard == null &&
       updatedCalendar == null &&
       updatedMissed == null &&
@@ -166,8 +149,6 @@ void _syncAbsentStatus(
   });
 }
 
-/// Returns an updated copy of [source] with the matching class's isAbsent
-/// flag flipped, or `null` if no change is needed.
 List<ScheduledClassStruct>? _withAbsentUpdated(
   List<ScheduledClassStruct> source,
   String classId,
@@ -182,7 +163,6 @@ List<ScheduledClassStruct>? _withAbsentUpdated(
   return updated;
 }
 
-/// Upsert logic specific to missedClasses.
 List<ScheduledClassStruct>? _resolveMissedListUpdate(
   List<ScheduledClassStruct> missed,
   String classId,
@@ -207,10 +187,6 @@ List<ScheduledClassStruct>? _resolveMissedListUpdate(
   return [toInsert, ...missed];
 }
 
-// ⚠️ MAINTENANCE NOTICE:
-// FlutterFlow generated structs do not have a `copyWith` method.
-// If you add/modify fields in `ScheduledClassStruct`, update this constructor
-// accordingly or new fields will be silently dropped on state updates.
 ScheduledClassStruct _cloneWithAbsent(
   ScheduledClassStruct source,
   bool isAbsent, {
@@ -233,10 +209,6 @@ ScheduledClassStruct _cloneWithAbsent(
   );
 }
 
-// ⚠️ MAINTENANCE NOTICE:
-// FlutterFlow generated structs do not have a `copyWith` method.
-// If you add/modify fields in `UserProfileStruct`, update this constructor
-// accordingly or new fields will be silently dropped on state updates.
 UserProfileStruct? _cloneUserProfileWithAttendance(
   UserProfileStruct source,
   String courseId,
@@ -245,12 +217,19 @@ UserProfileStruct? _cloneUserProfileWithAttendance(
   final currentCourses = source.enrolledCourses;
   bool courseMatched = false;
   final target = courseId.trim().toLowerCase();
+  final targetPrefix = target.split('_').first;
 
   final updatedCourses = currentCourses.map((course) {
     final cId = course.courseId.trim().toLowerCase();
     final cCode = course.courseCode.trim().toLowerCase();
+    final cIdPrefix = cId.split('_').first;
 
-    if (cId == target || cCode == target || (cId.isNotEmpty && target == cId)) {
+    final isMatch = cId == target ||
+        cCode == target ||
+        cIdPrefix == targetPrefix ||
+        cCode == targetPrefix;
+
+    if (isMatch) {
       courseMatched = true;
       debugPrint(
           '✅ Found matching course ($courseId) in UserProfile. Updating attendance: ${newAttendance.toMap()}');
@@ -262,10 +241,6 @@ UserProfileStruct? _cloneUserProfileWithAttendance(
   if (!courseMatched) {
     debugPrint(
         '⚠️ Warning: Course ID "$courseId" did NOT match any course in UserProfile!');
-    debugPrint(
-        'Available Course IDs: ${currentCourses.map((e) => e.courseId).toList()}');
-    debugPrint(
-        'Available Course Codes: ${currentCourses.map((e) => e.courseCode).toList()}');
     return null;
   }
 
@@ -303,5 +278,6 @@ EnrolledCourseStruct _cloneEnrolledCourseWithAttendance(
     labSubBatch: source.labSubBatch,
   );
 }
+
 // Set your action name, define your arguments and return parameter,
 // and then add the boilerplate code using the `</>` button on the right!

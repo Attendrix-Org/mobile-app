@@ -250,7 +250,7 @@ class _ElectiveCourseBlockWidgetState extends State<ElectiveCourseBlockWidget> {
                       return Padding(
                         padding: MediaQuery.viewInsetsOf(context),
                         child: Container(
-                          height: 60.0,
+                          height: MediaQuery.sizeOf(context).height * 0.6,
                           child: CourseSearchWidget(
                             electiveData: widget.electiveData!
                                 .where((e) =>

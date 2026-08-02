@@ -416,7 +416,7 @@ class _OnboardingWidgetState extends State<OnboardingWidget>
                                         Form(
                                           key: _model.formKey1,
                                           autovalidateMode:
-                                              AutovalidateMode.always,
+                                              AutovalidateMode.disabled,
                                           child: SingleChildScrollView(
                                             primary: false,
                                             child: Column(
@@ -1605,6 +1605,20 @@ class _OnboardingWidgetState extends State<OnboardingWidget>
                                                               FontWeight.bold,
                                                           fontSize: 12.0,
                                                         ),
+                                                        mouseCursor:
+                                                            SystemMouseCursors
+                                                                .click,
+                                                        recognizer:
+                                                            TapGestureRecognizer()
+                                                              ..onTap =
+                                                                  () async {
+                                                                logFirebaseEvent(
+                                                                    'ONBOARDING_RichTextSpan_riluxaky_ON_TAP');
+                                                                logFirebaseEvent(
+                                                                    'RichTextSpan_launch_u_r_l');
+                                                                await launchURL(
+                                                                    'https://attendrix.app/terms');
+                                                              },
                                                       ),
                                                       TextSpan(
                                                         text: ' and',
@@ -1629,6 +1643,20 @@ class _OnboardingWidgetState extends State<OnboardingWidget>
                                                               FontWeight.bold,
                                                           fontSize: 12.0,
                                                         ),
+                                                        mouseCursor:
+                                                            SystemMouseCursors
+                                                                .click,
+                                                        recognizer:
+                                                            TapGestureRecognizer()
+                                                              ..onTap =
+                                                                  () async {
+                                                                logFirebaseEvent(
+                                                                    'ONBOARDING_RichTextSpan_wugtvbyp_ON_TAP');
+                                                                logFirebaseEvent(
+                                                                    'RichTextSpan_launch_u_r_l');
+                                                                await launchURL(
+                                                                    'https://attendrix.app/privacy');
+                                                              },
                                                       ),
                                                       TextSpan(
                                                         text:
@@ -3059,7 +3087,10 @@ class _OnboardingWidgetState extends State<OnboardingWidget>
                                                       ?.length !=
                                                   _model.selectedElectives
                                                       .length) &&
-                                              (_model.labCourseData?.length !=
+                                              (_model.labCourseData
+                                                      ?.unique(
+                                                          (e) => e.courseCode)
+                                                      .length !=
                                                   _model.selectedLabCourses
                                                       .length))
                                           ? null

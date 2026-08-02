@@ -280,6 +280,8 @@ dynamic deserializeParam<T>(
             return BusTimingsRow(data);
           case BusesRow:
             return BusesRow(data);
+          case CampusBuildingsRow:
+            return CampusBuildingsRow(data);
           case ChallengeProgressRow:
             return ChallengeProgressRow(data);
           case ChallengeProgressClassesRow:
@@ -304,6 +306,12 @@ dynamic deserializeParam<T>(
             return ElectiveOfferingSemestersRow(data);
           case GcalSyncQueueRow:
             return GcalSyncQueueRow(data);
+          case GeographyColumnsRow:
+            return GeographyColumnsRow(data);
+          case GeometryColumnsRow:
+            return GeometryColumnsRow(data);
+          case GraphNodesRow:
+            return GraphNodesRow(data);
           case MessMenuRow:
             return MessMenuRow(data);
           case MessesRow:
@@ -314,12 +322,16 @@ dynamic deserializeParam<T>(
             return PgStatStatementsRow(data);
           case PgStatStatementsInfoRow:
             return PgStatStatementsInfoRow(data);
+          case RouteCacheRow:
+            return RouteCacheRow(data);
           case SchedulingAuditLogRow:
             return SchedulingAuditLogRow(data);
           case SemestersRow:
             return SemestersRow(data);
           case SlotOccurrencesRow:
             return SlotOccurrencesRow(data);
+          case SpatialRefSysRow:
+            return SpatialRefSysRow(data);
           case StudentTaskRecordsRow:
             return StudentTaskRecordsRow(data);
           case TasksRow:
@@ -330,6 +342,8 @@ dynamic deserializeParam<T>(
             return UserGoogleIntegrationsRow(data);
           case UsersRow:
             return UsersRow(data);
+          case VenueTextStagingRow:
+            return VenueTextStagingRow(data);
           default:
             return null;
         }

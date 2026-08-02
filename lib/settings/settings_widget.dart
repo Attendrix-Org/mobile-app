@@ -14,14 +14,11 @@ import '/modals/change_password/change_password_widget.dart';
 import '/modals/delele_account/delele_account_widget.dart';
 import '/custom_code/actions/index.dart' as actions;
 import '/flutter_flow/custom_functions.dart' as functions;
-import '/flutter_flow/random_data_util.dart' as random_data;
 import '/index.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:simple_gradient_text/simple_gradient_text.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'settings_model.dart';
 export 'settings_model.dart';
@@ -121,154 +118,6 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                 child: Column(
                   mainAxisSize: MainAxisSize.max,
                   children: [
-                    Padding(
-                      padding:
-                          EdgeInsetsDirectional.fromSTEB(8.0, 0.0, 8.0, 0.0),
-                      child: Material(
-                        color: Colors.transparent,
-                        elevation: 2.0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12.0),
-                        ),
-                        child: Container(
-                          width: double.infinity,
-                          height: 80.0,
-                          decoration: BoxDecoration(
-                            color: FlutterFlowTheme.of(context)
-                                .secondaryBackground,
-                            boxShadow: [
-                              BoxShadow(
-                                blurRadius: 3.0,
-                                color: Color(0x33000000),
-                                offset: Offset(
-                                  0.0,
-                                  1.0,
-                                ),
-                              )
-                            ],
-                            borderRadius: BorderRadius.circular(12.0),
-                          ),
-                          child: Padding(
-                            padding: EdgeInsets.all(6.0),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.max,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Padding(
-                                  padding: EdgeInsetsDirectional.fromSTEB(
-                                      0.0, 0.0, 10.0, 0.0),
-                                  child: Container(
-                                    width: 60.0,
-                                    height: 60.0,
-                                    decoration: BoxDecoration(
-                                      image: DecorationImage(
-                                        fit: BoxFit.cover,
-                                        image: CachedNetworkImageProvider(
-                                          valueOrDefault<String>(
-                                            random_data.randomImageUrl(
-                                              0,
-                                              0,
-                                            ),
-                                            'https://images.unsplash.com/photo-1473448912268-2022ce9509d8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w0NTYyMDF8MHwxfHNlYXJjaHwxfHxjYWxtaW5nJTIwbmF0dXJlfGVufDB8fHx8MTc4NDk1MjQ3NHww&ixlib=rb-4.1.0&q=80&w=1080',
-                                          ),
-                                        ),
-                                      ),
-                                      shape: BoxShape.circle,
-                                      border: Border.all(
-                                        color: FlutterFlowTheme.of(context)
-                                            .tertiary,
-                                        width: 2.0,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.max,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        mainAxisSize: MainAxisSize.max,
-                                        children: [
-                                          SelectionArea(
-                                              child: GradientText(
-                                            FFAppState().userProfile.username,
-                                            style: FlutterFlowTheme.of(context)
-                                                .titleMedium
-                                                .override(
-                                                  font: GoogleFonts.outfit(
-                                                    fontWeight: FontWeight.w600,
-                                                    fontStyle:
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .titleMedium
-                                                            .fontStyle,
-                                                  ),
-                                                  color: FlutterFlowTheme.of(
-                                                          context)
-                                                      .tertiary,
-                                                  fontSize: 20.0,
-                                                  letterSpacing: 0.0,
-                                                  fontWeight: FontWeight.w600,
-                                                  fontStyle:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .titleMedium
-                                                          .fontStyle,
-                                                ),
-                                            colors: [
-                                              FlutterFlowTheme.of(context)
-                                                  .primary,
-                                              FlutterFlowTheme.of(context)
-                                                  .secondary
-                                            ],
-                                            gradientDirection:
-                                                GradientDirection.btt,
-                                            gradientType: GradientType.linear,
-                                          )),
-                                          Icon(
-                                            Icons.verified,
-                                            color: FlutterFlowTheme.of(context)
-                                                .primary,
-                                            size: 16.0,
-                                          ),
-                                        ].divide(SizedBox(width: 4.0)),
-                                      ),
-                                      Text(
-                                        FFAppState().userProfile.email,
-                                        style: FlutterFlowTheme.of(context)
-                                            .bodySmall
-                                            .override(
-                                              font: GoogleFonts.outfit(
-                                                fontWeight: FontWeight.w500,
-                                                fontStyle:
-                                                    FlutterFlowTheme.of(context)
-                                                        .bodySmall
-                                                        .fontStyle,
-                                              ),
-                                              color:
-                                                  FlutterFlowTheme.of(context)
-                                                      .secondaryText,
-                                              fontSize: 13.0,
-                                              letterSpacing: 0.0,
-                                              fontWeight: FontWeight.w500,
-                                              fontStyle:
-                                                  FlutterFlowTheme.of(context)
-                                                      .bodySmall
-                                                      .fontStyle,
-                                            ),
-                                      ),
-                                    ].divide(SizedBox(height: 1.0)),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
                     Padding(
                       padding:
                           EdgeInsetsDirectional.fromSTEB(8.0, 0.0, 8.0, 0.0),
