@@ -414,7 +414,7 @@ Future<LatLng> getCurrentUserLocation(
     }
     return loc ?? defaultLocation;
   }).onError((error, _) {
-    debugPrint("Error querying user location: $error");
+    print("Error querying user location: $error");
     return defaultLocation;
   });
 }

@@ -13,7 +13,6 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 
 import '/app_state.dart';
-import '/services/home_widget_service.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -148,7 +147,6 @@ Future<void> updateAndroidWidgetFromAppState() async {
       'updateWidgetSnapshot',
       {'snapshotJson': jsonEncode(snapshot)},
     );
-    await HomeWidgetService.syncFromAppState(FFAppState());
   } catch (error) {
     debugPrint('updateAndroidWidgetFromAppState failed: $error');
   }
