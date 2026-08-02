@@ -17,7 +17,6 @@ export '/calendar/calendar_widget.dart' show CalendarWidget;
 export '/classes/classes_widget.dart' show ClassesWidget;
 export '/tasks/tasks_widget.dart' show TasksWidget;
 export '/challenges/challenges_widget.dart' show ChallengesWidget;
-export '/admin_page/admin_page_widget.dart' show AdminPageWidget;
 export '/apod/apod_widget.dart' show ApodWidget;
 export '/under_maintainance/under_maintainance_widget.dart'
     show UnderMaintainanceWidget;

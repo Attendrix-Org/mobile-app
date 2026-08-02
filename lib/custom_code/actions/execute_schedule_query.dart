@@ -14,7 +14,6 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ScheduleUnauthorizedException implements Exception {
   final String message;
@@ -45,24 +44,19 @@ const String _rpcGetDateCacheKey = 'get_date_cache_key';
 const String _rpcGetClassesForDate = 'get_classes_for_date';
 const String _paramDate = 'p_date';
 
-const int _maxRetries = 1; // up to 1 retry (2 attempts total) per RPC call
+const int _maxRetries = 1;
 const Duration _retryDelay = Duration(milliseconds: 500);
 
 const int _defaultUpcomingLimit = 5;
 const int _maxLookaheadDays = 14;
 const int _maxRangeDays = 366;
-const int _maxRangeConcurrency = 8; // bounded parallelism for range fetches
+const int _maxRangeConcurrency = 8;
 
-/// Helper to generate date-specific cache keys (e.g., "schedule_cache_26_07_2026")
 String _getCacheKey(DateTime date) {
   final dateStr = DateFormat('dd_MM_yyyy').format(date);
   return '$_cacheKeyPrefix$dateStr';
 }
 
-/// Retries [action] up to [_maxRetries] times on failure, with a flat
-/// delay between attempts. [shouldRetry] lets the caller exclude
-/// deterministic failures (e.g. auth/onboarding errors) that a retry
-/// can't fix -- defaults to retrying everything.
 Future<T> _withRetry<T>(
   Future<T> Function() action, {
   bool Function(Object error)? shouldRetry,
@@ -82,10 +76,6 @@ Future<T> _withRetry<T>(
   }
 }
 
-/// Runs [task] over [items] with at most [concurrency] tasks in flight at
-/// once. Used instead of an unbounded Future.wait for range fetches, so a
-/// large calendar range doesn't open dozens of simultaneous RPC calls
-/// against Supabase at once.
 Future<List<T>> _mapWithConcurrencyLimit<S, T>(
   List<S> items,
   int concurrency,
@@ -108,26 +98,26 @@ Future<List<T>> _mapWithConcurrencyLimit<S, T>(
   return results.cast<T>();
 }
 
-/// Parses a single RPC row into a [ScheduledClassStruct].
 ScheduledClassStruct _parseScheduleRow(Map<String, dynamic> data) {
-  final courseTypeRaw = data['courseType'] as String?;
-  if (courseTypeRaw == null) {
-    throw StateError('missing courseType');
-  }
+  final courseTypeRaw = (data['courseType'] ??
+          data['course_type'] ??
+          data['courseCategory'] ??
+          data['course_category'])
+      ?.toString();
 
-  final isAbsentRaw = data['isAbsent'] as bool?;
-  final isExtraClassRaw = data['isExtraClass'] as bool?;
-  if (isAbsentRaw == null || isExtraClassRaw == null) {
-    throw StateError('missing isAbsent/isExtraClass');
-  }
+  final isAbsentRaw = (data['isAbsent'] ?? data['is_absent']) == true;
+  final isExtraClassRaw =
+      (data['isExtraClass'] ?? data['is_extra_class']) == true;
 
-  final category = deserializeEnum<CourseType>(courseTypeRaw);
-  if (category == null) {
-    throw StateError('unrecognized courseType "$courseTypeRaw"');
+  CourseType? category;
+  if (courseTypeRaw != null) {
+    category = deserializeEnum<CourseType>(courseTypeRaw);
   }
+  category ??= CourseType.PC;
 
-  final startRaw = data['scheduledStart'] as String?;
-  final endRaw = data['scheduledEnd'] as String?;
+  final startRaw =
+      (data['scheduledStart'] ?? data['scheduled_start'])?.toString();
+  final endRaw = (data['scheduledEnd'] ?? data['scheduled_end'])?.toString();
 
   if (startRaw == null || endRaw == null) {
     throw StateError('missing scheduledStart or scheduledEnd');
@@ -144,23 +134,22 @@ ScheduledClassStruct _parseScheduleRow(Map<String, dynamic> data) {
   }
 
   return ScheduledClassStruct(
-    classId: data['classId'] as String? ?? '',
-    courseId: data['courseId'] as String? ?? '',
-    courseCode: data['courseCode'] as String? ?? '',
-    courseName: data['courseName'] as String? ?? '',
-    batchId: data['batchId'] as String? ?? '',
+    classId: (data['classId'] ?? data['class_id'])?.toString() ?? '',
+    courseId: (data['courseId'] ?? data['course_id'])?.toString() ?? '',
+    courseCode: (data['courseCode'] ?? data['course_code'])?.toString() ?? '',
+    courseName: (data['courseName'] ?? data['course_name'])?.toString() ?? '',
+    batchId: (data['batchId'] ?? data['batch_id'])?.toString() ?? '',
     courseCategory: category,
     scheduledStart: scheduledStart,
     scheduledEnd: scheduledEnd,
     venue: (data['venue'] as String?)?.trim() ?? '',
-    labGroup: data['labGroup'] as String?,
-    isPlusSlot: data['isPlusSlot'] as bool? ?? false,
+    labGroup: (data['labGroup'] ?? data['lab_group'])?.toString(),
+    isPlusSlot: (data['isPlusSlot'] ?? data['is_plus_slot']) == true,
     isExtraClass: isExtraClassRaw,
     isAbsent: isAbsentRaw,
   );
 }
 
-/// Helper to safely iterate and parse raw JSON rows into structs
 List<ScheduledClassStruct> _parseRows(List<dynamic> rows, String sourceTag) {
   final result = <ScheduledClassStruct>[];
   var skippedRows = 0;
@@ -179,7 +168,8 @@ List<ScheduledClassStruct> _parseRows(List<dynamic> rows, String sourceTag) {
       result.add(_parseScheduleRow(data));
     } catch (e) {
       skippedRows++;
-      debugPrint('[$sourceTag] failed parsing class ${data['classId']}: $e');
+      debugPrint(
+          '[$sourceTag] failed parsing class ${data['classId'] ?? data['class_id']}: $e');
       continue;
     }
   }
@@ -192,13 +182,8 @@ List<ScheduledClassStruct> _parseRows(List<dynamic> rows, String sourceTag) {
   return result;
 }
 
-/// In-flight de-duplication: if two callers request the same date's
-/// schedule concurrently (e.g. "today" and "calendarDay" resolving to the
-/// same date, or overlapping range/upcoming fetches), only one network
-/// fetch is issued and every caller shares its result.
 final Map<String, Future<List<ScheduledClassStruct>>> _inFlightFetches = {};
 
-/// Fetches schedule data for a specific date using date key validation in calendarDates + SharedPreferences cache.
 Future<List<ScheduledClassStruct>> getScheduleForDate(
   DateTime targetDate, {
   bool forceRefresh = false,
@@ -213,7 +198,6 @@ Future<List<ScheduledClassStruct>> getScheduleForDate(
     orElse: () => '',
   );
 
-  // 1. If not forcing refresh AND date key is present in calendarDates -> Read from SharedPreferences & return instantly
   if (!forceRefresh && existingKey.isNotEmpty) {
     final cachedJsonStr = prefs.getString(cacheKey);
     if (cachedJsonStr != null && cachedJsonStr.isNotEmpty) {
@@ -229,8 +213,6 @@ Future<List<ScheduledClassStruct>> getScheduleForDate(
     }
   }
 
-  // 2. Join an in-flight fetch for this exact date if one is already
-  // running, instead of issuing a duplicate RPC round-trip.
   final inFlight = _inFlightFetches[cacheKey];
   if (inFlight != null) {
     debugPrint('[ScheduleService] Joining in-flight fetch for $cacheKey');
@@ -253,9 +235,6 @@ Future<List<ScheduledClassStruct>> getScheduleForDate(
   }
 }
 
-/// Performs the actual network fetch + cache write + calendarDates update
-/// for one date. Split out from [getScheduleForDate] so its Future can be
-/// shared by concurrent callers via [_inFlightFetches].
 Future<List<ScheduledClassStruct>> _fetchAndCacheScheduleForDate({
   required DateTime targetDate,
   required String datePrefix,
@@ -269,13 +248,10 @@ Future<List<ScheduledClassStruct>> _fetchAndCacheScheduleForDate({
 
   final formattedDate = DateFormat('yyyy-MM-dd').format(targetDate);
 
-  // get_date_cache_key is best-effort: on failure we fall back to a
-  // synthetic key below, so a retry here just improves the odds of using
-  // the server's real cache key instead of the fallback.
   String? newDateKey;
   try {
     final dynamic keyResponse = await _withRetry(
-      () => Supabase.instance.client.rpc(_rpcGetDateCacheKey, params: {
+      () => SupaFlow.client.rpc(_rpcGetDateCacheKey, params: {
         _paramDate: formattedDate
       }).timeout(const Duration(seconds: 5)),
     );
@@ -288,28 +264,37 @@ Future<List<ScheduledClassStruct>> _fetchAndCacheScheduleForDate({
 
   dynamic response;
   try {
-    // PT401/PT404 are deterministic auth/onboarding failures -- retrying
-    // won't change the outcome, so they're excluded from the retry.
     response = await _withRetry(
-      () => Supabase.instance.client.rpc(_rpcGetClassesForDate,
+      () => SupaFlow.client.rpc(_rpcGetClassesForDate,
           params: {_paramDate: formattedDate}).timeout(_rpcTimeout),
-      shouldRetry: (e) => !(e is PostgrestException &&
-          (e.code == 'PT401' || e.code == 'PT404')),
+      shouldRetry: (e) {
+        try {
+          final dynamic err = e;
+          final code = err.code?.toString();
+          return !(code == 'PT401' || code == 'PT404');
+        } catch (_) {
+          return true;
+        }
+      },
     );
-  } on PostgrestException catch (e) {
-    switch (e.code) {
-      case 'PT401':
-        throw ScheduleUnauthorizedException(e.message);
-      case 'PT404':
-        throw ScheduleNotOnboardedException(e.message);
-      default:
-        debugPrint(
-            '[get_classes_for_date] PostgrestException (${e.code}): ${e.message}');
-        throw ScheduleFetchException(e.message, code: e.code);
-    }
   } catch (e) {
-    debugPrint('[get_classes_for_date] unexpected error: $e');
-    throw ScheduleFetchException(e.toString());
+    String? code;
+    String message = e.toString();
+    try {
+      final dynamic err = e;
+      if (err.code != null) code = err.code.toString();
+      if (err.message != null) message = err.message.toString();
+    } catch (_) {}
+
+    switch (code) {
+      case 'PT401':
+        throw ScheduleUnauthorizedException(message);
+      case 'PT404':
+        throw ScheduleNotOnboardedException(message);
+      default:
+        debugPrint('[get_classes_for_date] error ($code): $message');
+        throw ScheduleFetchException(message, code: code);
+    }
   }
 
   if (response is! List) {
@@ -318,26 +303,15 @@ Future<List<ScheduledClassStruct>> _fetchAndCacheScheduleForDate({
     );
   }
 
-  // 3. Save raw payload to SharedPreferences cache
   try {
     await prefs.setString(cacheKey, jsonEncode(response));
   } catch (e) {
     debugPrint('[ScheduleService] Failed writing cache for $cacheKey: $e');
   }
 
-  // 4. Add/Update date key in AppState calendarDates list.
-  // Always prefixed with datePrefix -- getScheduleForDate's
-  // startsWith(datePrefix) lookup depends on every stored entry having
-  // it, including this success path where newDateKey comes from the RPC.
   final String dateKeyToAdd =
       '$datePrefix${newDateKey ?? DateTime.now().millisecondsSinceEpoch}';
 
-  // Read FFAppState's CURRENT calendarDates inside the update() closure,
-  // not a snapshot captured before the RPC awaits above. Concurrent calls
-  // for other dates may have updated app state while this call was in
-  // flight; using a stale snapshot would silently overwrite their
-  // entries. The closure body runs synchronously, so this read is safe
-  // from interleaving.
   FFAppState().update(() {
     final currentDates =
         List<String>.from(FFAppState().cacheMetaData.calendarDates);
@@ -349,9 +323,6 @@ Future<List<ScheduledClassStruct>> _fetchAndCacheScheduleForDate({
   return _parseRows(response, 'get_classes_for_date');
 }
 
-/// Fetches [start, end] inclusive, capped at _maxRangeConcurrency
-/// concurrent per-day RPCs. Reuses the per-date cache and in-flight
-/// de-duplication in getScheduleForDate.
 Future<List<ScheduledClassStruct>> _getScheduleForRange(
   DateTime start,
   DateTime end, {
@@ -400,9 +371,6 @@ Future<List<ScheduledClassStruct>> _getScheduleForRange(
   return combined;
 }
 
-/// Walks forward day by day from [from], collecting classes starting
-/// after `now`, until [limit] is reached or the lookahead cap is hit
-/// (guards against looping indefinitely over an empty semester break).
 Future<List<ScheduledClassStruct>> _getUpcomingClasses({
   required DateTime from,
   required int limit,
@@ -445,7 +413,6 @@ Future<List<ScheduledClassStruct>> _getUpcomingClasses({
   return result.take(limit).toList();
 }
 
-/// Dispatches to the right fetch strategy for each FlutterFlow view type.
 Future<List<ScheduledClassStruct>> executeScheduleQuery(
   ScheduleViewType viewType,
   DateTime? selectedDate,
@@ -455,8 +422,6 @@ Future<List<ScheduledClassStruct>> executeScheduleQuery(
 ) async {
   switch (viewType) {
     case ScheduleViewType.today:
-      // Literal today -- ManageClasses' "today" tab. Any selectedDate the
-      // caller passes is intentionally ignored; use calendarDay for that.
       return getScheduleForDate(DateTime.now());
 
     case ScheduleViewType.current:
@@ -494,5 +459,6 @@ Future<List<ScheduledClassStruct>> executeScheduleQuery(
       throw ArgumentError('Unhandled ScheduleViewType: $viewType');
   }
 }
+
 // Set your action name, define your arguments and return parameter,
 // and then add the boilerplate code using the `</>` button on the right!

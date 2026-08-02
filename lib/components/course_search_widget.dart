@@ -119,7 +119,7 @@ class _CourseSearchWidgetState extends State<CourseSearchWidget> {
                               safeSetState(() {});
                             },
                           ),
-                          autofocus: true,
+                          autofocus: false,
                           autofillHints: [AutofillHints.email],
                           textInputAction: TextInputAction.search,
                           obscureText: false,

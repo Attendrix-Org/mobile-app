@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import '/custom_code/actions/update_android_widget_from_app_state.dart';
 import 'dart:async';
 import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 
 // ─────────────────────────────────────────────────────────────────────────
 // Attendrix Industrial Client Synchronization Engine — v9
@@ -73,6 +74,26 @@ Future<dynamic> _callRpcWithRetry(
       rethrow;
     }
   }
+}
+
+Future<String?> _downloadAndSaveApodImage(String url) async {
+  if (url.isEmpty || !url.startsWith('http')) return null;
+  try {
+    final client = HttpClient();
+    final request = await client.getUrl(Uri.parse(url));
+    final response = await request.close();
+    if (response.statusCode == 200) {
+      final bytes = await response
+          .fold<List<int>>(<int>[], (acc, element) => acc..addAll(element));
+      final dir = await getApplicationDocumentsDirectory();
+      final file = File('${dir.path}/apod_latest.jpg');
+      await file.writeAsBytes(bytes);
+      return file.path;
+    }
+  } catch (e) {
+    debugPrint('syncAppData: failed to download APOD image - $e');
+  }
+  return null;
 }
 
 Future<void> syncAppData(
@@ -138,11 +159,9 @@ Future<void> syncAppData(
     final bool staleProfile = doSyncProfile &&
         isStale(localMeta.profileUpdatedAt, serverMeta.profileUpdatedAt);
     final bool staleDashboard = doSyncDashboard &&
-        isStale(localMeta.dashboardUpdatedAt, serverMeta.dashboardUpdatedAt);
-    final bool staleCalendar = wantsCalendar &&
-        (isStale(localMeta.calendarClassesUpdatedAt,
-                serverMeta.calendarClassesUpdatedAt) ||
-            calendarDates != null);
+        (isStale(localMeta.dashboardUpdatedAt, serverMeta.dashboardUpdatedAt) ||
+            FFAppState().dashboardClasses.isEmpty);
+    final bool staleCalendar = wantsCalendar;
     final bool staleMissed = doSyncMissedClasses &&
         isStale(localMeta.absencesUpdatedAt, serverMeta.absencesUpdatedAt);
     final bool staleBus =
@@ -154,7 +173,8 @@ Future<void> syncAppData(
         localMeta.apodLastFetchedAt == null ||
         !FFAppState().apodData.hasTitle() ||
         FFAppState().apodData.title.isEmpty ||
-        !isSameDay(localMeta.apodLastFetchedAt!, DateTime.now());
+        !isSameDay(localMeta.apodLastFetchedAt!, DateTime.now()) ||
+        FFAppState().apodData.imageUrl.isEmpty;
 
     final outcome = _SyncOutcome();
     final List<Future<void>> pending = [];
@@ -586,12 +606,26 @@ Future<void> _fetchApod(_SyncOutcome outcome) async {
   final sw = Stopwatch()..start();
   try {
     final dynamic response = await _callRpcWithRetry('get_latest_apod');
+    Map<String, dynamic>? data;
     if (response is List && response.isNotEmpty) {
-      final data = Map<String, dynamic>.from(response.first as Map);
-      outcome.apod.data = _parseApod(data);
-      outcome.apod.fetched = true;
+      data = Map<String, dynamic>.from(response.first as Map);
     } else if (response is Map) {
-      outcome.apod.data = _parseApod(Map<String, dynamic>.from(response));
+      data = Map<String, dynamic>.from(response);
+    }
+
+    if (data != null) {
+      final parsedApod = _parseApod(data);
+      final rawImageUrl = parsedApod.hdImageUrl.isNotEmpty
+          ? parsedApod.hdImageUrl
+          : parsedApod.imageUrl;
+
+      if (rawImageUrl.isNotEmpty) {
+        final localPath = await _downloadAndSaveApodImage(rawImageUrl);
+        if (localPath != null) {
+          parsedApod.imageUrl = localPath;
+        }
+      }
+      outcome.apod.data = parsedApod;
       outcome.apod.fetched = true;
     } else {
       debugPrint(

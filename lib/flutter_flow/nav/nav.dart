@@ -194,12 +194,6 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               builder: (context, params) => ChallengesWidget(),
             ),
             FFRoute(
-              name: AdminPageWidget.routeName,
-              path: AdminPageWidget.routePath,
-              requireAuth: true,
-              builder: (context, params) => AdminPageWidget(),
-            ),
-            FFRoute(
               name: ApodWidget.routeName,
               path: ApodWidget.routePath,
               requireAuth: true,

@@ -149,18 +149,22 @@ class _ApodWidgetState extends State<ApodWidget> {
                                                     Duration(milliseconds: 0),
                                                 fadeOutDuration:
                                                     Duration(milliseconds: 0),
-                                                imageUrl: '',
+                                                imageUrl: FFAppState()
+                                                    .apodData
+                                                    .imageUrl,
                                                 fit: BoxFit.contain,
                                               ),
                                               allowRotation: false,
-                                              tag: 'imageTag',
+                                              tag: FFAppState()
+                                                  .apodData
+                                                  .imageUrl,
                                               useHeroAnimation: true,
                                             ),
                                           ),
                                         );
                                       },
                                       child: Hero(
-                                        tag: 'imageTag',
+                                        tag: FFAppState().apodData.imageUrl,
                                         transitionOnUserGestures: true,
                                         child: ClipRRect(
                                           borderRadius:
@@ -170,9 +174,14 @@ class _ApodWidgetState extends State<ApodWidget> {
                                                 Duration(milliseconds: 0),
                                             fadeOutDuration:
                                                 Duration(milliseconds: 0),
-                                            imageUrl: '',
-                                            width: double.infinity,
-                                            height: double.infinity,
+                                            imageUrl:
+                                                FFAppState().apodData.imageUrl,
+                                            width: MediaQuery.sizeOf(context)
+                                                    .width *
+                                                1.0,
+                                            height: MediaQuery.sizeOf(context)
+                                                    .height *
+                                                1.0,
                                             fit: BoxFit.cover,
                                           ),
                                         ),

@@ -173,6 +173,20 @@ class FFAppState extends ChangeNotifier {
                   .toList() ??
               _selectedDateClasses;
     });
+    await _safeInitAsync(() async {
+      if (await secureStorage.read(key: 'ff_currentClassBuildingData') !=
+          null) {
+        try {
+          final serializedData =
+              await secureStorage.getString('ff_currentClassBuildingData') ??
+                  '{}';
+          _currentClassBuildingData = CampusBuildingStruct.fromSerializableMap(
+              jsonDecode(serializedData));
+        } catch (e) {
+          print("Can't decode persisted data type. Error: $e.");
+        }
+      }
+    });
   }
 
   void update(VoidCallback callback) {
@@ -543,6 +557,25 @@ class FFAppState extends ChangeNotifier {
     selectedDateClasses.insert(index, value);
     secureStorage.setStringList('ff_selectedDateClasses',
         _selectedDateClasses.map((x) => x.serialize()).toList());
+  }
+
+  CampusBuildingStruct _currentClassBuildingData = CampusBuildingStruct();
+  CampusBuildingStruct get currentClassBuildingData =>
+      _currentClassBuildingData;
+  set currentClassBuildingData(CampusBuildingStruct value) {
+    _currentClassBuildingData = value;
+    secureStorage.setString('ff_currentClassBuildingData', value.serialize());
+  }
+
+  void deleteCurrentClassBuildingData() {
+    secureStorage.delete(key: 'ff_currentClassBuildingData');
+  }
+
+  void updateCurrentClassBuildingDataStruct(
+      Function(CampusBuildingStruct) updateFn) {
+    updateFn(_currentClassBuildingData);
+    secureStorage.setString(
+        'ff_currentClassBuildingData', _currentClassBuildingData.serialize());
   }
 
   final _courseCatalogManager = FutureRequestManager<List<CourseSyllabiRow>>();

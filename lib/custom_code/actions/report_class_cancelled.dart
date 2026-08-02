@@ -10,7 +10,6 @@ import 'package:flutter/material.dart';
 // Begin custom action code
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '/custom_code/actions/update_android_widget_from_app_state.dart';
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -84,10 +83,6 @@ Future<bool> reportClassCancelled(
 
       return true;
     }
-    return false;
-  } on PostgrestException catch (e) {
-    debugPrint(
-        'reportClassCancelled: PostgrestException (${e.code}) -> ${e.message}');
     return false;
   } catch (e) {
     debugPrint('reportClassCancelled: failed for $targetId -> $e');

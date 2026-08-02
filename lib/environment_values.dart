@@ -21,6 +21,7 @@ class FFDevEnvironmentValues {
           await rootBundle.loadString(environmentValuesPath);
       final data = await json.decode(response);
       _oneSignalAppId = data['oneSignalAppId'];
+      _orsAPIKEY = data['orsAPIKEY'];
     } catch (e) {
       print('Error loading environment values: $e');
     }
@@ -28,4 +29,7 @@ class FFDevEnvironmentValues {
 
   String _oneSignalAppId = '';
   String get oneSignalAppId => _oneSignalAppId;
+
+  String _orsAPIKEY = '';
+  String get orsAPIKEY => _orsAPIKEY;
 }

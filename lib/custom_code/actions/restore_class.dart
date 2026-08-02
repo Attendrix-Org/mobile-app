@@ -21,23 +21,59 @@ Future<FeedbackStruct> restoreClass(
       },
     );
 
-    if (response is! Map<String, dynamic>) {
-      throw const FormatException('Unexpected RPC response format.');
+    bool isSuccess = false;
+    int statusCode = 500;
+    String message = 'Failed to restore class.';
+
+    if (response is bool) {
+      isSuccess = response;
+      statusCode = isSuccess ? 200 : 400;
+      message = isSuccess
+          ? 'Class restored successfully.'
+          : 'Class was not found or is not cancelled.';
+    } else if (response is Map) {
+      final map = Map<String, dynamic>.from(response);
+      isSuccess = map['success'] == true;
+      statusCode = (map['statusCode'] ??
+          map['status_code'] ??
+          (isSuccess ? 200 : 500)) as int;
+      message = map['message']?.toString() ??
+          (isSuccess
+              ? 'Class restored successfully.'
+              : 'Failed to restore class.');
     }
 
     return FeedbackStruct(
-      success: response['success'] == true,
-      statusCode:
-          (response['statusCode'] ?? response['status_code'] ?? 500) as int,
-      message: response['message']?.toString() ?? '',
+      success: isSuccess,
+      statusCode: statusCode,
+      message: message,
     );
-  } catch (e) {
+  } catch (e, stackTrace) {
+    debugPrint('restoreClass failed: $e');
+    debugPrint(stackTrace.toString());
+
+    String? code;
+    String message = e.toString();
+    try {
+      final dynamic err = e;
+      if (err.code != null) code = err.code.toString();
+      if (err.message != null) message = err.message.toString();
+    } catch (_) {}
+
+    int statusCode = 500;
+    if (code == 'PT401' || code == '401') {
+      statusCode = 401;
+    } else if (code == 'PT404' || code == '404') {
+      statusCode = 404;
+    }
+
     return FeedbackStruct(
       success: false,
-      statusCode: 500,
-      message: e.toString(),
+      statusCode: statusCode,
+      message: message,
     );
   }
 }
+
 // Set your action name, define your arguments and return parameter,
 // and then add the boilerplate code using the `</>` button on the right!

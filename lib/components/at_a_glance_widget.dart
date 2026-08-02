@@ -63,7 +63,7 @@ class _AtAGlanceWidgetState extends State<AtAGlanceWidget> {
               child: ClassBlockNextClassWidget(
                 classBlock: FFAppState()
                     .dashboardClasses
-                    .where((e) => e.scheduledStart! > getCurrentTimestamp)
+                    .where((e) => e.scheduledEnd! > getCurrentTimestamp)
                     .toList()
                     .firstOrNull!,
               ),
