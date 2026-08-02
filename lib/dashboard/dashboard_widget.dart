@@ -1,23 +1,21 @@
 import '/auth/supabase_auth/auth_util.dart';
-import '/backend/schema/enums/enums.dart';
 import '/backend/schema/structs/index.dart';
 import '/components/at_a_glance_widget.dart';
 import '/components/class_block_today_widget.dart';
 import '/components/class_block_upcoming_widget.dart';
+import '/components/sync_calendar_widget.dart';
 import '/empty_state/empty_state_gif/empty_state_gif_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import '/custom_code/actions/index.dart' as actions;
 import '/flutter_flow/custom_functions.dart' as functions;
-import '/flutter_flow/permissions_util.dart';
 import '/flutter_flow/random_data_util.dart' as random_data;
 import '/index.dart';
 import 'package:styled_divider/styled_divider.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'dashboard_model.dart';
@@ -55,23 +53,6 @@ class _DashboardWidgetState extends State<DashboardWidget>
       _model.appBootstrapData = await actions.loadAppBootstrapStatus(
         FFAppConstants.appVersion,
       );
-      if ((await getPermissionStatus(notificationsPermission)) &&
-          (await getPermissionStatus(locationPermission))) {
-      } else if ((await getPermissionStatus(notificationsPermission)) &&
-          !(await getPermissionStatus(locationPermission))) {
-        logFirebaseEvent('dashboard_request_permissions');
-        await requestPermission(locationPermission);
-      } else if (!(await getPermissionStatus(notificationsPermission)) &&
-          (await getPermissionStatus(locationPermission))) {
-        logFirebaseEvent('dashboard_request_permissions');
-        await requestPermission(notificationsPermission);
-      } else {
-        logFirebaseEvent('dashboard_request_permissions');
-        await requestPermission(locationPermission);
-        logFirebaseEvent('dashboard_request_permissions');
-        await requestPermission(notificationsPermission);
-      }
-
       if (_model.appBootstrapData!.needsForceUpdate && !isWeb) {
         logFirebaseEvent('dashboard_navigate_to');
 
@@ -118,36 +99,16 @@ class _DashboardWidgetState extends State<DashboardWidget>
         context.goNamed(OnboardingWidget.routeName);
       } else {
         logFirebaseEvent('dashboard_custom_action');
-        _model.generatedDateRange = await actions.generatePastDateRange(
-          getCurrentTimestamp,
-          DateRange.sevenDays,
-          WeekendPolicy.excludeAll,
-        );
-        logFirebaseEvent('dashboard_update_page_state');
-        _model.generatedDates =
-            _model.generatedDateRange!.toList().cast<DateTime>();
-        logFirebaseEvent('dashboard_custom_action');
         await actions.syncAppData(
           false,
           true,
           true,
+          false,
+          false,
           true,
           true,
-          true,
-          true,
-          _model.generatedDateRange?.toList(),
+          _model.generatedDates.toList(),
         );
-        logFirebaseEvent('dashboard_custom_action');
-        _model.calendarDateQueryData = await actions.executeScheduleQuery(
-          ScheduleViewType.today,
-          getCurrentTimestamp,
-          getCurrentTimestamp,
-          getCurrentTimestamp,
-          10,
-        );
-        logFirebaseEvent('dashboard_update_app_state');
-        FFAppState().selectedDateClasses =
-            _model.calendarDateQueryData!.toList().cast<ScheduledClassStruct>();
         if (FFAppState().userGreetingMessage == '') {
           logFirebaseEvent('dashboard_custom_action');
           _model.generatedGreetingMessage = await actions.generateGreeting(
@@ -175,7 +136,26 @@ class _DashboardWidgetState extends State<DashboardWidget>
           );
           logFirebaseEvent('dashboard_update_app_state');
           FFAppState().userGreetingMessage = _model.generatedGreetingMessage!;
+          FFAppState().selectedDateClasses = FFAppState()
+              .dashboardClasses
+              .where((e) =>
+                  dateTimeFormat(
+                    "d/M/y",
+                    e.scheduledStart,
+                    locale: FFLocalizations.of(context).languageCode,
+                  ) ==
+                  dateTimeFormat(
+                    "d/M/y",
+                    getCurrentTimestamp,
+                    locale: FFLocalizations.of(context).languageCode,
+                  ))
+              .toList()
+              .toList()
+              .cast<ScheduledClassStruct>();
         }
+        logFirebaseEvent('dashboard_update_page_state');
+        _model.dashboardLoaded = true;
+        safeSetState(() {});
         logFirebaseEvent('dashboard_rebuild_page');
         safeSetState(() {});
       }
@@ -391,7 +371,7 @@ class _DashboardWidgetState extends State<DashboardWidget>
                                       size: 25.0,
                                     ),
                                   ),
-                                  Expanded(
+                                  Flexible(
                                     child: Padding(
                                       padding: EdgeInsetsDirectional.fromSTEB(
                                           6.0, 0.0, 0.0, 0.0),
@@ -460,7 +440,7 @@ class _DashboardWidgetState extends State<DashboardWidget>
                                       size: 25.0,
                                     ),
                                   ),
-                                  Expanded(
+                                  Flexible(
                                     child: Padding(
                                       padding: EdgeInsetsDirectional.fromSTEB(
                                           6.0, 0.0, 0.0, 0.0),
@@ -550,7 +530,7 @@ class _DashboardWidgetState extends State<DashboardWidget>
                                       size: 25.0,
                                     ),
                                   ),
-                                  Expanded(
+                                  Flexible(
                                     child: Padding(
                                       padding: EdgeInsetsDirectional.fromSTEB(
                                           6.0, 0.0, 0.0, 0.0),
@@ -627,7 +607,7 @@ class _DashboardWidgetState extends State<DashboardWidget>
                                       size: 25.0,
                                     ),
                                   ),
-                                  Expanded(
+                                  Flexible(
                                     child: Padding(
                                       padding: EdgeInsetsDirectional.fromSTEB(
                                           6.0, 0.0, 0.0, 0.0),
@@ -674,56 +654,123 @@ class _DashboardWidgetState extends State<DashboardWidget>
                     Column(
                       mainAxisSize: MainAxisSize.max,
                       children: [
-                        Row(
-                          mainAxisSize: MainAxisSize.max,
-                          children: [
-                            Expanded(
-                              child: Padding(
+                        Builder(
+                          builder: (context) => Padding(
+                            padding: EdgeInsetsDirectional.fromSTEB(
+                                8.0, 0.0, 8.0, 6.0),
+                            child: FFButtonWidget(
+                              onPressed: () async {
+                                logFirebaseEvent(
+                                    'DASHBOARD_PAGE_SYNC_CALENDAR_BTN_ON_TAP');
+                                await Future.wait([
+                                  Future(() async {
+                                    logFirebaseEvent('Button_drawer');
+                                    if (scaffoldKey
+                                            .currentState!.isDrawerOpen ||
+                                        scaffoldKey
+                                            .currentState!.isEndDrawerOpen) {
+                                      Navigator.pop(context);
+                                    }
+                                  }),
+                                  Future(() async {
+                                    logFirebaseEvent('Button_alert_dialog');
+                                    await showDialog(
+                                      context: context,
+                                      builder: (dialogContext) {
+                                        return Dialog(
+                                          elevation: 0,
+                                          insetPadding: EdgeInsets.zero,
+                                          backgroundColor: Colors.transparent,
+                                          alignment: AlignmentDirectional(
+                                                  0.0, 0.0)
+                                              .resolve(
+                                                  Directionality.of(context)),
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              FocusScope.of(dialogContext)
+                                                  .unfocus();
+                                              FocusManager.instance.primaryFocus
+                                                  ?.unfocus();
+                                            },
+                                            child: SyncCalendarWidget(),
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  }),
+                                ]);
+                              },
+                              text: 'Sync Calendar',
+                              icon: Icon(
+                                FFIcons.kcalendarShare,
+                                size: 20.0,
+                              ),
+                              options: FFButtonOptions(
+                                width: MediaQuery.sizeOf(context).width * 1.0,
+                                height: 40.0,
                                 padding: EdgeInsetsDirectional.fromSTEB(
-                                    8.0, 0.0, 8.0, 0.0),
-                                child: FFButtonWidget(
-                                  onPressed: () async {
-                                    logFirebaseEvent(
-                                        'DASHBOARD_PAGE_COURSE_CATALOG_BTN_ON_TAP');
-                                    logFirebaseEvent('Button_navigate_to');
-
-                                    context.pushNamed(
-                                        CourseCatalogWidget.routeName);
-                                  },
-                                  text: 'Course Catalog',
-                                  icon: Icon(
-                                    FFIcons.kcategory,
-                                    size: 18.0,
-                                  ),
-                                  options: FFButtonOptions(
-                                    height: 36.0,
-                                    padding: EdgeInsetsDirectional.fromSTEB(
-                                        16.0, 0.0, 16.0, 0.0),
-                                    iconPadding: EdgeInsetsDirectional.fromSTEB(
-                                        0.0, 0.0, 0.0, 0.0),
-                                    iconColor:
-                                        FlutterFlowTheme.of(context).info,
-                                    color:
-                                        FlutterFlowTheme.of(context).tertiary,
-                                    textStyle: FlutterFlowTheme.of(context)
-                                        .titleSmall
-                                        .override(
-                                          fontFamily:
-                                              FlutterFlowTheme.of(context)
-                                                  .titleSmallFamily,
-                                          color: Colors.white,
-                                          letterSpacing: 0.0,
-                                          useGoogleFonts:
-                                              !FlutterFlowTheme.of(context)
-                                                  .titleSmallIsCustom,
-                                        ),
-                                    elevation: 0.0,
-                                    borderRadius: BorderRadius.circular(18.0),
-                                  ),
-                                ),
+                                    16.0, 0.0, 16.0, 0.0),
+                                iconPadding: EdgeInsetsDirectional.fromSTEB(
+                                    0.0, 0.0, 0.0, 0.0),
+                                iconColor: FlutterFlowTheme.of(context).info,
+                                color: FlutterFlowTheme.of(context).velvetSky,
+                                textStyle: FlutterFlowTheme.of(context)
+                                    .titleSmall
+                                    .override(
+                                      fontFamily: FlutterFlowTheme.of(context)
+                                          .titleSmallFamily,
+                                      color: Colors.white,
+                                      letterSpacing: 0.0,
+                                      useGoogleFonts:
+                                          !FlutterFlowTheme.of(context)
+                                              .titleSmallIsCustom,
+                                    ),
+                                elevation: 0.0,
+                                borderRadius: BorderRadius.circular(18.0),
                               ),
                             ),
-                          ],
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsetsDirectional.fromSTEB(
+                              8.0, 0.0, 8.0, 0.0),
+                          child: FFButtonWidget(
+                            onPressed: () async {
+                              logFirebaseEvent(
+                                  'DASHBOARD_PAGE_COURSE_CATALOG_BTN_ON_TAP');
+                              logFirebaseEvent('Button_navigate_to');
+
+                              context.pushNamed(CourseCatalogWidget.routeName);
+                            },
+                            text: 'Course Catalog',
+                            icon: Icon(
+                              FFIcons.kcategory,
+                              size: 18.0,
+                            ),
+                            options: FFButtonOptions(
+                              width: MediaQuery.sizeOf(context).width * 1.0,
+                              height: 36.0,
+                              padding: EdgeInsetsDirectional.fromSTEB(
+                                  16.0, 0.0, 16.0, 0.0),
+                              iconPadding: EdgeInsetsDirectional.fromSTEB(
+                                  0.0, 0.0, 0.0, 0.0),
+                              iconColor: FlutterFlowTheme.of(context).info,
+                              color: FlutterFlowTheme.of(context).tertiary,
+                              textStyle: FlutterFlowTheme.of(context)
+                                  .titleSmall
+                                  .override(
+                                    fontFamily: FlutterFlowTheme.of(context)
+                                        .titleSmallFamily,
+                                    color: Colors.white,
+                                    letterSpacing: 0.0,
+                                    useGoogleFonts:
+                                        !FlutterFlowTheme.of(context)
+                                            .titleSmallIsCustom,
+                                  ),
+                              elevation: 0.0,
+                              borderRadius: BorderRadius.circular(18.0),
+                            ),
+                          ),
                         ),
                         Padding(
                           padding: EdgeInsetsDirectional.fromSTEB(
@@ -731,7 +778,7 @@ class _DashboardWidgetState extends State<DashboardWidget>
                           child: Row(
                             mainAxisSize: MainAxisSize.max,
                             children: [
-                              Expanded(
+                              Flexible(
                                 child: Padding(
                                   padding: EdgeInsetsDirectional.fromSTEB(
                                       0.0, 0.0, 2.0, 0.0),
@@ -749,6 +796,8 @@ class _DashboardWidgetState extends State<DashboardWidget>
                                       size: 18.0,
                                     ),
                                     options: FFButtonOptions(
+                                      width: MediaQuery.sizeOf(context).width *
+                                          0.5,
                                       height: 36.0,
                                       padding: EdgeInsetsDirectional.fromSTEB(
                                           16.0, 0.0, 16.0, 0.0),
@@ -777,7 +826,7 @@ class _DashboardWidgetState extends State<DashboardWidget>
                                   ),
                                 ),
                               ),
-                              Expanded(
+                              Flexible(
                                 child: Padding(
                                   padding: EdgeInsetsDirectional.fromSTEB(
                                       2.0, 0.0, 0.0, 0.0),
@@ -795,6 +844,8 @@ class _DashboardWidgetState extends State<DashboardWidget>
                                       size: 18.0,
                                     ),
                                     options: FFButtonOptions(
+                                      width: MediaQuery.sizeOf(context).width *
+                                          0.5,
                                       height: 36.0,
                                       padding: EdgeInsetsDirectional.fromSTEB(
                                           16.0, 0.0, 16.0, 0.0),
@@ -922,190 +973,177 @@ class _DashboardWidgetState extends State<DashboardWidget>
                           bottomRight: Radius.circular(20.0),
                         ),
                       ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          Padding(
-                            padding: EdgeInsetsDirectional.fromSTEB(
-                                0.0, 30.0, 0.0, 0.0),
-                            child: Container(
-                              height: 50.0,
-                              child: Stack(
+                      child: Padding(
+                        padding:
+                            EdgeInsetsDirectional.fromSTEB(0.0, 40.0, 0.0, 0.0),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            Padding(
+                              padding: EdgeInsetsDirectional.fromSTEB(
+                                  12.0, 0.0, 0.0, 0.0),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.max,
                                 children: [
-                                  Align(
-                                    alignment: AlignmentDirectional(-0.9, 0.0),
-                                    child: Padding(
-                                      padding: EdgeInsetsDirectional.fromSTEB(
-                                          0.0, 5.0, 5.0, 0.0),
-                                      child: InkWell(
-                                        splashColor: Colors.transparent,
-                                        focusColor: Colors.transparent,
-                                        hoverColor: Colors.transparent,
-                                        highlightColor: Colors.transparent,
-                                        onTap: () async {
-                                          logFirebaseEvent(
-                                              'DASHBOARD_PAGE_Image_dunrtfuz_ON_TAP');
-                                          logFirebaseEvent('Image_drawer');
-                                          scaffoldKey.currentState!
-                                              .openDrawer();
-                                        },
-                                        child: ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(8.0),
-                                          child: SvgPicture.asset(
-                                            'assets/images/Menu_Alt_04_Icon.svg',
-                                            width: 35.0,
-                                            height: 35.0,
-                                            fit: BoxFit.cover,
-                                          ),
-                                        ),
-                                      ),
+                                  InkWell(
+                                    splashColor: Colors.transparent,
+                                    focusColor: Colors.transparent,
+                                    hoverColor: Colors.transparent,
+                                    highlightColor: Colors.transparent,
+                                    onTap: () async {
+                                      logFirebaseEvent(
+                                          'DASHBOARD_PAGE_Icon_zhqp1nse_ON_TAP');
+                                      logFirebaseEvent('Icon_drawer');
+                                      scaffoldKey.currentState!.openDrawer();
+                                    },
+                                    child: Icon(
+                                      FFIcons.klistDashesBold,
+                                      color: FlutterFlowTheme.of(context)
+                                          .primaryText,
+                                      size: 28.0,
                                     ),
                                   ),
                                 ],
                               ),
                             ),
-                          ),
-                          Padding(
-                            padding: EdgeInsetsDirectional.fromSTEB(
-                                0.0, 10.0, 0.0, 8.0),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.max,
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Column(
-                                  mainAxisSize: MainAxisSize.max,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Container(
-                                      width: MediaQuery.sizeOf(context).width *
-                                          0.82,
-                                      decoration: BoxDecoration(),
-                                      child: Text(
-                                        valueOrDefault<String>(
-                                          FFAppState().userGreetingMessage,
-                                          'Welcome back, Shashank!',
-                                        ),
-                                        style: FlutterFlowTheme.of(context)
-                                            .headlineSmall
-                                            .override(
-                                              fontFamily:
-                                                  FlutterFlowTheme.of(context)
-                                                      .headlineSmallFamily,
-                                              color: Colors.black,
-                                              fontSize: 18.0,
-                                              letterSpacing: 0.0,
-                                              fontWeight: FontWeight.bold,
-                                              useGoogleFonts:
-                                                  !FlutterFlowTheme.of(context)
-                                                      .headlineSmallIsCustom,
-                                            ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ].addToStart(SizedBox(width: 20.0)),
-                            ),
-                          ),
-                          if (FFAppState().userPreferences.enableAPOD)
-                            Padding(
-                              padding: EdgeInsetsDirectional.fromSTEB(
-                                  4.0, 0.0, 4.0, 4.0),
-                              child: InkWell(
-                                splashColor: Colors.transparent,
-                                focusColor: Colors.transparent,
-                                hoverColor: Colors.transparent,
-                                highlightColor: Colors.transparent,
-                                onTap: () async {
-                                  logFirebaseEvent(
-                                      'DASHBOARD_PAGE_Container_2g1borbu_ON_TAP');
-                                  logFirebaseEvent('Container_navigate_to');
-
-                                  context.pushNamed(ApodWidget.routeName);
-                                                                },
+                            Align(
+                              alignment: AlignmentDirectional(-1.0, 0.0),
+                              child: Padding(
+                                padding: EdgeInsetsDirectional.fromSTEB(
+                                    12.0, 0.0, 0.0, 0.0),
                                 child: Container(
-                                  width: double.infinity,
-                                  height: 32.0,
-                                  decoration: BoxDecoration(
-                                    color: Color(0x385348BA),
-                                    borderRadius: BorderRadius.circular(20.0),
-                                  ),
+                                  width:
+                                      MediaQuery.sizeOf(context).width * 0.82,
+                                  decoration: BoxDecoration(),
                                   child: Padding(
                                     padding: EdgeInsetsDirectional.fromSTEB(
-                                        18.0, 0.0, 18.0, 0.0),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.max,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        AutoSizeText(
-                                          'View Today’s NASA Astronomy Picture of the Day',
-                                          maxLines: 1,
-                                          minFontSize: 10.0,
-                                          style: FlutterFlowTheme.of(context)
-                                              .bodyMedium
-                                              .override(
-                                                fontFamily:
-                                                    FlutterFlowTheme.of(context)
-                                                        .bodyMediumFamily,
-                                                color: Color(0xFF272933),
-                                                fontSize: 12.0,
-                                                letterSpacing: 0.0,
-                                                fontWeight: FontWeight.bold,
-                                                useGoogleFonts:
-                                                    !FlutterFlowTheme.of(
-                                                            context)
-                                                        .bodyMediumIsCustom,
-                                              ),
-                                        ),
-                                        InkWell(
-                                          splashColor: Colors.transparent,
-                                          focusColor: Colors.transparent,
-                                          hoverColor: Colors.transparent,
-                                          highlightColor: Colors.transparent,
-                                          onTap: () async {
-                                            logFirebaseEvent(
-                                                'DASHBOARD_PAGE_Icon_5yzs910g_ON_TAP');
-                                            logFirebaseEvent(
-                                                'Icon_navigate_to');
-
-                                            context.pushNamed(
-                                              ApodWidget.routeName,
-                                              extra: <String, dynamic>{
-                                                '__transition_info__':
-                                                    TransitionInfo(
-                                                  hasTransition: true,
-                                                  transitionType:
-                                                      PageTransitionType
-                                                          .rightToLeft,
-                                                ),
-                                              },
-                                            );
-                                          },
-                                          child: Icon(
-                                            FFIcons.karrowRight,
-                                            color: Color(0xFF272933),
-                                            size: 32.0,
+                                        4.0, 4.0, 0.0, 6.0),
+                                    child: Text(
+                                      valueOrDefault<String>(
+                                        FFAppState().userGreetingMessage,
+                                        'Preparing your dashboard...',
+                                      ),
+                                      style: FlutterFlowTheme.of(context)
+                                          .headlineSmall
+                                          .override(
+                                            fontFamily:
+                                                FlutterFlowTheme.of(context)
+                                                    .headlineSmallFamily,
+                                            color: Colors.black,
+                                            fontSize: 18.0,
+                                            letterSpacing: 0.0,
+                                            fontWeight: FontWeight.bold,
+                                            useGoogleFonts:
+                                                !FlutterFlowTheme.of(context)
+                                                    .headlineSmallIsCustom,
                                           ),
-                                        ),
-                                      ],
                                     ),
                                   ),
                                 ),
                               ),
                             ),
-                          if (FFAppState().userPreferences.atAGlanceView)
-                            Padding(
-                              padding: EdgeInsetsDirectional.fromSTEB(
-                                  6.0, 0.0, 6.0, 6.0),
-                              child: wrapWithModel(
-                                model: _model.atAGlanceModel,
-                                updateCallback: () => safeSetState(() {}),
-                                child: AtAGlanceWidget(),
+                            if (FFAppState().userPreferences.enableAPOD &&
+                                _model.dashboardLoaded)
+                              Padding(
+                                padding: EdgeInsetsDirectional.fromSTEB(
+                                    8.0, 0.0, 8.0, 4.0),
+                                child: InkWell(
+                                  splashColor: Colors.transparent,
+                                  focusColor: Colors.transparent,
+                                  hoverColor: Colors.transparent,
+                                  highlightColor: Colors.transparent,
+                                  onTap: () async {
+                                    logFirebaseEvent(
+                                        'DASHBOARD_PAGE_Container_2g1borbu_ON_TAP');
+                                    logFirebaseEvent('Container_navigate_to');
+
+                                    context.pushNamed(ApodWidget.routeName);
+                                                                    },
+                                  child: Container(
+                                    width: double.infinity,
+                                    height: 32.0,
+                                    decoration: BoxDecoration(
+                                      color: Color(0x385348BA),
+                                      borderRadius: BorderRadius.circular(20.0),
+                                    ),
+                                    child: Padding(
+                                      padding: EdgeInsetsDirectional.fromSTEB(
+                                          18.0, 0.0, 18.0, 0.0),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.max,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          AutoSizeText(
+                                            'View latest NASA Astronomy Picture of the Day',
+                                            maxLines: 1,
+                                            minFontSize: 10.0,
+                                            style: FlutterFlowTheme.of(context)
+                                                .bodyMedium
+                                                .override(
+                                                  fontFamily:
+                                                      FlutterFlowTheme.of(
+                                                              context)
+                                                          .bodyMediumFamily,
+                                                  color: Color(0xFF272933),
+                                                  fontSize: 12.0,
+                                                  letterSpacing: 0.0,
+                                                  fontWeight: FontWeight.bold,
+                                                  useGoogleFonts:
+                                                      !FlutterFlowTheme.of(
+                                                              context)
+                                                          .bodyMediumIsCustom,
+                                                ),
+                                          ),
+                                          InkWell(
+                                            splashColor: Colors.transparent,
+                                            focusColor: Colors.transparent,
+                                            hoverColor: Colors.transparent,
+                                            highlightColor: Colors.transparent,
+                                            onTap: () async {
+                                              logFirebaseEvent(
+                                                  'DASHBOARD_PAGE_Icon_5yzs910g_ON_TAP');
+                                              logFirebaseEvent(
+                                                  'Icon_navigate_to');
+
+                                              context.pushNamed(
+                                                ApodWidget.routeName,
+                                                extra: <String, dynamic>{
+                                                  '__transition_info__':
+                                                      TransitionInfo(
+                                                    hasTransition: true,
+                                                    transitionType:
+                                                        PageTransitionType
+                                                            .rightToLeft,
+                                                  ),
+                                                },
+                                              );
+                                            },
+                                            child: Icon(
+                                              FFIcons.karrowRight,
+                                              color: Color(0xFF272933),
+                                              size: 32.0,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
                               ),
-                            ),
-                        ],
+                            if (FFAppState().userPreferences.atAGlanceView &&
+                                _model.dashboardLoaded)
+                              Padding(
+                                padding: EdgeInsetsDirectional.fromSTEB(
+                                    6.0, 0.0, 6.0, 8.0),
+                                child: wrapWithModel(
+                                  model: _model.atAGlanceModel,
+                                  updateCallback: () => safeSetState(() {}),
+                                  child: AtAGlanceWidget(),
+                                ),
+                              ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -1433,37 +1471,53 @@ class _DashboardWidgetState extends State<DashboardWidget>
                                             ),
                                           ],
                                         ),
-                                        Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Padding(
-                                              padding: EdgeInsetsDirectional
-                                                  .fromSTEB(
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .designToken
-                                                          .spacing
-                                                          .sm,
-                                                      6.0,
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .designToken
-                                                          .spacing
-                                                          .sm,
-                                                      0.0),
-                                              child: Builder(
-                                                builder: (context) {
-                                                  final dashboardClassses =
-                                                      FFAppState()
-                                                          .dashboardClasses
-                                                          .where((e) =>
-                                                              dateTimeFormat(
-                                                                "d/M/y",
-                                                                e.scheduledStart,
-                                                                locale: FFLocalizations.of(
-                                                                        context)
-                                                                    .languageCode,
-                                                              ) ==
+                                        if (_model.dashboardLoaded)
+                                          Padding(
+                                            padding:
+                                                EdgeInsetsDirectional.fromSTEB(
+                                                    FlutterFlowTheme.of(context)
+                                                        .designToken
+                                                        .spacing
+                                                        .sm,
+                                                    6.0,
+                                                    FlutterFlowTheme.of(context)
+                                                        .designToken
+                                                        .spacing
+                                                        .sm,
+                                                    0.0),
+                                            child: Builder(
+                                              builder: (context) {
+                                                final dashboardClassses =
+                                                    FFAppState()
+                                                        .dashboardClasses
+                                                        .where((e) =>
+                                                            dateTimeFormat(
+                                                              "d/M/y",
+                                                              e.scheduledStart,
+                                                              locale: FFLocalizations
+                                                                      .of(context)
+                                                                  .languageCode,
+                                                            ) ==
+                                                            dateTimeFormat(
+                                                              "d/M/y",
+                                                              getCurrentTimestamp,
+                                                              locale: FFLocalizations
+                                                                      .of(context)
+                                                                  .languageCode,
+                                                            ))
+                                                        .toList();
+                                                if (dashboardClassses.isEmpty) {
+                                                  return EmptyStateGifWidget(
+                                                    imageUrl:
+                                                        'https://cdn-icons-gif.flaticon.com/19015/19015298.gif',
+                                                    title:
+                                                        valueOrDefault<String>(
+                                                      functions
+                                                          .getEmptyStateMessage(
+                                                              getCurrentTimestamp,
+                                                              FFAppState()
+                                                                  .userPreferences
+                                                                  .preferredActionTone,
                                                               dateTimeFormat(
                                                                 "d/M/y",
                                                                 getCurrentTimestamp,
@@ -1471,101 +1525,76 @@ class _DashboardWidgetState extends State<DashboardWidget>
                                                                         context)
                                                                     .languageCode,
                                                               ))
-                                                          .toList();
-                                                  if (dashboardClassses
-                                                      .isEmpty) {
-                                                    return EmptyStateGifWidget(
-                                                      imageUrl:
-                                                          'https://cdn-icons-gif.flaticon.com/19015/19015298.gif',
-                                                      title: valueOrDefault<
-                                                          String>(
-                                                        functions
-                                                            .getEmptyStateMessage(
+                                                          .firstOrNull,
+                                                      'No Classes Today!',
+                                                    ),
+                                                    description:
+                                                        valueOrDefault<String>(
+                                                      functions
+                                                          .getEmptyStateMessage(
+                                                              getCurrentTimestamp,
+                                                              FFAppState()
+                                                                  .userPreferences
+                                                                  .preferredActionTone,
+                                                              dateTimeFormat(
+                                                                "d/M/y",
                                                                 getCurrentTimestamp,
-                                                                FFAppState()
-                                                                    .userPreferences
-                                                                    .preferredActionTone,
-                                                                dateTimeFormat(
-                                                                  "d/M/y",
-                                                                  getCurrentTimestamp,
-                                                                  locale: FFLocalizations.of(
-                                                                          context)
-                                                                      .languageCode,
-                                                                ))
-                                                            .firstOrNull,
-                                                        'No Classes Today!',
-                                                      ),
-                                                      description:
-                                                          valueOrDefault<
-                                                              String>(
-                                                        functions
-                                                            .getEmptyStateMessage(
-                                                                getCurrentTimestamp,
-                                                                FFAppState()
-                                                                    .userPreferences
-                                                                    .preferredActionTone,
-                                                                dateTimeFormat(
-                                                                  "d/M/y",
-                                                                  getCurrentTimestamp,
-                                                                  locale: FFLocalizations.of(
-                                                                          context)
-                                                                      .languageCode,
-                                                                ))
-                                                            .lastOrNull,
-                                                        'Please come back later!',
+                                                                locale: FFLocalizations.of(
+                                                                        context)
+                                                                    .languageCode,
+                                                              ))
+                                                          .lastOrNull,
+                                                      'Please come back later!',
+                                                    ),
+                                                  );
+                                                }
+
+                                                return ListView.builder(
+                                                  padding: EdgeInsets.zero,
+                                                  primary: false,
+                                                  shrinkWrap: true,
+                                                  scrollDirection:
+                                                      Axis.vertical,
+                                                  itemCount:
+                                                      dashboardClassses.length,
+                                                  itemBuilder: (context,
+                                                      dashboardClasssesIndex) {
+                                                    final dashboardClasssesItem =
+                                                        dashboardClassses[
+                                                            dashboardClasssesIndex];
+                                                    return Padding(
+                                                      padding:
+                                                          EdgeInsetsDirectional
+                                                              .fromSTEB(
+                                                                  0.0,
+                                                                  0.0,
+                                                                  0.0,
+                                                                  4.0),
+                                                      child: wrapWithModel(
+                                                        model: _model
+                                                            .classBlockTodayModels
+                                                            .getModel(
+                                                          dashboardClasssesItem
+                                                              .classId,
+                                                          dashboardClasssesIndex,
+                                                        ),
+                                                        updateCallback: () =>
+                                                            safeSetState(() {}),
+                                                        child:
+                                                            ClassBlockTodayWidget(
+                                                          key: Key(
+                                                            'Keyemz_${dashboardClasssesItem.classId}',
+                                                          ),
+                                                          classRow:
+                                                              dashboardClasssesItem,
+                                                        ),
                                                       ),
                                                     );
-                                                  }
-
-                                                  return ListView.builder(
-                                                    padding: EdgeInsets.zero,
-                                                    primary: false,
-                                                    shrinkWrap: true,
-                                                    scrollDirection:
-                                                        Axis.vertical,
-                                                    itemCount: dashboardClassses
-                                                        .length,
-                                                    itemBuilder: (context,
-                                                        dashboardClasssesIndex) {
-                                                      final dashboardClasssesItem =
-                                                          dashboardClassses[
-                                                              dashboardClasssesIndex];
-                                                      return Padding(
-                                                        padding:
-                                                            EdgeInsetsDirectional
-                                                                .fromSTEB(
-                                                                    0.0,
-                                                                    0.0,
-                                                                    0.0,
-                                                                    4.0),
-                                                        child: wrapWithModel(
-                                                          model: _model
-                                                              .classBlockTodayModels
-                                                              .getModel(
-                                                            dashboardClasssesItem
-                                                                .classId,
-                                                            dashboardClasssesIndex,
-                                                          ),
-                                                          updateCallback: () =>
-                                                              safeSetState(
-                                                                  () {}),
-                                                          child:
-                                                              ClassBlockTodayWidget(
-                                                            key: Key(
-                                                              'Keyemz_${dashboardClasssesItem.classId}',
-                                                            ),
-                                                            classRow:
-                                                                dashboardClasssesItem,
-                                                          ),
-                                                        ),
-                                                      );
-                                                    },
-                                                  );
-                                                },
-                                              ),
+                                                  },
+                                                );
+                                              },
                                             ),
-                                          ],
-                                        ),
+                                          ),
                                       ].addToStart(SizedBox(height: 10.0)),
                                     ),
                                   ),
@@ -1722,37 +1751,61 @@ class _DashboardWidgetState extends State<DashboardWidget>
                                               ),
                                             ],
                                           ),
-                                          Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Padding(
-                                                padding: EdgeInsetsDirectional
-                                                    .fromSTEB(
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .designToken
-                                                            .spacing
-                                                            .sm,
-                                                        6.0,
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .designToken
-                                                            .spacing
-                                                            .sm,
-                                                        0.0),
-                                                child: Builder(
-                                                  builder: (context) {
-                                                    final upcomingClassesListView =
-                                                        FFAppState()
-                                                            .dashboardClasses
-                                                            .where((e) =>
-                                                                dateTimeFormat(
-                                                                  "d/M/y",
-                                                                  e.scheduledStart,
-                                                                  locale: FFLocalizations.of(
-                                                                          context)
-                                                                      .languageCode,
-                                                                ) !=
+                                          if (_model.dashboardLoaded)
+                                            Padding(
+                                              padding: EdgeInsetsDirectional
+                                                  .fromSTEB(
+                                                      FlutterFlowTheme.of(
+                                                              context)
+                                                          .designToken
+                                                          .spacing
+                                                          .sm,
+                                                      6.0,
+                                                      FlutterFlowTheme.of(
+                                                              context)
+                                                          .designToken
+                                                          .spacing
+                                                          .sm,
+                                                      0.0),
+                                              child: Builder(
+                                                builder: (context) {
+                                                  final upcomingClassesListView =
+                                                      FFAppState()
+                                                          .dashboardClasses
+                                                          .where((e) =>
+                                                              dateTimeFormat(
+                                                                "d/M/y",
+                                                                e.scheduledStart,
+                                                                locale: FFLocalizations.of(
+                                                                        context)
+                                                                    .languageCode,
+                                                              ) !=
+                                                              dateTimeFormat(
+                                                                "d/M/y",
+                                                                getCurrentTimestamp,
+                                                                locale: FFLocalizations.of(
+                                                                        context)
+                                                                    .languageCode,
+                                                              ))
+                                                          .toList()
+                                                          .sortedList(
+                                                              keyOf: (e) => e
+                                                                  .scheduledStart!,
+                                                              desc: false)
+                                                          .toList();
+                                                  if (upcomingClassesListView
+                                                      .isEmpty) {
+                                                    return EmptyStateGifWidget(
+                                                      imageUrl:
+                                                          'https://cdn-icons-gif.flaticon.com/19015/19015308.gif',
+                                                      title: valueOrDefault<
+                                                          String>(
+                                                        functions
+                                                            .getEmptyStateMessage(
+                                                                getCurrentTimestamp,
+                                                                FFAppState()
+                                                                    .userPreferences
+                                                                    .preferredActionTone,
                                                                 dateTimeFormat(
                                                                   "d/M/y",
                                                                   getCurrentTimestamp,
@@ -1760,107 +1813,79 @@ class _DashboardWidgetState extends State<DashboardWidget>
                                                                           context)
                                                                       .languageCode,
                                                                 ))
-                                                            .toList()
-                                                            .sortedList(
-                                                                keyOf: (e) => e
-                                                                    .scheduledStart!,
-                                                                desc: false)
-                                                            .toList();
-                                                    if (upcomingClassesListView
-                                                        .isEmpty) {
-                                                      return EmptyStateGifWidget(
-                                                        imageUrl:
-                                                            'https://cdn-icons-gif.flaticon.com/19015/19015308.gif',
-                                                        title: valueOrDefault<
-                                                            String>(
-                                                          functions
-                                                              .getEmptyStateMessage(
+                                                            .firstOrNull,
+                                                        'List Currently Empty!',
+                                                      ),
+                                                      description:
+                                                          valueOrDefault<
+                                                              String>(
+                                                        functions
+                                                            .getEmptyStateMessage(
+                                                                getCurrentTimestamp,
+                                                                FFAppState()
+                                                                    .userPreferences
+                                                                    .preferredActionTone,
+                                                                dateTimeFormat(
+                                                                  "d/M/y",
                                                                   getCurrentTimestamp,
-                                                                  FFAppState()
-                                                                      .userPreferences
-                                                                      .preferredActionTone,
-                                                                  dateTimeFormat(
-                                                                    "d/M/y",
-                                                                    getCurrentTimestamp,
-                                                                    locale: FFLocalizations.of(
-                                                                            context)
-                                                                        .languageCode,
-                                                                  ))
-                                                              .firstOrNull,
-                                                          'List Currently Empty!',
-                                                        ),
-                                                        description:
-                                                            valueOrDefault<
-                                                                String>(
-                                                          functions
-                                                              .getEmptyStateMessage(
-                                                                  getCurrentTimestamp,
-                                                                  FFAppState()
-                                                                      .userPreferences
-                                                                      .preferredActionTone,
-                                                                  dateTimeFormat(
-                                                                    "d/M/y",
-                                                                    getCurrentTimestamp,
-                                                                    locale: FFLocalizations.of(
-                                                                            context)
-                                                                        .languageCode,
-                                                                  ))
-                                                              .lastOrNull,
-                                                          'There are no upcoming classes scheduled. Check back later or sync your timetable if you recently made changes.',
+                                                                  locale: FFLocalizations.of(
+                                                                          context)
+                                                                      .languageCode,
+                                                                ))
+                                                            .lastOrNull,
+                                                        'There are no upcoming classes scheduled. Check back later or sync your timetable if you recently made changes.',
+                                                      ),
+                                                    );
+                                                  }
+
+                                                  return ListView.builder(
+                                                    padding: EdgeInsets.zero,
+                                                    primary: false,
+                                                    shrinkWrap: true,
+                                                    scrollDirection:
+                                                        Axis.vertical,
+                                                    itemCount:
+                                                        upcomingClassesListView
+                                                            .length,
+                                                    itemBuilder: (context,
+                                                        upcomingClassesListViewIndex) {
+                                                      final upcomingClassesListViewItem =
+                                                          upcomingClassesListView[
+                                                              upcomingClassesListViewIndex];
+                                                      return Padding(
+                                                        padding:
+                                                            EdgeInsetsDirectional
+                                                                .fromSTEB(
+                                                                    0.0,
+                                                                    0.0,
+                                                                    0.0,
+                                                                    4.0),
+                                                        child: wrapWithModel(
+                                                          model: _model
+                                                              .classBlockUpcomingModels
+                                                              .getModel(
+                                                            upcomingClassesListViewItem
+                                                                .classId,
+                                                            upcomingClassesListViewIndex,
+                                                          ),
+                                                          updateCallback: () =>
+                                                              safeSetState(
+                                                                  () {}),
+                                                          child:
+                                                              ClassBlockUpcomingWidget(
+                                                            key: Key(
+                                                              'Keyvjw_${upcomingClassesListViewItem.classId}',
+                                                            ),
+                                                            classBlock:
+                                                                upcomingClassesListViewItem,
+                                                          ),
                                                         ),
                                                       );
-                                                    }
-
-                                                    return ListView.builder(
-                                                      padding: EdgeInsets.zero,
-                                                      primary: false,
-                                                      shrinkWrap: true,
-                                                      scrollDirection:
-                                                          Axis.vertical,
-                                                      itemCount:
-                                                          upcomingClassesListView
-                                                              .length,
-                                                      itemBuilder: (context,
-                                                          upcomingClassesListViewIndex) {
-                                                        final upcomingClassesListViewItem =
-                                                            upcomingClassesListView[
-                                                                upcomingClassesListViewIndex];
-                                                        return Padding(
-                                                          padding:
-                                                              EdgeInsetsDirectional
-                                                                  .fromSTEB(
-                                                                      0.0,
-                                                                      0.0,
-                                                                      0.0,
-                                                                      4.0),
-                                                          child: wrapWithModel(
-                                                            model: _model
-                                                                .classBlockUpcomingModels
-                                                                .getModel(
-                                                              upcomingClassesListViewItem
-                                                                  .classId,
-                                                              upcomingClassesListViewIndex,
-                                                            ),
-                                                            updateCallback: () =>
-                                                                safeSetState(
-                                                                    () {}),
-                                                            child:
-                                                                ClassBlockUpcomingWidget(
-                                                              key: Key(
-                                                                'Keyvjw_${upcomingClassesListViewItem.classId}',
-                                                              ),
-                                                              classBlock:
-                                                                  upcomingClassesListViewItem,
-                                                            ),
-                                                          ),
-                                                        );
-                                                      },
-                                                    );
-                                                  },
-                                                ),
+                                                    },
+                                                  );
+                                                },
                                               ),
-                                            ],
-                                          ),
+                                            ),
                                         ].addToStart(SizedBox(height: 10.0)),
                                       ),
                                     ),

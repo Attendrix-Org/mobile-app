@@ -180,26 +180,39 @@ class _UnmarkAbsentDialogWidgetState extends State<UnmarkAbsentDialogWidget> {
                 onPressed: () async {
                   logFirebaseEvent('UNMARK_ABSENT_DIALOG_MARK_AS_PRESENT_BTN');
                   logFirebaseEvent('Button_custom_action');
-                  _model.markAbsentResponseCopy = await actions.unMarkAbsent(
+                  _model.unMarkFeedback = await actions.unMarkAbsent(
                     widget.classBlock!,
                   );
-                  if (!_model.markAbsentResponseCopy!.success) {
-                    logFirebaseEvent('Button_show_snack_bar');
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          'Couldn\'t update your attendance. Give it another try.',
-                          style: GoogleFonts.outfit(
-                            color: FlutterFlowTheme.of(context).info,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 12.0,
-                          ),
+                  logFirebaseEvent('Button_show_snack_bar');
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        _model.unMarkFeedback!.success
+                            ? 'Attendance updated. Absence removed.'
+                            : 'Failed to remove absence. Please try again.',
+                        style: GoogleFonts.outfit(
+                          color: FlutterFlowTheme.of(context).info,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 12.0,
                         ),
-                        duration: Duration(milliseconds: 4000),
-                        backgroundColor: FlutterFlowTheme.of(context).error,
                       ),
-                    );
-                  }
+                      duration: Duration(milliseconds: 2000),
+                      backgroundColor: _model.unMarkFeedback!.success
+                          ? FlutterFlowTheme.of(context).primary
+                          : FlutterFlowTheme.of(context).error,
+                      action: SnackBarAction(
+                        label: 'Revert',
+                        textColor: FlutterFlowTheme.of(context).info,
+                        onPressed: () async {
+                          await actions.markAbsent(
+                            widget.classBlock!,
+                            'student',
+                            'Marked By Student',
+                          );
+                        },
+                      ),
+                    ),
+                  );
                   logFirebaseEvent('Button_dismiss_dialog');
                   Navigator.pop(context);
 
@@ -235,7 +248,7 @@ class _UnmarkAbsentDialogWidgetState extends State<UnmarkAbsentDialogWidget> {
               child: FFButtonWidget(
                 onPressed: () async {
                   logFirebaseEvent('UNMARK_ABSENT_DIALOG_KEEP_AS_ABSENT_BTN_');
-                  logFirebaseEvent('Button_close_dialog_drawer_etc');
+                  logFirebaseEvent('Button_dismiss_dialog');
                   Navigator.pop(context);
                 },
                 text: 'Keep as Absent',

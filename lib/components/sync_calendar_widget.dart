@@ -99,12 +99,7 @@ export 'sync_calendar_model.dart';
 ///
 /// On desktop → buttons shown side by side with spacing (gap: 12px)
 class SyncCalendarWidget extends StatefulWidget {
-  const SyncCalendarWidget({
-    super.key,
-    this.calendarID,
-  });
-
-  final String? calendarID;
+  const SyncCalendarWidget({super.key});
 
   @override
   State<SyncCalendarWidget> createState() => _SyncCalendarWidgetState();
@@ -210,6 +205,8 @@ class _SyncCalendarWidgetState extends State<SyncCalendarWidget> {
                         'SYNC_CALENDAR_CONTINUE_WITH_GOOGLE_BTN_O');
                     logFirebaseEvent('Button_custom_action');
                     await actions.connectGoogleCalendar();
+                    logFirebaseEvent('Button_dismiss_dialog');
+                    Navigator.pop(context);
                   },
                   text: 'Continue with Google',
                   icon: Icon(
@@ -254,7 +251,7 @@ class _SyncCalendarWidgetState extends State<SyncCalendarWidget> {
                     padding: EdgeInsets.all(8.0),
                     iconPadding:
                         EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
-                    color: FlutterFlowTheme.of(context).secondaryBackground,
+                    color: FlutterFlowTheme.of(context).alternate,
                     textStyle: FlutterFlowTheme.of(context).titleSmall.override(
                           fontFamily:
                               FlutterFlowTheme.of(context).titleSmallFamily,

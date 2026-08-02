@@ -17,7 +17,6 @@ class NextBusInfoStruct extends BaseStruct {
     int? walkingTimeMinutes,
     DateTime? lastUpdated,
     bool? isAvailable,
-    bool? locatedPermissionEnabled,
   })  : _routeName = routeName,
         _nearestStop = nearestStop,
         _departureTime = departureTime,
@@ -27,8 +26,7 @@ class NextBusInfoStruct extends BaseStruct {
         _walkingDistanceMeters = walkingDistanceMeters,
         _walkingTimeMinutes = walkingTimeMinutes,
         _lastUpdated = lastUpdated,
-        _isAvailable = isAvailable,
-        _locatedPermissionEnabled = locatedPermissionEnabled;
+        _isAvailable = isAvailable;
 
   // "routeName" field.
   String? _routeName;
@@ -109,13 +107,6 @@ class NextBusInfoStruct extends BaseStruct {
 
   bool hasIsAvailable() => _isAvailable != null;
 
-  // "locatedPermissionEnabled" field.
-  bool? _locatedPermissionEnabled;
-  bool get locatedPermissionEnabled => _locatedPermissionEnabled ?? false;
-  set locatedPermissionEnabled(bool? val) => _locatedPermissionEnabled = val;
-
-  bool hasLocatedPermissionEnabled() => _locatedPermissionEnabled != null;
-
   static NextBusInfoStruct fromMap(Map<String, dynamic> data) =>
       NextBusInfoStruct(
         routeName: data['routeName'] as String?,
@@ -128,7 +119,6 @@ class NextBusInfoStruct extends BaseStruct {
         walkingTimeMinutes: castToType<int>(data['walkingTimeMinutes']),
         lastUpdated: data['lastUpdated'] as DateTime?,
         isAvailable: data['isAvailable'] as bool?,
-        locatedPermissionEnabled: data['locatedPermissionEnabled'] as bool?,
       );
 
   static NextBusInfoStruct? maybeFromMap(dynamic data) => data is Map
@@ -146,7 +136,6 @@ class NextBusInfoStruct extends BaseStruct {
         'walkingTimeMinutes': _walkingTimeMinutes,
         'lastUpdated': _lastUpdated,
         'isAvailable': _isAvailable,
-        'locatedPermissionEnabled': _locatedPermissionEnabled,
       }.withoutNulls;
 
   @override
@@ -189,10 +178,6 @@ class NextBusInfoStruct extends BaseStruct {
         ),
         'isAvailable': serializeParam(
           _isAvailable,
-          ParamType.bool,
-        ),
-        'locatedPermissionEnabled': serializeParam(
-          _locatedPermissionEnabled,
           ParamType.bool,
         ),
       }.withoutNulls;
@@ -249,11 +234,6 @@ class NextBusInfoStruct extends BaseStruct {
           ParamType.bool,
           false,
         ),
-        locatedPermissionEnabled: deserializeParam(
-          data['locatedPermissionEnabled'],
-          ParamType.bool,
-          false,
-        ),
       );
 
   @override
@@ -271,8 +251,7 @@ class NextBusInfoStruct extends BaseStruct {
         walkingDistanceMeters == other.walkingDistanceMeters &&
         walkingTimeMinutes == other.walkingTimeMinutes &&
         lastUpdated == other.lastUpdated &&
-        isAvailable == other.isAvailable &&
-        locatedPermissionEnabled == other.locatedPermissionEnabled;
+        isAvailable == other.isAvailable;
   }
 
   @override
@@ -286,8 +265,7 @@ class NextBusInfoStruct extends BaseStruct {
         walkingDistanceMeters,
         walkingTimeMinutes,
         lastUpdated,
-        isAvailable,
-        locatedPermissionEnabled
+        isAvailable
       ]);
 }
 
@@ -302,7 +280,6 @@ NextBusInfoStruct createNextBusInfoStruct({
   int? walkingTimeMinutes,
   DateTime? lastUpdated,
   bool? isAvailable,
-  bool? locatedPermissionEnabled,
 }) =>
     NextBusInfoStruct(
       routeName: routeName,
@@ -315,5 +292,4 @@ NextBusInfoStruct createNextBusInfoStruct({
       walkingTimeMinutes: walkingTimeMinutes,
       lastUpdated: lastUpdated,
       isAvailable: isAvailable,
-      locatedPermissionEnabled: locatedPermissionEnabled,
     );

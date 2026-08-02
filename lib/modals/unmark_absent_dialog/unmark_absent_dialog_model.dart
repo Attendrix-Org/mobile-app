@@ -8,7 +8,7 @@ class UnmarkAbsentDialogModel
   ///  State fields for stateful widgets in this component.
 
   // Stores action output result for [Custom Action - unMarkAbsent] action in Button widget.
-  MarkAbsentResponseStruct? markAbsentResponseCopy;
+  MarkAbsentResponseStruct? unMarkFeedback;
 
   @override
   void initState(BuildContext context) {}

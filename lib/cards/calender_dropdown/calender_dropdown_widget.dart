@@ -2,7 +2,6 @@ import '/backend/schema/structs/index.dart';
 import '/bottom_sheets/class_block_bottom_sheet/class_block_bottom_sheet_widget.dart';
 import '/bottom_sheets/schedule_remainder/schedule_remainder_widget.dart';
 import '/components/class_report_widget.dart';
-import '/components/quick_note_bottom_sheet_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import 'package:flutter/material.dart';
@@ -270,21 +269,6 @@ class _CalenderDropdownWidgetState extends State<CalenderDropdownWidget> {
                 logFirebaseEvent('CALENDER_DROPDOWN_COMP_component_ON_TAP');
                 logFirebaseEvent('component_dismiss_dialog');
                 Navigator.pop(context);
-                logFirebaseEvent('component_bottom_sheet');
-                await showModalBottomSheet(
-                  isScrollControlled: true,
-                  backgroundColor: Colors.transparent,
-                  enableDrag: false,
-                  context: context,
-                  builder: (context) {
-                    return Padding(
-                      padding: MediaQuery.viewInsetsOf(context),
-                      child: QuickNoteBottomSheetWidget(
-                        classBlock: widget.classBlock!,
-                      ),
-                    );
-                  },
-                ).then((value) => safeSetState(() {}));
               },
               child: Container(
                 width: double.infinity,

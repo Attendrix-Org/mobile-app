@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
 import 'package:flutter/foundation.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 Future<void> connectGoogleCalendar() async {
@@ -28,29 +29,43 @@ Future<void> connectGoogleCalendar() async {
       },
     );
 
+    debugPrint('Status: ${response.status}');
+    debugPrint('Response: ${response.data}');
+
     if (response.data == null) {
       throw Exception('No response from Edge Function.');
     }
 
-    final authUrl = response.data['auth_url'];
+    final data = Map<String, dynamic>.from(response.data);
 
-    if (authUrl == null || authUrl.toString().isEmpty) {
-      throw Exception('Authorization URL not returned.');
+    final authUrl = data['authorization_url']?.toString();
+
+    if (authUrl == null || authUrl.isEmpty) {
+      throw Exception('Authorization URL not found.');
     }
+
+    debugPrint('OAuth URL: $authUrl');
 
     final uri = Uri.parse(authUrl);
 
-    if (!await launchUrl(
+    final launched = await launchUrl(
       uri,
       mode: LaunchMode.externalApplication,
-    )) {
-      throw Exception('Could not launch Google authentication.');
+    );
+
+    if (!launched) {
+      throw Exception('Failed to launch OAuth URL.');
     }
+  } on PostgrestException catch (e, stack) {
+    debugPrint('PostgrestException');
+    debugPrint(e.message);
+    debugPrint(e.hint);
+    debugPrint(stack.toString());
+    rethrow;
   } catch (e, stack) {
     debugPrint('Google Calendar OAuth Error');
     debugPrint(e.toString());
     debugPrint(stack.toString());
-
     rethrow;
   }
 }
