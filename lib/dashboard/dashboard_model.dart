@@ -20,14 +20,12 @@ class DashboardModel extends FlutterFlowModel<DashboardWidget> {
   void updateGeneratedDatesAtIndex(int index, Function(DateTime) updateFn) =>
       generatedDates[index] = updateFn(generatedDates[index]);
 
+  bool dashboardLoaded = false;
+
   ///  State fields for stateful widgets in this page.
 
   // Stores action output result for [Custom Action - loadAppBootstrapStatus] action in dashboard widget.
   AppBootstrapStruct? appBootstrapData;
-  // Stores action output result for [Custom Action - generatePastDateRange] action in dashboard widget.
-  List<DateTime>? generatedDateRange;
-  // Stores action output result for [Custom Action - executeScheduleQuery] action in dashboard widget.
-  List<ScheduledClassStruct>? calendarDateQueryData;
   // Stores action output result for [Custom Action - generateGreeting] action in dashboard widget.
   String? generatedGreetingMessage;
   // Model for atAGlance component.

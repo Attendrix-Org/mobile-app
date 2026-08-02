@@ -1,11 +1,13 @@
 import '/backend/schema/enums/enums.dart';
 import '/backend/schema/structs/index.dart';
 import '/components/class_block_calender_widget.dart';
+import '/components/empty_state_calendar_widget.dart';
 import '/flutter_flow/flutter_flow_drop_down.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/form_field_controller.dart';
 import '/custom_code/actions/index.dart' as actions;
+import '/flutter_flow/custom_functions.dart' as functions;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -133,14 +135,22 @@ class _CalendarWidgetState extends State<CalendarWidget> {
                                   text: TextSpan(
                                     children: [
                                       TextSpan(
-                                        text: valueOrDefault<String>(
-                                          dateTimeFormat(
-                                            "MMMM",
-                                            getCurrentTimestamp,
-                                            locale: FFLocalizations.of(context)
-                                                .languageCode,
-                                          ),
-                                          'July',
+                                        text: dateTimeFormat(
+                                          "MMMM",
+                                          _model.displayDatesRange
+                                              .where((e) =>
+                                                  dateTimeFormat(
+                                                    "d/M/y",
+                                                    e,
+                                                    locale: FFLocalizations.of(
+                                                            context)
+                                                        .languageCode,
+                                                  ) ==
+                                                  _model.selectedDate)
+                                              .toList()
+                                              .firstOrNull,
+                                          locale: FFLocalizations.of(context)
+                                              .languageCode,
                                         ),
                                         style: FlutterFlowTheme.of(context)
                                             .bodyMedium
@@ -167,14 +177,22 @@ class _CalendarWidgetState extends State<CalendarWidget> {
                                         style: TextStyle(),
                                       ),
                                       TextSpan(
-                                        text: valueOrDefault<String>(
-                                          dateTimeFormat(
-                                            "yyy",
-                                            getCurrentTimestamp,
-                                            locale: FFLocalizations.of(context)
-                                                .languageCode,
-                                          ),
-                                          '2026',
+                                        text: dateTimeFormat(
+                                          "yyy",
+                                          _model.displayDatesRange
+                                              .where((e) =>
+                                                  dateTimeFormat(
+                                                    "d/M/y",
+                                                    e,
+                                                    locale: FFLocalizations.of(
+                                                            context)
+                                                        .languageCode,
+                                                  ) ==
+                                                  _model.selectedDate)
+                                              .toList()
+                                              .firstOrNull,
+                                          locale: FFLocalizations.of(context)
+                                              .languageCode,
                                         ),
                                         style: GoogleFonts.outfit(
                                           color: Colors.black,
@@ -243,7 +261,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
                                       dateRangeRowView[dateRangeRowViewIndex];
                                   return Padding(
                                     padding: EdgeInsetsDirectional.fromSTEB(
-                                        0.0, 0.0, 4.0, 2.0),
+                                        0.0, 0.0, 2.0, 2.0),
                                     child: InkWell(
                                       splashColor: Colors.transparent,
                                       focusColor: Colors.transparent,
@@ -267,13 +285,15 @@ class _CalendarWidgetState extends State<CalendarWidget> {
                                         _model.newSelectedDateTimeline =
                                             await actions.generateTimeline(
                                           dateRangeRowViewItem,
-                                          _model.selectedDateQuery!
-                                              .map((e) => e.scheduledStart)
+                                          _model.selectedDateQuery
+                                              ?.map((e) => e.scheduledStart)
                                               .withoutNulls
+                                              .toList()
                                               .toList(),
-                                          _model.selectedDateQuery!
-                                              .map((e) => e.scheduledEnd)
+                                          _model.selectedDateQuery
+                                              ?.map((e) => e.scheduledEnd)
                                               .withoutNulls
+                                              .toList()
                                               .toList(),
                                         );
                                         logFirebaseEvent(
@@ -326,7 +346,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
                                               color:
                                                   FlutterFlowTheme.of(context)
                                                       .alternate,
-                                              width: 1.0,
+                                              width: 2.0,
                                             ),
                                           ),
                                           child: Column(
@@ -365,6 +385,22 @@ class _CalendarWidgetState extends State<CalendarWidget> {
                                                                       context)
                                                                   .bodyMedium
                                                                   .fontStyle,
+                                                        ),
+                                                        color: valueOrDefault<
+                                                            Color>(
+                                                          _model.selectedDate ==
+                                                                  dateTimeFormat(
+                                                                    "d/M/y",
+                                                                    dateRangeRowViewItem,
+                                                                    locale: FFLocalizations.of(
+                                                                            context)
+                                                                        .languageCode,
+                                                                  )
+                                                              ? FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .info
+                                                              : Colors.black,
+                                                          Colors.black,
                                                         ),
                                                         fontSize: 14.0,
                                                         letterSpacing: 0.0,
@@ -697,59 +733,65 @@ class _CalendarWidgetState extends State<CalendarWidget> {
                                           child: Row(
                                             mainAxisSize: MainAxisSize.max,
                                             children: [
-                                              if (selectedDateClassesListViewItem
-                                                      .secondsSinceEpoch >
-                                                  selectedDateClassesListViewItem
-                                                      .secondsSinceEpoch)
-                                                ClipRRect(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          8.0),
-                                                  child: Image.asset(
-                                                    'assets/images/Check_icon.png',
-                                                    width: 20.0,
-                                                    height: 20.0,
-                                                    fit: BoxFit.cover,
-                                                  ),
-                                                ),
-                                              if (selectedDateClassesListViewItem
-                                                      .secondsSinceEpoch <
-                                                  selectedDateClassesListViewItem
-                                                      .secondsSinceEpoch)
-                                                ClipRRect(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          8.0),
-                                                  child: Image.asset(
-                                                    'assets/images/UI_Dot_Icon_(1).png',
-                                                    width: 18.0,
-                                                    height: 18.0,
-                                                    fit: BoxFit.cover,
-                                                  ),
-                                                ),
-                                              if ((int startTime, int endTime,
-                                                      int currentTime) {
-                                                return currentTime >=
-                                                        startTime &&
-                                                    currentTime <= endTime;
-                                              }(
-                                                  selectedDateClassesListViewItem
-                                                      .secondsSinceEpoch,
-                                                  selectedDateClassesListViewItem
-                                                      .secondsSinceEpoch,
-                                                  selectedDateClassesListViewItem
-                                                      .secondsSinceEpoch))
-                                                ClipRRect(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          8.0),
-                                                  child: Image.asset(
-                                                    'assets/images/UI_Dot_Icon.png',
-                                                    width: 18.0,
-                                                    height: 18.0,
-                                                    fit: BoxFit.cover,
-                                                  ),
-                                                ),
+                                              Builder(
+                                                builder: (context) {
+                                                  if (functions
+                                                          .relativeTime(
+                                                              getCurrentTimestamp,
+                                                              selectedDateClassesListViewItem,
+                                                              _model.dateRange
+                                                                  .elementAtOrNull(
+                                                                      selectedDateClassesListViewIndex +
+                                                                          1))
+                                                          .toString() ==
+                                                      '0') {
+                                                    return ClipRRect(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              8.0),
+                                                      child: Image.asset(
+                                                        'assets/images/Check_icon.png',
+                                                        width: 20.0,
+                                                        height: 20.0,
+                                                        fit: BoxFit.cover,
+                                                      ),
+                                                    );
+                                                  } else if (functions
+                                                          .relativeTime(
+                                                              getCurrentTimestamp,
+                                                              selectedDateClassesListViewItem,
+                                                              _model.dateRange
+                                                                  .elementAtOrNull(
+                                                                      selectedDateClassesListViewIndex +
+                                                                          1))
+                                                          .toString() ==
+                                                      '2') {
+                                                    return ClipRRect(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              8.0),
+                                                      child: Image.asset(
+                                                        'assets/images/UI_Dot_Icon.png',
+                                                        width: 18.0,
+                                                        height: 18.0,
+                                                        fit: BoxFit.cover,
+                                                      ),
+                                                    );
+                                                  } else {
+                                                    return ClipRRect(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              8.0),
+                                                      child: Image.asset(
+                                                        'assets/images/UI_Dot_Icon_(1).png',
+                                                        width: 18.0,
+                                                        height: 18.0,
+                                                        fit: BoxFit.cover,
+                                                      ),
+                                                    );
+                                                  }
+                                                },
+                                              ),
                                               Padding(
                                                 padding: EdgeInsetsDirectional
                                                     .fromSTEB(
@@ -809,11 +851,8 @@ class _CalendarWidgetState extends State<CalendarWidget> {
                                               if (individualClassBlockView
                                                   .isEmpty) {
                                                 return Center(
-                                                  child: Image.asset(
-                                                    'assets/images/Empty_Icon.png',
-                                                    width: 60.0,
-                                                    height: 60.0,
-                                                  ),
+                                                  child:
+                                                      EmptyStateCalendarWidget(),
                                                 );
                                               }
 
@@ -839,13 +878,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
                                                       model: _model
                                                           .classBlockCalenderModels
                                                           .getModel(
-                                                        _model
-                                                            .selectedDateClasses
-                                                            .where((e) =>
-                                                                e.scheduledStart ==
-                                                                selectedDateClassesListViewItem)
-                                                            .toList()
-                                                            .firstOrNull!
+                                                        individualClassBlockViewItem
                                                             .classId,
                                                         individualClassBlockViewIndex,
                                                       ),
@@ -854,15 +887,10 @@ class _CalendarWidgetState extends State<CalendarWidget> {
                                                       child:
                                                           ClassBlockCalenderWidget(
                                                         key: Key(
-                                                          'Keyqzs_${_model.selectedDateClasses.where((e) => e.scheduledStart == selectedDateClassesListViewItem).toList().firstOrNull!.classId}',
+                                                          'Keyqzs_${individualClassBlockViewItem.classId}',
                                                         ),
-                                                        classRow: _model
-                                                            .selectedDateClasses
-                                                            .where((e) =>
-                                                                e.scheduledStart ==
-                                                                selectedDateClassesListViewItem)
-                                                            .toList()
-                                                            .firstOrNull!,
+                                                        classRow:
+                                                            individualClassBlockViewItem,
                                                       ),
                                                     ),
                                                   );

@@ -17,16 +17,37 @@ Future<List<EnrolledCourseStruct>> combineEnrolledCourses(
 ) async {
   // Initialize an empty list to compile everything
   List<EnrolledCourseStruct> combinedList = [];
+  Set<String> seenIds = {};
+
+  void addCourse(EnrolledCourseStruct course) {
+    final key = course.courseId.isNotEmpty
+        ? course.courseId
+        : '${course.courseCode}_${course.slot}';
+    if (key.isNotEmpty) {
+      if (!seenIds.contains(key)) {
+        seenIds.add(key);
+        combinedList.add(course);
+      }
+    } else {
+      combinedList.add(course);
+    }
+  }
 
   // Add items from each list if they aren't null
   if (coreCourses != null) {
-    combinedList.addAll(coreCourses);
+    for (var c in coreCourses) {
+      addCourse(c);
+    }
   }
   if (electives != null) {
-    combinedList.addAll(electives);
+    for (var c in electives) {
+      addCourse(c);
+    }
   }
   if (labs != null) {
-    combinedList.addAll(labs);
+    for (var c in labs) {
+      addCourse(c);
+    }
   }
 
   return combinedList;

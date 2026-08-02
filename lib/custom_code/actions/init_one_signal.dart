@@ -23,6 +23,24 @@ Future<void> initOneSignal() async {
       FFDevEnvironmentValues().oneSignalAppId,
     );
 
+    // Observe subscription changes (token refresh)
+    OneSignal.User.pushSubscription.addObserver((state) async {
+      final newId = state.current.id;
+      final oldId = state.previous.id;
+      if (newId != null && oldId != null && newId != oldId) {
+        try {
+          await SupaFlow.client.rpc('refresh_device_subscription', params: {
+            'p_old_subscription_id': oldId,
+            'p_new_subscription_id': newId,
+          });
+          debugPrint(
+              'Refreshed device subscription in Supabase: $oldId -> $newId');
+        } catch (rpcErr) {
+          debugPrint('RPC refresh_device_subscription failed: $rpcErr');
+        }
+      }
+    });
+
     OneSignal.Notifications.addClickListener((event) {
       final data = event.notification.additionalData;
 
@@ -42,11 +60,13 @@ Future<void> initOneSignal() async {
 
     final accepted = await OneSignal.Notifications.requestPermission(true);
 
-    debugPrint('OneSignal permission granted: $accepted');
+    debugPrint(
+        'OneSignal permission granted ($accepted) [AppVersion: ${FFAppConstants.appVersion}]');
   } catch (e, stackTrace) {
     debugPrint('OneSignal initialization failed: $e');
     debugPrintStack(stackTrace: stackTrace);
   }
 }
+
 // Set your action name, define your arguments and return parameter,
 // and then add the boilerplate code using the `</>` button on the right!

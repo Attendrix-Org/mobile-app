@@ -14,10 +14,6 @@ class EditExistingClassModel extends FlutterFlowModel<EditExistingClassWidget> {
 
   ///  State fields for stateful widgets in this component.
 
-  // State field(s) for classVenue widget.
-  FocusNode? classVenueFocusNode;
-  TextEditingController? classVenueTextController;
-  String? Function(BuildContext, String?)? classVenueTextControllerValidator;
   DateTime? datePicked1;
   DateTime? datePicked2;
   DateTime? datePicked3;
@@ -32,8 +28,5 @@ class EditExistingClassModel extends FlutterFlowModel<EditExistingClassWidget> {
   void initState(BuildContext context) {}
 
   @override
-  void dispose() {
-    classVenueFocusNode?.dispose();
-    classVenueTextController?.dispose();
-  }
+  void dispose() {}
 }

@@ -1,9 +1,10 @@
 import '/backend/schema/enums/enums.dart';
 import '/backend/schema/structs/index.dart';
-import '/bottom_sheets/class_block_bottom_sheet/class_block_bottom_sheet_widget.dart';
+import '/cards/calender_dropdown/calender_dropdown_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/custom_functions.dart' as functions;
+import 'package:aligned_dialog/aligned_dialog.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -59,7 +60,7 @@ class _ClassBlockCalenderWidgetState extends State<ClassBlockCalenderWidget> {
             .calendarItemHeight(widget.classRow!.scheduledStart!,
                 widget.classRow!.scheduledEnd!)
             .toDouble(),
-        150.0,
+        100.0,
       ),
       decoration: BoxDecoration(
         color: valueOrDefault<Color>(
@@ -100,7 +101,7 @@ class _ClassBlockCalenderWidgetState extends State<ClassBlockCalenderWidget> {
                                 .fontStyle,
                           ),
                           color: FlutterFlowTheme.of(context).info,
-                          fontSize: 13.0,
+                          fontSize: 16.0,
                           letterSpacing: 0.0,
                           fontWeight: FontWeight.w600,
                           fontStyle:
@@ -108,42 +109,41 @@ class _ClassBlockCalenderWidgetState extends State<ClassBlockCalenderWidget> {
                         ),
                   ),
                 ),
-                Padding(
-                  padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 4.0, 0.0),
-                  child: InkWell(
-                    splashColor: Colors.transparent,
-                    focusColor: Colors.transparent,
-                    hoverColor: Colors.transparent,
-                    highlightColor: Colors.transparent,
-                    onTap: () async {
-                      logFirebaseEvent(
-                          'CLASS_BLOCK_CALENDER_Icon_vr0baviy_ON_TA');
-                      logFirebaseEvent('Icon_bottom_sheet');
-                      await showModalBottomSheet(
-                        isScrollControlled: true,
-                        backgroundColor: Colors.transparent,
-                        enableDrag: false,
-                        context: context,
-                        builder: (context) {
-                          return Padding(
-                            padding: MediaQuery.viewInsetsOf(context),
-                            child: ClassBlockBottomSheetWidget(
-                              courseBlock: FFAppState()
-                                  .userProfile
-                                  .enrolledCourses
-                                  .where((e) =>
-                                      e.courseId == widget.classRow?.courseId)
-                                  .toList()
-                                  .firstOrNull!,
-                            ),
-                          );
-                        },
-                      ).then((value) => safeSetState(() {}));
-                    },
-                    child: Icon(
-                      Icons.info_sharp,
-                      color: FlutterFlowTheme.of(context).info,
-                      size: 20.0,
+                Builder(
+                  builder: (context) => Padding(
+                    padding: EdgeInsetsDirectional.fromSTEB(0.0, 4.0, 8.0, 0.0),
+                    child: InkWell(
+                      splashColor: Colors.transparent,
+                      focusColor: Colors.transparent,
+                      hoverColor: Colors.transparent,
+                      highlightColor: Colors.transparent,
+                      onTap: () async {
+                        logFirebaseEvent(
+                            'CLASS_BLOCK_CALENDER_Icon_vr0baviy_ON_TA');
+                        logFirebaseEvent('Icon_alert_dialog');
+                        await showAlignedDialog(
+                          context: context,
+                          isGlobal: false,
+                          avoidOverflow: true,
+                          targetAnchor: AlignmentDirectional(-1.0, 1.0)
+                              .resolve(Directionality.of(context)),
+                          followerAnchor: AlignmentDirectional(-1.0, 1.0)
+                              .resolve(Directionality.of(context)),
+                          builder: (dialogContext) {
+                            return Material(
+                              color: Colors.transparent,
+                              child: CalenderDropdownWidget(
+                                classBlock: widget.classRow!,
+                              ),
+                            );
+                          },
+                        );
+                      },
+                      child: Icon(
+                        FFIcons.kchatCenteredDotsBold,
+                        color: FlutterFlowTheme.of(context).info,
+                        size: 26.0,
+                      ),
                     ),
                   ),
                 ),
@@ -213,58 +213,6 @@ class _ClassBlockCalenderWidgetState extends State<ClassBlockCalenderWidget> {
                 ),
               ],
             ),
-            if (valueOrDefault<bool>(
-              functions.calendarItemHeight(widget.classRow!.scheduledStart!,
-                      widget.classRow!.scheduledEnd!) >
-                  80,
-              false,
-            ))
-              Padding(
-                padding: EdgeInsetsDirectional.fromSTEB(0.0, 4.0, 0.0, 0.0),
-                child: Row(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        Icon(
-                          FFIcons.klocationMapPin1,
-                          color: FlutterFlowTheme.of(context).primaryText,
-                          size: 12.0,
-                        ),
-                        Padding(
-                          padding: EdgeInsetsDirectional.fromSTEB(
-                              4.0, 0.0, 0.0, 0.0),
-                          child: Text(
-                            valueOrDefault<String>(
-                              widget.classRow?.venue,
-                              'MED Building',
-                            ),
-                            style: FlutterFlowTheme.of(context)
-                                .bodyMedium
-                                .override(
-                                  font: GoogleFonts.outfit(
-                                    fontWeight: FontWeight.w600,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .bodyMedium
-                                        .fontStyle,
-                                  ),
-                                  color: FlutterFlowTheme.of(context).info,
-                                  fontSize: 12.0,
-                                  letterSpacing: 0.0,
-                                  fontWeight: FontWeight.w600,
-                                  fontStyle: FlutterFlowTheme.of(context)
-                                      .bodyMedium
-                                      .fontStyle,
-                                ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
             Padding(
               padding: EdgeInsetsDirectional.fromSTEB(0.0, 6.0, 0.0, 0.0),
               child: Row(

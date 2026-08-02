@@ -3,9 +3,10 @@ import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
+import '/custom_code/actions/index.dart' as actions;
 import '/index.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'apod_model.dart';
@@ -64,6 +65,15 @@ class _ApodWidgetState extends State<ApodWidget> {
     _model = createModel(context, () => ApodModel());
 
     logFirebaseEvent('screen_view', parameters: {'screen_name': 'APOD'});
+    // On page load action.
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
+      logFirebaseEvent('APOD_PAGE_APOD_ON_INIT_STATE');
+      logFirebaseEvent('APOD_custom_action');
+      _model.apodImage = await actions.convertPathToUploadedFile(
+        FFAppState().apodData.imageUrl,
+      );
+    });
+
     WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
   }
 
@@ -144,38 +154,27 @@ class _ApodWidgetState extends State<ApodWidget> {
                                           PageTransition(
                                             type: PageTransitionType.fade,
                                             child: FlutterFlowExpandedImageView(
-                                              image: CachedNetworkImage(
-                                                fadeInDuration:
-                                                    Duration(milliseconds: 0),
-                                                fadeOutDuration:
-                                                    Duration(milliseconds: 0),
-                                                imageUrl: FFAppState()
-                                                    .apodData
-                                                    .imageUrl,
+                                              image: Image.memory(
+                                                _model.apodImage?.bytes ??
+                                                    Uint8List.fromList([]),
                                                 fit: BoxFit.contain,
                                               ),
                                               allowRotation: false,
-                                              tag: FFAppState()
-                                                  .apodData
-                                                  .imageUrl,
+                                              tag: 'imageTag',
                                               useHeroAnimation: true,
                                             ),
                                           ),
                                         );
                                       },
                                       child: Hero(
-                                        tag: FFAppState().apodData.imageUrl,
+                                        tag: 'imageTag',
                                         transitionOnUserGestures: true,
                                         child: ClipRRect(
                                           borderRadius:
                                               BorderRadius.circular(0.0),
-                                          child: CachedNetworkImage(
-                                            fadeInDuration:
-                                                Duration(milliseconds: 0),
-                                            fadeOutDuration:
-                                                Duration(milliseconds: 0),
-                                            imageUrl:
-                                                FFAppState().apodData.imageUrl,
+                                          child: Image.memory(
+                                            _model.apodImage?.bytes ??
+                                                Uint8List.fromList([]),
                                             width: MediaQuery.sizeOf(context)
                                                     .width *
                                                 1.0,
@@ -306,7 +305,10 @@ class _ApodWidgetState extends State<ApodWidget> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        FFAppState().apodData.apodDate,
+                                        valueOrDefault<String>(
+                                          FFAppState().apodData.apodDate,
+                                          'July 6, 2026',
+                                        ),
                                         style: FlutterFlowTheme.of(context)
                                             .bodyMedium
                                             .override(
@@ -323,7 +325,10 @@ class _ApodWidgetState extends State<ApodWidget> {
                                             ),
                                       ),
                                       Text(
-                                        FFAppState().apodData.title,
+                                        valueOrDefault<String>(
+                                          FFAppState().apodData.title,
+                                          'Centaurus A : The Iconic Starburst Galaxy',
+                                        ),
                                         style: FlutterFlowTheme.of(context)
                                             .headlineLarge
                                             .override(
@@ -343,7 +348,10 @@ class _ApodWidgetState extends State<ApodWidget> {
                                     ].divide(SizedBox(height: 8.0)),
                                   ),
                                   Text(
-                                    FFAppState().apodData.description,
+                                    valueOrDefault<String>(
+                                      FFAppState().apodData.description,
+                                      'This combined view of Centaurus A from NASA’s James Webb Space Telescope pairs observations from the Near-Infrared Camera (NIRCam) and Mid-Infrared Instrument (MIRI). Webb’s infrared vision exposes a warped disk of gas and dust left behind by a collision with another galaxy billions of years ago.What may first appear as a grainy glow is actually a dense field of millions of individually resolved stars. By distinguishing different generations of stars embedded throughout the dusty center, Webb gives astronomers new clues to the galaxy’s history and the processes that continue to shape it.',
+                                    ),
                                     textAlign: TextAlign.start,
                                     style: FlutterFlowTheme.of(context)
                                         .bodyMedium
@@ -361,7 +369,10 @@ class _ApodWidgetState extends State<ApodWidget> {
                                         ),
                                   ),
                                   Text(
-                                    'Courtesy Of: ${FFAppState().apodData.copyright}',
+                                    valueOrDefault<String>(
+                                      FFAppState().apodData.copyright,
+                                      'Image: NASA, ESA, CSA, STScI; Image Processing: Alyssa Pagan (STScI), Joseph DePasquale (STScI), Macarena Garcia Marin (ESA Office at STScI)',
+                                    ),
                                     style: FlutterFlowTheme.of(context)
                                         .bodyMedium
                                         .override(

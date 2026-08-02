@@ -12,15 +12,34 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
+import '/app_constants.dart';
 
 Future<void> optInPushNotifications() async {
   try {
     OneSignal.User.pushSubscription.optIn();
+    final subscriptionId = OneSignal.User.pushSubscription.id;
+    if (subscriptionId != null && subscriptionId.isNotEmpty) {
+      try {
+        await SupaFlow.client.rpc('register_device', params: {
+          'p_subscription_id': subscriptionId,
+          'p_platform':
+              defaultTargetPlatform == TargetPlatform.iOS ? 'ios' : 'android',
+          'p_app_version': FFAppConstants.appVersion,
+        });
+        debugPrint(
+            'Reactivated device $subscriptionId (is_active = true) in Supabase.');
+      } catch (rpcErr) {
+        debugPrint('RPC register_device error: $rpcErr');
+      }
+    }
     debugPrint('Push notifications opted in.');
   } catch (e, stackTrace) {
     debugPrint('OneSignal opt-in failed: $e');
     debugPrintStack(stackTrace: stackTrace);
   }
 }
+// Set your action name, define your arguments and return parameter,
+// and then add the boilerplate code using the `</>` button on the right!
+
 // Set your action name, define your arguments and return parameter,
 // and then add the boilerplate code using the `</>` button on the right!

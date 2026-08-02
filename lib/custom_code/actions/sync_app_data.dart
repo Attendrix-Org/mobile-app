@@ -16,8 +16,8 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 
 // ─────────────────────────────────────────────────────────────────────────
-// Attendrix Industrial Client Synchronization Engine — v9
-// High-performance, fault-tolerant, concurrent state reconciliation + APOD
+// Attendrix Industrial Client Synchronization Engine — v11 (Bulletproof)
+// High-performance, zero-flashing, 100% type-safe state reconciliation + APOD
 // ─────────────────────────────────────────────────────────────────────────
 
 String get _currentAppVersion => FFAppConstants.appVersion;
@@ -42,7 +42,7 @@ class _SyncOutcome {
   final apod = _DatasetState<ApodStruct>();
 }
 
-/// Executes an RPC call with timeout and retries for transient errors.
+/// Executes an RPC call with timeout and exponential backoff retries for transient errors.
 Future<dynamic> _callRpcWithRetry(
   String rpcName, {
   Map<String, dynamic>? params,
@@ -57,18 +57,22 @@ Future<dynamic> _callRpcWithRetry(
           await SupaFlow.client.rpc(rpcName, params: params).timeout(timeout);
       return response;
     } catch (e) {
+      final String errStr = e.toString().toLowerCase();
       final bool isTransient = e is TimeoutException ||
           e is SocketException ||
-          e.toString().contains('SocketException') ||
-          e.toString().contains('TimeoutException') ||
-          e.toString().contains('502') ||
-          e.toString().contains('503') ||
-          e.toString().contains('504');
+          errStr.contains('socketexception') ||
+          errStr.contains('timeoutexception') ||
+          errStr.contains('httpexception') ||
+          errStr.contains('handshakeexception') ||
+          errStr.contains('502') ||
+          errStr.contains('503') ||
+          errStr.contains('504');
 
       if (isTransient && attempts <= maxRetries) {
+        final int delayMs = 300 * (1 << (attempts - 1));
         debugPrint(
-            'syncAppData: transient error on $rpcName (attempt $attempts/$maxRetries). Retrying in ${attempts * 300}ms... Error: $e');
-        await Future.delayed(Duration(milliseconds: attempts * 300));
+            'syncAppData: transient error on $rpcName (attempt $attempts/$maxRetries). Retrying in ${delayMs}ms... Error: $e');
+        await Future.delayed(Duration(milliseconds: delayMs));
         continue;
       }
       rethrow;
@@ -80,8 +84,9 @@ Future<String?> _downloadAndSaveApodImage(String url) async {
   if (url.isEmpty || !url.startsWith('http')) return null;
   try {
     final client = HttpClient();
-    final request = await client.getUrl(Uri.parse(url));
-    final response = await request.close();
+    final request =
+        await client.getUrl(Uri.parse(url)).timeout(const Duration(seconds: 8));
+    final response = await request.close().timeout(const Duration(seconds: 10));
     if (response.statusCode == 200) {
       final bytes = await response
           .fold<List<int>>(<int>[], (acc, element) => acc..addAll(element));
@@ -129,27 +134,53 @@ Future<void> syncAppData(
         localMetaCandidate ?? CacheMetadataStruct();
     final bool firstTimeSync = !_hasInitializedCacheMetadata(localMeta);
 
+    final int nowMs = DateTime.now().millisecondsSinceEpoch;
+
+    // Failsafe Server Meta Fetching: If server metadata call fails (e.g. offline),
+    // fallback to localMeta instead of aborting the sync unrecoverably.
     CacheMetadataStruct serverMeta;
     try {
       final dynamic response =
           await _callRpcWithRetry('get_cache_metadata', maxRetries: 2);
-      if (response is! Map) {
+      if (response is Map) {
+        serverMeta = _parseCacheMetadata(Map<String, dynamic>.from(response));
+      } else {
         debugPrint(
-            'syncAppData: unrecoverable - get_cache_metadata returned non-Map (${response?.runtimeType})');
-        return;
+            'syncAppData: get_cache_metadata returned non-Map (${response?.runtimeType}), using local fallback.');
+        serverMeta = localMeta;
       }
-      serverMeta =
-          _parseCacheMetadata(Map<String, dynamic>.from(response as Map));
     } catch (e) {
-      debugPrint('syncAppData: unrecoverable - get_cache_metadata failed: $e');
-      return;
+      debugPrint(
+          'syncAppData: get_cache_metadata failed: $e. Using local fallback.');
+      serverMeta = localMeta;
     }
 
     final bool fullSync = doForceSync ||
         firstTimeSync ||
         localMeta.appVersion != _currentAppVersion;
 
-    bool isStale(int localTs, int serverTs) => fullSync || localTs < serverTs;
+    // Standard TTL values (in milliseconds)
+    const int profileTtl = 5 * 60 * 1000; // 5 mins
+    const int dashboardTtl = 2 * 60 * 1000; // 2 mins
+    const int calendarTtl = 5 * 60 * 1000; // 5 mins
+    const int missedTtl = 2 * 60 * 1000; // 2 mins
+    const int busTtl = 60 * 60 * 1000; // 60 mins
+    const int messTtl = 60 * 60 * 1000; // 60 mins
+
+    bool isDatasetStale({
+      required bool force,
+      required bool empty,
+      required int? localTs,
+      required int? serverTs,
+      required int ttl,
+    }) {
+      if (force || empty) return true;
+      if (localTs == null || localTs <= 0) return true;
+      if (serverTs != null && serverTs > localTs) return true;
+      if (nowMs - localTs > ttl) return true;
+      return false;
+    }
+
     bool isSameDay(DateTime a, DateTime b) =>
         a.year == b.year && a.month == b.month && a.day == b.day;
 
@@ -157,17 +188,59 @@ Future<void> syncAppData(
         doSyncCalendar && calendarDates != null && calendarDates.isNotEmpty;
 
     final bool staleProfile = doSyncProfile &&
-        isStale(localMeta.profileUpdatedAt, serverMeta.profileUpdatedAt);
+        isDatasetStale(
+          force: fullSync,
+          empty: !FFAppState().userProfile.hasUserId() ||
+              FFAppState().userProfile.userId.isEmpty,
+          localTs: localMeta.profileUpdatedAt,
+          serverTs: serverMeta.profileUpdatedAt,
+          ttl: profileTtl,
+        );
+
     final bool staleDashboard = doSyncDashboard &&
-        (isStale(localMeta.dashboardUpdatedAt, serverMeta.dashboardUpdatedAt) ||
-            FFAppState().dashboardClasses.isEmpty);
-    final bool staleCalendar = wantsCalendar;
+        isDatasetStale(
+          force: fullSync,
+          empty: FFAppState().dashboardClasses.isEmpty,
+          localTs: localMeta.dashboardUpdatedAt,
+          serverTs: serverMeta.dashboardUpdatedAt,
+          ttl: dashboardTtl,
+        );
+
+    final bool staleCalendar = wantsCalendar &&
+        isDatasetStale(
+          force: fullSync,
+          empty: FFAppState().calendarClasses.isEmpty,
+          localTs: localMeta.calendarClassesUpdatedAt,
+          serverTs: serverMeta.calendarClassesUpdatedAt,
+          ttl: calendarTtl,
+        );
+
     final bool staleMissed = doSyncMissedClasses &&
-        isStale(localMeta.absencesUpdatedAt, serverMeta.absencesUpdatedAt);
-    final bool staleBus =
-        doSyncBus && isStale(localMeta.busUpdatedAt, serverMeta.busUpdatedAt);
+        isDatasetStale(
+          force: fullSync,
+          empty: false,
+          localTs: localMeta.absencesUpdatedAt,
+          serverTs: serverMeta.absencesUpdatedAt,
+          ttl: missedTtl,
+        );
+
+    final bool staleBus = doSyncBus &&
+        isDatasetStale(
+          force: fullSync,
+          empty: FFAppState().BusRoutes.isEmpty,
+          localTs: localMeta.busUpdatedAt,
+          serverTs: serverMeta.busUpdatedAt,
+          ttl: busTtl,
+        );
+
     final bool staleMess = doSyncMess &&
-        isStale(localMeta.messUpdatedAt, serverMeta.messUpdatedAt);
+        isDatasetStale(
+          force: fullSync,
+          empty: FFAppState().Messes.isEmpty,
+          localTs: localMeta.messUpdatedAt,
+          serverTs: serverMeta.messUpdatedAt,
+          ttl: messTtl,
+        );
 
     final bool staleApod = fullSync ||
         localMeta.apodLastFetchedAt == null ||
@@ -217,25 +290,25 @@ Future<void> syncAppData(
 
       FFAppState().cacheMetaData = CacheMetadataStruct(
         appVersion: _currentAppVersion,
-        generatedAt: serverMeta.generatedAt,
+        generatedAt: serverMeta.generatedAt ?? nowMs,
         profileUpdatedAt: outcome.profile.fetched
-            ? serverMeta.profileUpdatedAt
-            : localMeta.profileUpdatedAt,
+            ? (serverMeta.profileUpdatedAt ?? nowMs)
+            : (localMeta.profileUpdatedAt ?? nowMs),
         dashboardUpdatedAt: outcome.dashboard.fetched
-            ? serverMeta.dashboardUpdatedAt
-            : localMeta.dashboardUpdatedAt,
+            ? (serverMeta.dashboardUpdatedAt ?? nowMs)
+            : (localMeta.dashboardUpdatedAt ?? nowMs),
         calendarClassesUpdatedAt: outcome.calendar.fetched
-            ? serverMeta.calendarClassesUpdatedAt
-            : localMeta.calendarClassesUpdatedAt,
+            ? (serverMeta.calendarClassesUpdatedAt ?? nowMs)
+            : (localMeta.calendarClassesUpdatedAt ?? nowMs),
         absencesUpdatedAt: outcome.missed.fetched
-            ? serverMeta.absencesUpdatedAt
-            : localMeta.absencesUpdatedAt,
+            ? (serverMeta.absencesUpdatedAt ?? nowMs)
+            : (localMeta.absencesUpdatedAt ?? nowMs),
         busUpdatedAt: outcome.bus.fetched
-            ? serverMeta.busUpdatedAt
-            : localMeta.busUpdatedAt,
+            ? (serverMeta.busUpdatedAt ?? nowMs)
+            : (localMeta.busUpdatedAt ?? nowMs),
         messUpdatedAt: outcome.mess.fetched
-            ? serverMeta.messUpdatedAt
-            : localMeta.messUpdatedAt,
+            ? (serverMeta.messUpdatedAt ?? nowMs)
+            : (localMeta.messUpdatedAt ?? nowMs),
         apodLastFetchedAt:
             outcome.apod.fetched ? DateTime.now() : localMeta.apodLastFetchedAt,
       );
@@ -255,6 +328,9 @@ Future<void> syncAppData(
         'bus=${outcome.bus.fetched} (${outcome.bus.latencyMs}ms) '
         'mess=${outcome.mess.fetched} (${outcome.mess.latencyMs}ms) '
         'apod=${outcome.apod.fetched} (${outcome.apod.latencyMs}ms)');
+  } catch (globalErr, stack) {
+    debugPrint(
+        'syncAppData: global non-fatal exception caught: $globalErr\n$stack');
   } finally {
     _isSyncRunning = false;
   }
@@ -360,22 +436,25 @@ CourseType? _parseCourseType(dynamic val) {
 }
 
 ScheduledClassStruct _parseScheduledClass(Map<String, dynamic> raw) {
+  final now = DateTime.now();
   return ScheduledClassStruct(
-    classId: (raw['classId'] ?? raw['class_id'])?.toString(),
-    courseId: (raw['courseId'] ?? raw['course_id'])?.toString(),
-    courseCode: (raw['courseCode'] ?? raw['course_code'])?.toString(),
-    courseName: (raw['courseName'] ?? raw['course_name'])?.toString(),
-    batchId: (raw['batchId'] ?? raw['batch_id'])?.toString(),
+    classId: (raw['classId'] ?? raw['class_id'])?.toString() ?? '',
+    courseId: (raw['courseId'] ?? raw['course_id'])?.toString() ?? '',
+    courseCode: (raw['courseCode'] ?? raw['course_code'])?.toString() ?? '',
+    courseName: (raw['courseName'] ?? raw['course_name'])?.toString() ?? '',
+    batchId: (raw['batchId'] ?? raw['batch_id'])?.toString() ?? '',
     courseCategory: _parseCourseType(raw['courseCategory'] ??
-        raw['course_category'] ??
-        raw['courseType'] ??
-        raw['course_type']),
+            raw['course_category'] ??
+            raw['courseType'] ??
+            raw['course_type']) ??
+        CourseType.PC,
     scheduledStart:
-        _parseDateTimeValue(raw['scheduledStart'] ?? raw['scheduled_start']),
+        _parseDateTimeValue(raw['scheduledStart'] ?? raw['scheduled_start']) ??
+            now,
     scheduledEnd:
-        _parseDateTimeValue(raw['scheduledEnd'] ?? raw['scheduled_end']),
-    venue: (raw['venue'])?.toString(),
-    labGroup: (raw['labGroup'] ?? raw['lab_group'])?.toString(),
+        _parseDateTimeValue(raw['scheduledEnd'] ?? raw['scheduled_end']) ?? now,
+    venue: (raw['venue'])?.toString() ?? '',
+    labGroup: (raw['labGroup'] ?? raw['lab_group'])?.toString() ?? '',
     isPlusSlot: raw['isPlusSlot'] == true ||
         raw['is_plus_slot'] == true ||
         raw['isPlusSlot'] == 'true',
@@ -390,64 +469,132 @@ ScheduledClassStruct _parseScheduledClass(Map<String, dynamic> raw) {
 }
 
 UserProfileStruct _parseUserProfile(Map<String, dynamic> raw) {
+  final now = DateTime.now();
   return UserProfileStruct(
-    userId: (raw['userId'] ?? raw['user_id'])?.toString(),
-    username: (raw['username'])?.toString(),
-    email: (raw['email'])?.toString(),
-    role: (raw['role'])?.toString(),
-    departmentId: (raw['departmentId'] ?? raw['department_id'])?.toString(),
-    batchId: (raw['batchId'] ?? raw['batch_id'])?.toString(),
-    currentSemester: _readInt(raw, 'currentSemester', 'current_semester'),
+    userId: (raw['userId'] ?? raw['user_id'])?.toString() ?? '',
+    username: (raw['username'])?.toString() ?? '',
+    email: (raw['email'])?.toString() ?? '',
+    role: (raw['role'])?.toString() ?? '',
+    departmentId:
+        (raw['departmentId'] ?? raw['department_id'])?.toString() ?? '',
+    batchId: (raw['batchId'] ?? raw['batch_id'])?.toString() ?? '',
+    currentSemester: _readInt(raw, 'currentSemester', 'current_semester') ?? 1,
     enrolledCourses: (raw['enrolledCourses'] ?? raw['enrolled_courses']) is List
         ? ((raw['enrolledCourses'] ?? raw['enrolled_courses']) as List)
             .map((e) {
             if (e is Map) {
-              return EnrolledCourseStruct.fromMap(
-                  Map<String, dynamic>.from(e as Map));
+              final map = Map<String, dynamic>.from(e as Map);
+              return EnrolledCourseStruct(
+                courseId:
+                    (map['courseId'] ?? map['course_id'])?.toString() ?? '',
+                courseCode:
+                    (map['courseCode'] ?? map['course_code'])?.toString() ?? '',
+                courseName:
+                    (map['courseName'] ?? map['course_name'])?.toString() ?? '',
+                courseType:
+                    (map['courseType'] ?? map['course_type'])?.toString() ?? '',
+                slot: (map['slot'])?.toString() ?? '',
+                credits: _readInt(map, 'credits', 'credits') ?? 0,
+                isLab: map['isLab'] == true || map['is_lab'] == true,
+                isElective:
+                    map['isElective'] == true || map['is_elective'] == true,
+                electiveCategory:
+                    (map['electiveCategory'] ?? map['elective_category'])
+                            ?.toString() ??
+                        '',
+                attendance: map['attendance'] is Map
+                    ? AttendanceStruct(
+                        attended: _readInt(
+                                Map<String, dynamic>.from(
+                                    map['attendance'] as Map),
+                                'attended',
+                                'attended') ??
+                            0,
+                        missed: _readInt(
+                                Map<String, dynamic>.from(
+                                    map['attendance'] as Map),
+                                'missed',
+                                'missed') ??
+                            0,
+                        percentage: (Map<String, dynamic>.from(
+                                        map['attendance'] as Map)['percentage']
+                                    as num?)
+                                ?.toDouble() ??
+                            0.0,
+                        required: _readInt(
+                                Map<String, dynamic>.from(
+                                    map['attendance'] as Map),
+                                'required',
+                                'required') ??
+                            80,
+                      )
+                    : AttendanceStruct(),
+              );
             } else if (e is String) {
               return EnrolledCourseStruct(
                   courseId: e.toString(), courseCode: e.toString());
             }
             return EnrolledCourseStruct();
           }).toList()
-        : null,
-    amplixBalance: _readInt(raw, 'amplixBalance', 'amplix_balance'),
+        : <EnrolledCourseStruct>[],
+    amplixBalance: _readInt(raw, 'amplixBalance', 'amplix_balance') ?? 0,
     profileUpdatedAt: _parseDateTimeValue(
-        raw['profileUpdatedAt'] ?? raw['profile_updated_at']),
+            raw['profileUpdatedAt'] ?? raw['profile_updated_at']) ??
+        now,
     onboardingComplete: raw['onboardingComplete'] == true ||
         raw['onboarding_complete'] == true ||
         raw['onboarding_completed'] == true,
-    odometer: _readInt(raw, 'odometer', 'streak'),
+    odometer: _readInt(raw, 'odometer', 'streak') ?? 0,
   );
 }
 
 BusRouteStruct _parseBusRoute(Map<String, dynamic> raw) {
   return BusRouteStruct(
-    busId: (raw['busId'] ?? raw['bus_id'])?.toString(),
-    routeName: (raw['routeName'] ?? raw['route_name'])?.toString(),
-    stopsSummary: (raw['stopsSummary'] ?? raw['stops_summary'])?.toString(),
+    busId: (raw['busId'] ?? raw['bus_id'])?.toString() ?? '',
+    routeName: (raw['routeName'] ?? raw['route_name'])?.toString() ?? '',
+    stopsSummary:
+        (raw['stopsSummary'] ?? raw['stops_summary'])?.toString() ?? '',
     isActive: raw['isActive'] == true ||
         raw['is_active'] == true ||
         raw['isActive'] == 'true',
     timings: raw['timings'] is List
-        ? (raw['timings'] as List)
-            .map((e) =>
-                BusTimingStruct.fromMap(Map<String, dynamic>.from(e as Map)))
-            .toList()
-        : null,
+        ? (raw['timings'] as List).map((e) {
+            if (e is Map) {
+              final map = Map<String, dynamic>.from(e as Map);
+              return BusTimingStruct(
+                timingId:
+                    (map['timingId'] ?? map['timing_id'])?.toString() ?? '',
+                departureTime: (map['departureTime'] ?? map['departure_time'])
+                        ?.toString() ??
+                    '',
+                isSpecial:
+                    map['isSpecial'] == true || map['is_special'] == true,
+                sortOrder: _readInt(map, 'sortOrder', 'sort_order') ?? 0,
+              );
+            }
+            return BusTimingStruct();
+          }).toList()
+        : <BusTimingStruct>[],
   );
 }
 
 MessStruct _parseMess(Map<String, dynamic> raw) {
   return MessStruct(
-    messId: (raw['messId'] ?? raw['mess_id'])?.toString(),
-    name: (raw['name'])?.toString(),
+    messId: (raw['messId'] ?? raw['mess_id'])?.toString() ?? '',
+    name: (raw['name'])?.toString() ?? '',
     menu: raw['menu'] is List
-        ? (raw['menu'] as List)
-            .map((e) =>
-                MessMenuStruct.fromMap(Map<String, dynamic>.from(e as Map)))
-            .toList()
-        : null,
+        ? (raw['menu'] as List).map((e) {
+            if (e is Map) {
+              final map = Map<String, dynamic>.from(e as Map);
+              return MessMenuStruct(
+                weekday: _readInt(map, 'weekday', 'weekday') ?? 0,
+                meal: (map['meal'])?.toString() ?? '',
+                menu: (map['menu'])?.toString() ?? '',
+              );
+            }
+            return MessMenuStruct();
+          }).toList()
+        : <MessMenuStruct>[],
   );
 }
 

@@ -13,3 +13,5 @@ export '/custom_code/functions/get_empty_state_message.dart';
 export '/custom_code/functions/map_core_courses.dart';
 export '/custom_code/functions/subtract_duration.dart';
 export '/custom_code/functions/map_lat_lng.dart';
+export '/custom_code/functions/generate_walk_message.dart';
+export '/custom_code/functions/relative_time.dart';

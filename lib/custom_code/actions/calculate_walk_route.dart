@@ -12,336 +12,153 @@ import 'package:flutter/material.dart';
 
 import 'dart:developer' as developer;
 import 'dart:math';
-import 'package:http/http.dart' as http;
-import 'dart:async';
 
-const Duration _orsTimeout = Duration(seconds: 12);
-const double _fallbackWalkSpeedMps = 1.30;
-const double _campusDetourFactor = 1.18;
-const double _zeroDistanceThresholdM = 15.0;
-const Duration _cacheTtl = Duration(days: 90);
-
+/// Custom Action: Direct Supabase RPC Graph Walk Routing using LatLng.
+///
+/// Calls the Supabase RPC `get_shortest_walk_route` directly.
+/// Computes shortest path over NIT Calicut graph database in Postgres using pgRouting.
 Future<RouteResultStruct> calculateWalkRoute(
   LatLng origin,
   LatLng destination,
   bool includeGeometry,
   DateTime? targetArrivalTime,
-  String orsApiKey,
-  String?
-      destinationBuildingId, // pass the building's id when known — required for cache to engage
 ) async {
-  if (!_isValidCoordinate(origin) || !_isValidCoordinate(destination)) {
-    developer.log('Invalid coordinates provided to calculateWalkRoute',
-        name: 'Navigation');
-    return _buildResult(
-      distanceMeters: 0,
-      durationSeconds: 0,
-      polyline: [],
-      confidence: 'none',
-      targetArrivalTime: targetArrivalTime,
+  final double originLat = origin.latitude;
+  final double originLng = origin.longitude;
+  final double destLat = destination.latitude;
+  final double destLng = destination.longitude;
+
+  if (!_isValidCoordinate(originLat, originLng) ||
+      !_isValidCoordinate(destLat, destLng)) {
+    return _buildEmptyResult(confidence: 'none');
+  }
+
+  if (_haversineMeters(originLat, originLng, destLat, destLng) < 15.0) {
+    return _buildEmptyResult(confidence: 'exact');
+  }
+
+  try {
+    final dynamic response = await SupaFlow.client.rpc(
+      'get_shortest_walk_route',
+      params: {
+        'p_origin_lat': originLat,
+        'p_origin_lng': originLng,
+        'p_dest_lat': destLat,
+        'p_dest_lng': destLng,
+        'p_class_start_time': targetArrivalTime?.toUtc().toIso8601String(),
+      },
     );
-  }
 
-  final rawHaversineMeters = _haversineMeters(origin, destination);
-  if (rawHaversineMeters < _zeroDistanceThresholdM) {
-    return _buildResult(
-      distanceMeters: 0.0,
-      durationSeconds: 0,
-      polyline: [],
-      confidence: 'exact',
-      targetArrivalTime: targetArrivalTime,
-    );
-  }
-
-  // Cache path — only for time-only requests (dashboard/timetable), never for the drawn map route.
-  if (!includeGeometry && destinationBuildingId != null) {
-    final originBuildingId = await _nearestBuildingId(origin);
-    if (originBuildingId != null) {
-      final cached = await _readCache(originBuildingId, destinationBuildingId);
-      if (cached != null) {
-        return _buildResult(
-          distanceMeters: cached['distance_meters'] as double,
-          durationSeconds: cached['duration_seconds'] as int,
-          polyline: [],
-          confidence: cached['confidence'] as String,
-          targetArrivalTime: targetArrivalTime,
-        );
-      }
+    if (response == null) {
+      return _localHaversineFallback(
+          originLat, originLng, destLat, destLng, targetArrivalTime);
     }
 
-    final result =
-        await _callOrsAndFallback(origin, destination, false, orsApiKey);
+    final Map<String, dynamic> data = response is String
+        ? jsonDecode(response) as Map<String, dynamic>
+        : Map<String, dynamic>.from(response as Map);
 
-    if (originBuildingId != null && result['confidence'] != 'none') {
-      unawaited(_writeCache(
-        originBuildingId,
-        destinationBuildingId,
-        result['distanceMeters'] as double,
-        result['durationSeconds'] as int,
-        result['confidence'] as String,
-      ));
+    if (data.containsKey('error')) {
+      return _localHaversineFallback(
+          originLat, originLng, destLat, destLng, targetArrivalTime);
     }
 
-    return _buildResult(
-      distanceMeters: result['distanceMeters'] as double,
-      durationSeconds: result['durationSeconds'] as int,
-      polyline: const [],
-      confidence: result['confidence'] as String,
-      targetArrivalTime: targetArrivalTime,
-    );
-  }
-
-  // Map/navigate path — always live, always exact origin.
-  final result = await _callOrsAndFallback(
-      origin, destination, includeGeometry, orsApiKey);
-  return _buildResult(
-    distanceMeters: result['distanceMeters'] as double,
-    durationSeconds: result['durationSeconds'] as int,
-    polyline: (result['polyline'] as List<LatLng>?) ?? const [],
-    confidence: result['confidence'] as String,
-    targetArrivalTime: targetArrivalTime,
-  );
-}
-
-Future<Map<String, dynamic>> _callOrsAndFallback(
-  LatLng origin,
-  LatLng destination,
-  bool includeGeometry,
-  String orsApiKey,
-) async {
-  final uri = Uri.parse(
-      'https://api.openrouteservice.org/v2/directions/foot-walking/geojson');
-  try {
-    final response = await http
-        .post(
-          uri,
-          headers: {
-            'Authorization': orsApiKey,
-            'Content-Type': 'application/json; charset=utf-8'
-          },
-          body: jsonEncode({
-            'coordinates': [
-              [origin.longitude, origin.latitude], // ORS expects [lon, lat]
-              [destination.longitude, destination.latitude]
-            ],
-            'geometry': includeGeometry,
-            'instructions': false,
-            'elevation': false,
-          }),
-        )
-        .timeout(_orsTimeout);
-
-    if (response.statusCode != 200) {
-      _logResponseError(response.statusCode);
-      return _fallbackData(origin, destination, 'approximate');
-    }
-
-    final data = jsonDecode(response.body);
-    final feature = data['features'][0];
-    final summary = feature['properties']['summary'];
-    final distanceMeters = (summary['distance'] as num).toDouble();
-    final durationSeconds = (summary['duration'] as num).round();
-
-    List<LatLng>? points;
-    if (includeGeometry && feature['geometry'] != null) {
-      final coords = feature['geometry']['coordinates'] as List;
-      points = coords
-          .map<LatLng>(
-              (c) => LatLng((c[1] as num).toDouble(), (c[0] as num).toDouble()))
-          .toList();
-    }
-
-    return {
-      'distanceMeters': distanceMeters,
-      'durationSeconds': durationSeconds,
-      'polyline': points,
-      'confidence': 'exact',
-    };
+    return RouteResultStruct.fromMap(data);
   } catch (e) {
-    developer.log('ORS request exception: $e', name: 'Navigation');
-    return _fallbackData(origin, destination, 'approximate');
+    developer.log('calculateWalkRoute RPC exception: $e', name: 'Navigation');
+    return _localHaversineFallback(
+        originLat, originLng, destLat, destLng, targetArrivalTime);
   }
 }
 
-Map<String, dynamic> _fallbackData(
-  LatLng origin,
-  LatLng destination,
-  String confidence,
-) {
-  final straightLineMeters = _haversineMeters(origin, destination);
-  final estimatedMeters = straightLineMeters * _campusDetourFactor;
-  final durationSeconds = (estimatedMeters / _fallbackWalkSpeedMps).round();
-  return {
-    'distanceMeters': estimatedMeters,
-    'durationSeconds': durationSeconds,
-    'polyline': null,
-    'confidence': confidence,
-  };
-}
-
-Future<String?> _nearestBuildingId(LatLng point) async {
-  try {
-    final rows =
-        await SupaFlow.client.from('campus_buildings').select('id, lat, lon');
-    String? bestId;
-    double bestDist = double.infinity;
-    for (final row in rows as List) {
-      final d = _haversineMeters(
-        point,
-        LatLng((row['lat'] as num).toDouble(), (row['lon'] as num).toDouble()),
-      );
-      if (d < bestDist) {
-        bestDist = d;
-        bestId = row['id'] as String;
-      }
-    }
-    return bestId;
-  } catch (e) {
-    developer.log('Nearest-building lookup failed: $e', name: 'Navigation');
-    return null; // caller falls through to a live ORS call, uncached — safe degradation
-  }
-}
-
-Future<Map<String, dynamic>?> _readCache(String originId, String destId) async {
-  try {
-    final rows = await SupaFlow.client
-        .from('route_cache')
-        .select('distance_meters, duration_seconds, confidence, computed_at')
-        .eq('origin_building_id', originId)
-        .eq('destination_building_id', destId)
-        .limit(1);
-    if (rows is List && rows.isNotEmpty) {
-      final row = rows.first;
-      final computedAt = DateTime.parse(row['computed_at'] as String);
-      if (DateTime.now().difference(computedAt) < _cacheTtl) {
-        return row as Map<String, dynamic>;
-      }
-    }
-  } catch (e) {
-    developer.log('Cache read failed: $e', name: 'Navigation');
-  }
-  return null;
-}
-
-Future<void> _writeCache(
-  String originId,
-  String destId,
-  double distanceMeters,
-  int durationSeconds,
-  String confidence,
-) async {
-  try {
-    await SupaFlow.client.from('route_cache').upsert({
-      'origin_building_id': originId,
-      'destination_building_id': destId,
-      'distance_meters': distanceMeters,
-      'duration_seconds': durationSeconds,
-      'confidence': confidence,
-      'computed_at': DateTime.now().toIso8601String(),
-    });
-  } catch (e) {
-    developer.log('Cache write failed: $e', name: 'Navigation');
-  }
-}
-
-RouteResultStruct _buildResult({
-  required double distanceMeters,
-  required int durationSeconds,
-  required List<LatLng> polyline,
-  required String confidence,
+RouteResultStruct _localHaversineFallback(
+  double oLat,
+  double oLng,
+  double dLat,
+  double dLng,
   DateTime? targetArrivalTime,
-}) {
-  final int walkMinutes =
+) {
+  final estimatedMeters = _haversineMeters(oLat, oLng, dLat, dLng) * 1.18;
+  final durationSeconds = (estimatedMeters / 1.30).round();
+  final walkMinutes =
       durationSeconds == 0 ? 0 : max(1, (durationSeconds / 60.0).ceil());
+
   int leaveInMinutes = 0;
   bool isLeaveNow = false;
   bool isLate = false;
-  String statusMsg = '';
+  String statusMsg = '$walkMinutes ${walkMinutes == 1 ? 'min' : 'mins'} walk';
 
   if (targetArrivalTime != null) {
-    final now = DateTime.now();
-    final requiredDeparture =
-        targetArrivalTime.subtract(Duration(seconds: durationSeconds));
-    final diffSeconds = requiredDeparture.difference(now).inSeconds;
+    final diffSeconds = targetArrivalTime
+        .subtract(Duration(seconds: durationSeconds))
+        .difference(DateTime.now())
+        .inSeconds;
     leaveInMinutes = (diffSeconds / 60.0).round();
     if (diffSeconds < -60) {
       isLate = true;
       final lateMins = (diffSeconds.abs() / 60.0).round();
-      statusMsg = 'Running $lateMins ${_pluralize('min', lateMins)} late';
+      statusMsg = 'Running $lateMins ${lateMins == 1 ? 'min' : 'mins'} late';
     } else if (diffSeconds <= 120) {
       isLeaveNow = true;
       statusMsg = 'Leave now';
     } else {
       statusMsg =
-          'Leave in $leaveInMinutes ${_pluralize('min', leaveInMinutes)}';
+          'Leave in $leaveInMinutes ${leaveInMinutes == 1 ? 'min' : 'mins'}';
     }
-  } else {
-    statusMsg = '$walkMinutes ${_pluralize('min', walkMinutes)} walk';
   }
 
   return RouteResultStruct(
-    distanceMeters: distanceMeters,
-    formattedDistance: _formatDistance(distanceMeters),
+    distanceMeters: estimatedMeters,
+    formattedDistance: estimatedMeters < 1000
+        ? '${(estimatedMeters / 10).round() * 10} m'
+        : '${(estimatedMeters / 1000.0).toStringAsFixed(1)} km',
     durationSeconds: durationSeconds,
+    formattedDuration: '$walkMinutes ${walkMinutes == 1 ? 'min' : 'mins'}',
     walkMinutes: walkMinutes,
     leaveInMinutes: leaveInMinutes,
     isLeaveNow: isLeaveNow,
     isLate: isLate,
     statusMessage: statusMsg,
-    polyline: polyline,
+    polyline: const [],
+    confidence: 'approximate',
+  );
+}
+
+RouteResultStruct _buildEmptyResult({required String confidence}) {
+  return RouteResultStruct(
+    distanceMeters: 0,
+    formattedDistance: '',
+    durationSeconds: 0,
+    formattedDuration: '',
+    walkMinutes: 0,
+    leaveInMinutes: 0,
+    isLeaveNow: false,
+    isLate: false,
+    statusMessage: '',
+    polyline: const [],
     confidence: confidence,
   );
 }
 
-bool _isValidCoordinate(LatLng point) =>
-    !point.latitude.isNaN &&
-    !point.longitude.isNaN &&
-    point.latitude >= -90.0 &&
-    point.latitude <= 90.0 &&
-    point.longitude >= -180.0 &&
-    point.longitude <= 180.0;
+bool _isValidCoordinate(double lat, double lng) =>
+    !lat.isNaN &&
+    !lng.isNaN &&
+    lat >= -90.0 &&
+    lat <= 90.0 &&
+    lng >= -180.0 &&
+    lng <= 180.0;
 
-String _formatDistance(double meters) {
-  if (meters < 1000) {
-    final rounded10 = (meters / 10).round() * 10;
-    return '$rounded10 m';
-  }
-  return '${(meters / 1000.0).toStringAsFixed(1)} km';
-}
-
-String _pluralize(String word, int count) => count == 1 ? word : '${word}s';
-
-double _haversineMeters(LatLng a, LatLng b) {
+double _haversineMeters(double lat1, double lon1, double lat2, double lon2) {
   const R = 6371000.0;
-  final dLat = _deg2rad(b.latitude - a.latitude);
-  final dLon = _deg2rad(b.longitude - a.longitude);
-  final lat1 = _deg2rad(a.latitude);
-  final lat2 = _deg2rad(b.latitude);
-  final h = (sin(dLat / 2) * sin(dLat / 2)) +
-      cos(lat1) * cos(lat2) * (sin(dLon / 2) * sin(dLon / 2));
-  final c = 2 * atan2(sqrt(h), sqrt(1 - h));
-  return R * c;
+  final dLat = (lat2 - lat1) * (pi / 180.0);
+  final dLon = (lon2 - lon1) * (pi / 180.0);
+  final a = sin(dLat / 2) * sin(dLat / 2) +
+      cos(lat1 * pi / 180.0) *
+          cos(lat2 * pi / 180.0) *
+          sin(dLon / 2) *
+          sin(dLon / 2);
+  return R * 2 * atan2(sqrt(a), sqrt(1 - a));
 }
 
-double _deg2rad(double deg) => deg * (pi / 180.0);
-
-void _logResponseError(int code) {
-  switch (code) {
-    case 400:
-      developer.log(
-          'ORS 400: Invalid routing payload or unroutable coordinates',
-          name: 'Navigation');
-      break;
-    case 401:
-    case 403:
-      developer.log('ORS $code: Unauthorized API key', name: 'Navigation');
-      break;
-    case 429:
-      developer.log('ORS 429: Rate limit reached', name: 'Navigation');
-      break;
-    default:
-      developer.log('ORS $code: Server error', name: 'Navigation');
-  }
-}
 // Set your action name, define your arguments and return parameter,
 // and then add the boilerplate code using the `</>` button on the right!

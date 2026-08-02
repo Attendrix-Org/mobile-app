@@ -7,7 +7,7 @@ class MarkAbsentDialogModel extends FlutterFlowModel<MarkAbsentDialogWidget> {
   ///  State fields for stateful widgets in this component.
 
   // Stores action output result for [Custom Action - markAbsent] action in Button widget.
-  MarkAbsentResponseStruct? markAbsentResponse;
+  MarkAbsentResponseStruct? markAbsentfeedback;
 
   @override
   void initState(BuildContext context) {}
