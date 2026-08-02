@@ -1,0 +1,212 @@
+name: Release APK
+
+on: [push, workflow_dispatch]
+
+concurrency: release-main
+
+jobs:
+  check-version:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    outputs:
+      version: ${{ steps.extract.outputs.version }}
+      tag: ${{ steps.extract.outputs.tag }}
+      should_release: ${{ steps.compare.outputs.should_release }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract version from pubspec.yaml
+        id: extract
+        run: |
+          VERSION=$(grep '^version:' pubspec.yaml | head -n1 | awk '{print $2}')
+          if [ -z "$VERSION" ]; then
+            echo "::error::Could not extract version from pubspec.yaml"
+            exit 1
+          fi
+          TAG="v${VERSION//+/-}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Skip if this version was already released
+        id: compare
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.extract.outputs.tag }}
+        run: |
+          RELEASE_EXISTS="false"
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            RELEASE_EXISTS="true"
+          fi
+
+          if [ "$RELEASE_EXISTS" = "true" ]; then
+            echo "::notice::Version $TAG was already released. Skipping build."
+            echo "should_release=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::Version $TAG has not been released yet. Proceeding with release build."
+            echo "should_release=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  build-and-release:
+    needs: check-version
+    if: needs.check-version.outputs.should_release == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.38.6'
+          channel: stable
+          cache: true
+
+      - name: Log environment metadata
+        run: |
+          echo "=== Environment Info ==="
+          flutter --version
+          java -version
+
+      - name: Validate signing secrets
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          if [ -z "$ANDROID_KEYSTORE_BASE64" ]; then
+            echo "::error::ANDROID_KEYSTORE_BASE64 secret is missing."
+            exit 1
+          fi
+          if [ -z "$KEYSTORE_PASSWORD" ]; then
+            echo "::error::KEYSTORE_PASSWORD secret is missing."
+            exit 1
+          fi
+          if [ -z "$KEY_ALIAS" ]; then
+            echo "::error::KEY_ALIAS secret is missing."
+            exit 1
+          fi
+          if [ -z "$KEY_PASSWORD" ]; then
+            echo "::error::KEY_PASSWORD secret is missing."
+            exit 1
+          fi
+
+      - name: Restore release keystore and key.properties
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > android/release.keystore
+          chmod 600 android/release.keystore
+
+          keytool -list -keystore android/release.keystore -storepass "$KEYSTORE_PASSWORD" -alias "$KEY_ALIAS" > /dev/null || {
+            echo "::error::Key alias '$KEY_ALIAS' not found in release.keystore or password mismatch."
+            exit 1
+          }
+
+          {
+            printf 'storePassword=%s\n' "$KEYSTORE_PASSWORD"
+            printf 'keyPassword=%s\n' "$KEY_PASSWORD"
+            printf 'keyAlias=%s\n' "$KEY_ALIAS"
+            printf 'storeFile=%s\n' "release.keystore"
+          } > android/key.properties
+          chmod 600 android/key.properties
+
+      - run: flutter pub get
+
+      - name: Build release APK
+        run: |
+          flutter build apk --release \
+            --split-debug-info=build/debug-info \
+            --obfuscate
+
+            - name: Verify signature and generate checksum
+        env:
+          EXPECTED_CERT_SHA256: ${{ secrets.EXPECTED_CERT_SHA256 }}
+        run: |
+          APK_PATH="build/app/outputs/flutter-apk/app-release.apk"
+          if [ ! -f "$APK_PATH" ]; then
+            echo "::error::Release APK not found at $APK_PATH"
+            exit 1
+          fi
+
+          SDK_ROOT="${ANDROID_SDK_ROOT:-$ANDROID_HOME}"
+          APKSIGNER=$(find "$SDK_ROOT/build-tools" -type f -name apksigner | sort -V | tail -n 1)
+
+          if [ -z "$APKSIGNER" ] || [ ! -x "$APKSIGNER" ]; then
+            echo "::error::apksigner tool not found in $SDK_ROOT/build-tools"
+            exit 1
+          fi
+
+          echo "Verifying APK signature using apksigner ($APKSIGNER)..."
+          "$APKSIGNER" verify --verbose --print-certs "$APK_PATH"
+
+          if [ -n "$EXPECTED_CERT_SHA256" ]; then
+            echo "Verifying signer certificate fingerprint against EXPECTED_CERT_SHA256..."
+
+            ACTUAL_SHA256=$(
+              "$APKSIGNER" verify --print-certs "$APK_PATH" \
+              | sed -n 's/.*certificate SHA-256 digest: //p' \
+              | head -n1
+            )
+
+            if [ -z "$ACTUAL_SHA256" ]; then
+              echo "::error::Failed to extract signer certificate SHA-256 fingerprint."
+              exit 1
+            fi
+
+            CLEAN_ACTUAL=$(echo "$ACTUAL_SHA256" | tr -d ':' | tr '[:lower:]' '[:upper:]')
+            CLEAN_EXPECTED=$(echo "$EXPECTED_CERT_SHA256" | tr -d ':' | tr '[:lower:]' '[:upper:]')
+
+            if [ "$CLEAN_ACTUAL" != "$CLEAN_EXPECTED" ]; then
+              echo "::error::Signer SHA-256 fingerprint mismatch."
+              echo "::error::Expected: $CLEAN_EXPECTED"
+              echo "::error::Actual:   $CLEAN_ACTUAL"
+              exit 1
+            fi
+
+            echo "✓ Certificate SHA-256 fingerprint verified."
+          fi
+
+          sha256sum "$APK_PATH" > "${APK_PATH}.sha256"
+
+      - name: Zip debug symbols
+        run: cd build && zip -r debug-info.zip debug-info
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ needs.check-version.outputs.tag }}
+          name: Attendrix ${{ needs.check-version.outputs.version }}
+          generate_release_notes: true
+          files: |
+            build/app/outputs/flutter-apk/app-release.apk
+            build/app/outputs/flutter-apk/app-release.apk.sha256
+            build/debug-info.zip
+
+      - name: Clean up signing credentials
+        if: always()
+        run: |
+          if command -v shred >/dev/null 2>&1; then
+            shred -u android/release.keystore 2>/dev/null || rm -f android/release.keystore
+          else
+            rm -f android/release.keystore
+          fi
+          rm -f android/key.properties
