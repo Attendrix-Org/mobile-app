@@ -37,6 +37,8 @@ class SettingsModel extends FlutterFlowModel<SettingsWidget> {
       choiceChipsValueController2?.value = val != null ? [val] : [];
   // State field(s) for CountController widget.
   int? countControllerValue;
+  // Stores action output result for [Custom Action - syncNowGoogleCalendar] action in Row widget.
+  bool? syncStatus;
 
   @override
   void initState(BuildContext context) {}

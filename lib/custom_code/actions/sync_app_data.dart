@@ -13,11 +13,10 @@ import 'package:flutter/material.dart';
 import '/custom_code/actions/update_android_widget_from_app_state.dart';
 import 'dart:async';
 import 'dart:io';
-import 'package:path_provider/path_provider.dart';
 
 // ─────────────────────────────────────────────────────────────────────────
-// Attendrix Industrial Client Synchronization Engine — v11 (Bulletproof)
-// High-performance, zero-flashing, 100% type-safe state reconciliation + APOD
+// Attendrix Industrial Client Synchronization Engine — v12 (Complete UserPreferences Sync)
+// High-performance, zero-flashing, 100% type-safe state reconciliation + APOD & UserPreferences
 // ─────────────────────────────────────────────────────────────────────────
 
 String get _currentAppVersion => FFAppConstants.appVersion;
@@ -34,6 +33,7 @@ class _DatasetState<T> {
 
 class _SyncOutcome {
   final profile = _DatasetState<UserProfileStruct>();
+  final userPreferences = _DatasetState<UserPreferencesStruct>();
   final dashboard = _DatasetState<List<ScheduledClassStruct>>();
   final calendar = _DatasetState<List<ScheduledClassStruct>>();
   final missed = _DatasetState<List<ScheduledClassStruct>>();
@@ -78,27 +78,6 @@ Future<dynamic> _callRpcWithRetry(
       rethrow;
     }
   }
-}
-
-Future<String?> _downloadAndSaveApodImage(String url) async {
-  if (url.isEmpty || !url.startsWith('http')) return null;
-  try {
-    final client = HttpClient();
-    final request =
-        await client.getUrl(Uri.parse(url)).timeout(const Duration(seconds: 8));
-    final response = await request.close().timeout(const Duration(seconds: 10));
-    if (response.statusCode == 200) {
-      final bytes = await response
-          .fold<List<int>>(<int>[], (acc, element) => acc..addAll(element));
-      final dir = await getApplicationDocumentsDirectory();
-      final file = File('${dir.path}/apod_latest.jpg');
-      await file.writeAsBytes(bytes);
-      return file.path;
-    }
-  } catch (e) {
-    debugPrint('syncAppData: failed to download APOD image - $e');
-  }
-  return null;
 }
 
 Future<void> syncAppData(
@@ -160,12 +139,12 @@ Future<void> syncAppData(
         localMeta.appVersion != _currentAppVersion;
 
     // Standard TTL values (in milliseconds)
-    const int profileTtl = 5 * 60 * 1000; // 5 mins
-    const int dashboardTtl = 2 * 60 * 1000; // 2 mins
-    const int calendarTtl = 5 * 60 * 1000; // 5 mins
-    const int missedTtl = 2 * 60 * 1000; // 2 mins
-    const int busTtl = 60 * 60 * 1000; // 60 mins
-    const int messTtl = 60 * 60 * 1000; // 60 mins
+    const int profileTtl = 2 * 60 * 60 * 1000; // 3 hrs
+    const int dashboardTtl = 30 * 60 * 1000; // 30 mins
+    const int calendarTtl = 60 * 60 * 1000; // 60 mins
+    const int missedTtl = 3 * 60 * 60 * 1000; // 3 hrs
+    const int busTtl = 15 * 24 * 60 * 60 * 1000; // 15 days
+    const int messTtl = 15 * 24 * 60 * 60 * 1000; // 15 days
 
     bool isDatasetStale({
       required bool force,
@@ -253,6 +232,7 @@ Future<void> syncAppData(
     final List<Future<void>> pending = [];
 
     if (staleProfile) pending.add(_fetchProfile(outcome));
+    pending.add(_syncUserPreferences(outcome, localMeta, serverMeta));
     if (staleDashboard) pending.add(_fetchDashboard(outcome));
     if (staleCalendar) pending.add(_fetchCalendar(outcome, calendarDates!));
     if (staleMissed) pending.add(_fetchMissed(outcome));
@@ -268,6 +248,10 @@ Future<void> syncAppData(
     FFAppState().update(() {
       if (outcome.profile.fetched && outcome.profile.data != null) {
         FFAppState().userProfile = outcome.profile.data!;
+      }
+      if (outcome.userPreferences.fetched &&
+          outcome.userPreferences.data != null) {
+        FFAppState().userPreferences = outcome.userPreferences.data!;
       }
       if (outcome.dashboard.fetched && outcome.dashboard.data != null) {
         FFAppState().dashboardClasses = outcome.dashboard.data!;
@@ -294,6 +278,9 @@ Future<void> syncAppData(
         profileUpdatedAt: outcome.profile.fetched
             ? (serverMeta.profileUpdatedAt ?? nowMs)
             : (localMeta.profileUpdatedAt ?? nowMs),
+        userPreferencesUpdatedAt: outcome.userPreferences.fetched
+            ? (serverMeta.userPreferencesUpdatedAt ?? nowMs)
+            : (localMeta.userPreferencesUpdatedAt ?? nowMs),
         dashboardUpdatedAt: outcome.dashboard.fetched
             ? (serverMeta.dashboardUpdatedAt ?? nowMs)
             : (localMeta.dashboardUpdatedAt ?? nowMs),
@@ -322,6 +309,7 @@ Future<void> syncAppData(
         '⚡ syncAppData: completed in ${stopwatch.elapsedMilliseconds}ms - '
         'firstTime=$firstTimeSync force=$doForceSync | '
         'profile=${outcome.profile.fetched} (${outcome.profile.latencyMs}ms) '
+        'userPrefs=${outcome.userPreferences.fetched} (${outcome.userPreferences.latencyMs}ms) '
         'dashboard=${outcome.dashboard.fetched} (${outcome.dashboard.latencyMs}ms) '
         'calendar=${outcome.calendar.fetched} (${outcome.calendar.latencyMs}ms) '
         'missed=${outcome.missed.fetched} (${outcome.missed.latencyMs}ms) '
@@ -340,6 +328,7 @@ bool _hasInitializedCacheMetadata(CacheMetadataStruct meta) {
   return meta.hasAppVersion() ||
       meta.hasGeneratedAt() ||
       meta.hasProfileUpdatedAt() ||
+      meta.hasUserPreferencesUpdatedAt() ||
       meta.hasDashboardUpdatedAt() ||
       meta.hasCalendarClassesUpdatedAt() ||
       meta.hasAbsencesUpdatedAt() ||
@@ -353,6 +342,11 @@ CacheMetadataStruct _parseCacheMetadata(Map<String, dynamic> data) {
     appVersion: _readString(data, 'appVersion', 'app_version'),
     generatedAt: _readInt(data, 'generatedAt', 'generated_at'),
     profileUpdatedAt: _readInt(data, 'profileUpdatedAt', 'profile_updated_at'),
+    userPreferencesUpdatedAt: _readInt(
+      data,
+      'userPreferencesUpdatedAt',
+      'user_preferences_updated_at',
+    ),
     dashboardUpdatedAt:
         _readInt(data, 'dashboardUpdatedAt', 'dashboard_updated_at'),
     calendarClassesUpdatedAt: _readInt(
@@ -585,7 +579,7 @@ MessStruct _parseMess(Map<String, dynamic> raw) {
     menu: raw['menu'] is List
         ? (raw['menu'] as List).map((e) {
             if (e is Map) {
-              final map = Map<String, dynamic>.from(e as Map);
+              final map = Map<String, dynamic>.from(e);
               return MessMenuStruct(
                 weekday: _readInt(map, 'weekday', 'weekday') ?? 0,
                 meal: (map['meal'])?.toString() ?? '',
@@ -762,16 +756,6 @@ Future<void> _fetchApod(_SyncOutcome outcome) async {
 
     if (data != null) {
       final parsedApod = _parseApod(data);
-      final rawImageUrl = parsedApod.hdImageUrl.isNotEmpty
-          ? parsedApod.hdImageUrl
-          : parsedApod.imageUrl;
-
-      if (rawImageUrl.isNotEmpty) {
-        final localPath = await _downloadAndSaveApodImage(rawImageUrl);
-        if (localPath != null) {
-          parsedApod.imageUrl = localPath;
-        }
-      }
       outcome.apod.data = parsedApod;
       outcome.apod.fetched = true;
     } else {
@@ -783,5 +767,96 @@ Future<void> _fetchApod(_SyncOutcome outcome) async {
     debugPrint('syncAppData: apod sync failed - $e');
   } finally {
     outcome.apod.latencyMs = sw.elapsedMilliseconds;
+  }
+}
+
+Future<void> _syncUserPreferences(
+  _SyncOutcome outcome,
+  CacheMetadataStruct localMeta,
+  CacheMetadataStruct serverMeta,
+) async {
+  final sw = Stopwatch()..start();
+  try {
+    final userId = SupaFlow.client.auth.currentUser?.id;
+    if (userId == null || userId.isEmpty) {
+      outcome.userPreferences.latencyMs = sw.elapsedMilliseconds;
+      return;
+    }
+
+    final int localTs = localMeta.userPreferencesUpdatedAt;
+    final int serverTs = serverMeta.userPreferencesUpdatedAt;
+
+    // Case 1: Local writes are newer -> Push local FFAppState().userPreferences to Supabase
+    if (localTs > 0 && localTs > serverTs) {
+      final prefs = FFAppState().userPreferences;
+      final updatePayload = {
+        'user_id': userId,
+        'enable_apod': prefs.enableAPOD,
+        'user_mess': prefs.userMess,
+        'at_a_glance_view': prefs.atAGlanceView,
+        'use_scheduled_classes_for_greeting_message':
+            prefs.useScheduledClassesForGreetingMessage,
+        'use_action_tone_for_greeting_message':
+            prefs.useActionToneForGreetingMessage,
+        'time_format':
+            prefs.preferredTimeFormat == TimeFormat.twelveHour ? '12h' : '24h',
+        'action_tone': prefs.preferredActionTone.name,
+        'attendance_threshold': prefs.defaultRequiredAttendance,
+        'updated_at': DateTime.now().toIso8601String(),
+      };
+
+      await SupaFlow.client.from('user_preferences').upsert(updatePayload);
+      outcome.userPreferences.fetched = true;
+      debugPrint(
+          'syncAppData: Pushed local userPreferences to Supabase (${sw.elapsedMilliseconds}ms)');
+      return;
+    }
+
+    // Case 2: Server is newer or initial sync -> Pull from Supabase user_preferences
+    final response = await SupaFlow.client
+        .from('user_preferences')
+        .select('*')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+    if (response != null) {
+      final String? timeFormatStr = response['time_format'] as String?;
+      final String? actionToneStr = response['action_tone'] as String?;
+      final int? threshold = response['attendance_threshold'] as int?;
+
+      final TimeFormat timeFormat = timeFormatStr == '24h'
+          ? TimeFormat.twentyFourHour
+          : TimeFormat.twelveHour;
+
+      ActionTone actionTone = ActionTone.playful;
+      if (actionToneStr != null) {
+        try {
+          actionTone =
+              deserializeEnum<ActionTone>(actionToneStr) ?? ActionTone.playful;
+        } catch (_) {}
+      }
+
+      final fetchedStruct = UserPreferencesStruct(
+        enableAPOD: response['enable_apod'] as bool? ?? true,
+        userMess: response['user_mess'] as String? ?? '',
+        atAGlanceView: response['at_a_glance_view'] as bool? ?? true,
+        useScheduledClassesForGreetingMessage:
+            response['use_scheduled_classes_for_greeting_message'] as bool? ??
+                true,
+        useActionToneForGreetingMessage:
+            response['use_action_tone_for_greeting_message'] as bool? ?? true,
+        preferredTimeFormat: timeFormat,
+        preferredActionTone: actionTone,
+        defaultRequiredAttendance: threshold ?? 80,
+      );
+
+      outcome.userPreferences.data = fetchedStruct;
+      outcome.userPreferences.fetched = true;
+    }
+  } catch (e) {
+    outcome.userPreferences.error = e;
+    debugPrint('syncAppData: userPreferences sync failed - $e');
+  } finally {
+    outcome.userPreferences.latencyMs = sw.elapsedMilliseconds;
   }
 }

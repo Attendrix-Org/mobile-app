@@ -192,7 +192,7 @@ class _UnmarkAbsentDialogWidgetState extends State<UnmarkAbsentDialogWidget> {
                             : 'Failed to remove absence. Please try again.',
                         style: GoogleFonts.outfit(
                           color: FlutterFlowTheme.of(context).info,
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w600,
                           fontSize: 12.0,
                         ),
                       ),

@@ -59,3 +59,6 @@ export '/custom_code/actions/convert_path_to_uploaded_file.dart'
     show convertPathToUploadedFile;
 export '/custom_code/actions/generate_notification_message.dart'
     show generateNotificationMessage;
+export '/custom_code/actions/open_google_calendar.dart' show openGoogleCalendar;
+export '/custom_code/actions/sync_now_google_calendar.dart'
+    show syncNowGoogleCalendar;

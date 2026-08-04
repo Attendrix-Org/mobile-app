@@ -1,5 +1,6 @@
 import '/backend/supabase/supabase.dart';
 import '/components/course_catelog_block_widget.dart';
+import '/empty_state/empty_state_gif_no_text/empty_state_gif_no_text_widget.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -7,7 +8,6 @@ import '/custom_code/actions/index.dart' as actions;
 import '/flutter_flow/custom_functions.dart' as functions;
 import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:text_search/text_search.dart';
 import 'course_catalog_model.dart';
@@ -61,14 +61,14 @@ class _CourseCatalogWidgetState extends State<CourseCatalogWidget> {
         // Customize what your widget looks like when it's loading.
         if (!snapshot.hasData) {
           return Scaffold(
-            backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
+            backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
             body: Center(
-              child: SizedBox(
-                width: 25.0,
-                height: 25.0,
-                child: SpinKitFadingCube(
-                  color: FlutterFlowTheme.of(context).primary,
-                  size: 25.0,
+              child: Container(
+                width: 60.0,
+                height: 60.0,
+                child: EmptyStateGifNoTextWidget(
+                  imageUrl:
+                      'https://cdn-icons-gif.flaticon.com/19021/19021483.gif',
                 ),
               ),
             ),
@@ -87,7 +87,8 @@ class _CourseCatalogWidgetState extends State<CourseCatalogWidget> {
               },
               child: Scaffold(
                 key: scaffoldKey,
-                backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
+                backgroundColor:
+                    FlutterFlowTheme.of(context).secondaryBackground,
                 appBar: AppBar(
                   backgroundColor:
                       FlutterFlowTheme.of(context).secondaryBackground,
@@ -122,7 +123,7 @@ class _CourseCatalogWidgetState extends State<CourseCatalogWidget> {
                         ),
                   ),
                   actions: [],
-                  centerTitle: false,
+                  centerTitle: true,
                   elevation: 0.0,
                 ),
                 body: SafeArea(
@@ -382,15 +383,11 @@ class _CourseCatalogWidgetState extends State<CourseCatalogWidget> {
                                 final courseSyllabusFilteredListView =
                                     _model.searchfilteredCourses.toList();
 
-                                return ListView.builder(
-                                  padding: EdgeInsets.zero,
-                                  primary: false,
-                                  shrinkWrap: true,
-                                  scrollDirection: Axis.vertical,
-                                  itemCount:
+                                return Column(
+                                  mainAxisSize: MainAxisSize.max,
+                                  children: List.generate(
                                       courseSyllabusFilteredListView.length,
-                                  itemBuilder: (context,
-                                      courseSyllabusFilteredListViewIndex) {
+                                      (courseSyllabusFilteredListViewIndex) {
                                     final courseSyllabusFilteredListViewItem =
                                         courseSyllabusFilteredListView[
                                             courseSyllabusFilteredListViewIndex];
@@ -433,7 +430,7 @@ class _CourseCatalogWidgetState extends State<CourseCatalogWidget> {
                                         ),
                                       ),
                                     );
-                                  },
+                                  }),
                                 );
                               },
                             ),
@@ -456,14 +453,11 @@ class _CourseCatalogWidgetState extends State<CourseCatalogWidget> {
                                 final courseSyllabusListView =
                                     courseCatalogCourseSyllabiRowList.toList();
 
-                                return ListView.builder(
-                                  padding: EdgeInsets.zero,
-                                  primary: false,
-                                  shrinkWrap: true,
-                                  scrollDirection: Axis.vertical,
-                                  itemCount: courseSyllabusListView.length,
-                                  itemBuilder:
-                                      (context, courseSyllabusListViewIndex) {
+                                return Column(
+                                  mainAxisSize: MainAxisSize.max,
+                                  children: List.generate(
+                                      courseSyllabusListView.length,
+                                      (courseSyllabusListViewIndex) {
                                     final courseSyllabusListViewItem =
                                         courseSyllabusListView[
                                             courseSyllabusListViewIndex];
@@ -506,7 +500,7 @@ class _CourseCatalogWidgetState extends State<CourseCatalogWidget> {
                                         ),
                                       ),
                                     );
-                                  },
+                                  }),
                                 );
                               },
                             ),

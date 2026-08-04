@@ -1,9 +1,7 @@
-import '/backend/supabase/supabase.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/custom_functions.dart' as functions;
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/provider.dart';
 import 'empty_state_container_model.dart';
 export 'empty_state_container_model.dart';
@@ -55,105 +53,63 @@ class _EmptyStateContainerWidgetState extends State<EmptyStateContainerWidget> {
   Widget build(BuildContext context) {
     context.watch<FFAppState>();
 
-    return FutureBuilder<List<AcademicCalendarEventsRow>>(
-      future: FFAppState().currentDayAcademicCalendar(
-        uniqueQueryKey: 'CALENDAR_DAY_${dateTimeFormat(
-          "d/M/y",
-          getCurrentTimestamp,
-          locale: FFLocalizations.of(context).languageCode,
-        )}',
-        requestFn: () => AcademicCalendarEventsTable().querySingleRow(
-          queryFn: (q) => q.eqOrNull(
-            'formatted_date',
-            dateTimeFormat(
-              "d/M/y",
-              getCurrentTimestamp,
-              locale: FFLocalizations.of(context).languageCode,
+    return Container(
+      decoration: BoxDecoration(),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            valueOrDefault<String>(
+              functions
+                  .getEmptyStateMessage(
+                      widget.date,
+                      FFAppState().userPreferences.preferredActionTone,
+                      dateTimeFormat(
+                        "d/M/y",
+                        widget.date,
+                        locale: FFLocalizations.of(context).languageCode,
+                      ))
+                  .firstOrNull,
+              'Nothing Here!',
             ),
+            textAlign: TextAlign.center,
+            style: FlutterFlowTheme.of(context).titleLarge.override(
+                  fontFamily: FlutterFlowTheme.of(context).titleLargeFamily,
+                  color: FlutterFlowTheme.of(context).primaryText,
+                  letterSpacing: 0.0,
+                  lineHeight: 1.27,
+                  useGoogleFonts:
+                      !FlutterFlowTheme.of(context).titleLargeIsCustom,
+                ),
           ),
-        ),
+          Text(
+            valueOrDefault<String>(
+              functions
+                  .getEmptyStateMessage(
+                      widget.date,
+                      FFAppState().userPreferences.preferredActionTone,
+                      dateTimeFormat(
+                        "d/M/y",
+                        widget.date,
+                        locale: FFLocalizations.of(context).languageCode,
+                      ))
+                  .lastOrNull,
+              'No classes were scheduled for this day. It may have been a holiday, a timetable update, or simply a class-free day.',
+            ),
+            textAlign: TextAlign.center,
+            style: FlutterFlowTheme.of(context).bodyMedium.override(
+                  fontFamily: FlutterFlowTheme.of(context).bodyMediumFamily,
+                  color: FlutterFlowTheme.of(context).secondaryText,
+                  letterSpacing: 0.0,
+                  lineHeight: 1.47,
+                  useGoogleFonts:
+                      !FlutterFlowTheme.of(context).bodyMediumIsCustom,
+                ),
+          ),
+        ].divide(SizedBox(height: 4.0)),
       ),
-      builder: (context, snapshot) {
-        // Customize what your widget looks like when it's loading.
-        if (!snapshot.hasData) {
-          return Center(
-            child: SizedBox(
-              width: 25.0,
-              height: 25.0,
-              child: SpinKitFadingCube(
-                color: FlutterFlowTheme.of(context).primary,
-                size: 25.0,
-              ),
-            ),
-          );
-        }
-        List<AcademicCalendarEventsRow> containerAcademicCalendarEventsRowList =
-            snapshot.data!;
-
-        final containerAcademicCalendarEventsRow =
-            containerAcademicCalendarEventsRowList.isNotEmpty
-                ? containerAcademicCalendarEventsRowList.first
-                : null;
-
-        return Container(
-          decoration: BoxDecoration(),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                valueOrDefault<String>(
-                  functions
-                      .getEmptyStateMessage(
-                          widget.date,
-                          FFAppState().userPreferences.preferredActionTone,
-                          dateTimeFormat(
-                            "d/M/y",
-                            widget.date,
-                            locale: FFLocalizations.of(context).languageCode,
-                          ))
-                      .firstOrNull,
-                  'Nothing Here!',
-                ),
-                textAlign: TextAlign.center,
-                style: FlutterFlowTheme.of(context).titleLarge.override(
-                      fontFamily: FlutterFlowTheme.of(context).titleLargeFamily,
-                      color: FlutterFlowTheme.of(context).primaryText,
-                      letterSpacing: 0.0,
-                      lineHeight: 1.27,
-                      useGoogleFonts:
-                          !FlutterFlowTheme.of(context).titleLargeIsCustom,
-                    ),
-              ),
-              Text(
-                valueOrDefault<String>(
-                  functions
-                      .getEmptyStateMessage(
-                          widget.date,
-                          FFAppState().userPreferences.preferredActionTone,
-                          dateTimeFormat(
-                            "d/M/y",
-                            widget.date,
-                            locale: FFLocalizations.of(context).languageCode,
-                          ))
-                      .lastOrNull,
-                  'No classes were scheduled for this day. It may have been a holiday, a timetable update, or simply a class-free day.',
-                ),
-                textAlign: TextAlign.center,
-                style: FlutterFlowTheme.of(context).bodyMedium.override(
-                      fontFamily: FlutterFlowTheme.of(context).bodyMediumFamily,
-                      color: FlutterFlowTheme.of(context).secondaryText,
-                      letterSpacing: 0.0,
-                      lineHeight: 1.47,
-                      useGoogleFonts:
-                          !FlutterFlowTheme.of(context).bodyMediumIsCustom,
-                    ),
-              ),
-            ].divide(SizedBox(height: 4.0)),
-          ),
-        );
-      },
     );
   }
 }

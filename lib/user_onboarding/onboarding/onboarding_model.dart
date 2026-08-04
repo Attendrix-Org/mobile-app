@@ -236,6 +236,10 @@ class OnboardingModel extends FlutterFlowModel<OnboardingWidget> {
   bool? onboardingComplete;
   // Stores action output result for [Custom Action - completeCourseEnrollment] action in Button widget.
   FeedbackStruct? courseEnrollmentComplete;
+  // Stores action output result for [Custom Action - generatePastDateRange] action in Button widget.
+  List<DateTime>? generatedTimeline;
+  // Stores action output result for [Custom Action - generateGreeting] action in Button widget.
+  String? generatedGreetingMessageOnboarding;
   InstantTimer? instantTimer;
 
   @override

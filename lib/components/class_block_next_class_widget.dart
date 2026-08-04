@@ -2,9 +2,7 @@ import '/backend/schema/structs/index.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/instant_timer.dart';
-import '/custom_code/actions/index.dart' as actions;
 import '/flutter_flow/custom_functions.dart' as functions;
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -29,8 +27,6 @@ class ClassBlockNextClassWidget extends StatefulWidget {
 class _ClassBlockNextClassWidgetState extends State<ClassBlockNextClassWidget> {
   late ClassBlockNextClassModel _model;
 
-  LatLng? currentUserLocationValue;
-
   @override
   void setState(VoidCallback callback) {
     super.setState(callback);
@@ -45,38 +41,10 @@ class _ClassBlockNextClassWidgetState extends State<ClassBlockNextClassWidget> {
     // On component load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
       logFirebaseEvent('CLASS_BLOCK_NEXT_CLASS_classBlock_NextCl');
-      currentUserLocationValue =
-          await getCurrentUserLocation(defaultLocation: LatLng(0.0, 0.0));
       logFirebaseEvent('classBlock_NextClass_start_periodic_acti');
-      _model.progressBarTimer = InstantTimer.periodic(
+      _model.nextClassBlockUpdateTimer = InstantTimer.periodic(
         duration: Duration(milliseconds: 120000),
         callback: (timer) async {
-          currentUserLocationValue =
-              await getCurrentUserLocation(defaultLocation: LatLng(0.0, 0.0));
-          logFirebaseEvent('classBlock_NextClass_custom_action');
-          await actions.getCampusBuildingData(
-            widget.classBlock?.venue,
-            widget.classBlock?.scheduledStart,
-          );
-          logFirebaseEvent('classBlock_NextClass_custom_action');
-          _model.walkRouteData = await actions.calculateWalkRoute(
-            currentUserLocationValue!,
-            functions.mapLatLng(
-                FFAppState()
-                    .campusBuildingData
-                    .where((e) => e.id == widget.classBlock?.venue)
-                    .toList()
-                    .firstOrNull!
-                    .lat,
-                FFAppState()
-                    .campusBuildingData
-                    .where((e) => e.id == widget.classBlock?.venue)
-                    .toList()
-                    .firstOrNull!
-                    .lng),
-            false,
-            widget.classBlock?.scheduledStart,
-          );
           logFirebaseEvent('classBlock_NextClass_update_component_st');
           _model.lastUpdatedAt = getCurrentTimestamp;
           safeSetState(() {});
@@ -90,13 +58,6 @@ class _ClassBlockNextClassWidgetState extends State<ClassBlockNextClassWidget> {
 
   @override
   void dispose() {
-    // On component dispose action.
-    () async {
-      logFirebaseEvent('CLASS_BLOCK_NEXT_CLASS_classBlock_NextCl');
-      logFirebaseEvent('classBlock_NextClass_stop_periodic_actio');
-      _model.progressBarTimer?.cancel();
-    }();
-
     _model.maybeDispose();
 
     super.dispose();
@@ -139,21 +100,10 @@ class _ClassBlockNextClassWidgetState extends State<ClassBlockNextClassWidget> {
                   children: [
                     Text(
                       valueOrDefault<String>(
-                        () {
-                          if (widget.classBlock!.scheduledStart! >
-                              getCurrentTimestamp) {
-                            return 'Next Up:';
-                          } else if ((widget.classBlock!.scheduledStart! <
-                                  getCurrentTimestamp) &&
-                              (widget.classBlock!.scheduledEnd! >
-                                  getCurrentTimestamp) &&
-                              (widget.classBlock?.venue != null &&
-                                  widget.classBlock?.venue != '')) {
-                            return 'It\'s ${_model.walkRouteDataState?.distanceMeters.toString()}m from here!';
-                          } else {
-                            return 'Ongoing Class:';
-                          }
-                        }(),
+                        widget.classBlock!.scheduledStart! >
+                                getCurrentTimestamp
+                            ? 'Next Up:'
+                            : 'Ongoing Class:',
                         'Ongoing Class:',
                       ),
                       style: FlutterFlowTheme.of(context).bodyMedium.override(
@@ -173,7 +123,7 @@ class _ClassBlockNextClassWidgetState extends State<ClassBlockNextClassWidget> {
                           ),
                     ),
                     Container(
-                      width: MediaQuery.sizeOf(context).width * 0.7,
+                      width: MediaQuery.sizeOf(context).width * 0.95,
                       decoration: BoxDecoration(),
                       child: Text(
                         valueOrDefault<String>(
@@ -226,7 +176,7 @@ class _ClassBlockNextClassWidgetState extends State<ClassBlockNextClassWidget> {
                       padding:
                           EdgeInsetsDirectional.fromSTEB(0.0, 2.0, 0.0, 2.0),
                       child: Container(
-                        width: MediaQuery.sizeOf(context).width * 0.9,
+                        width: MediaQuery.sizeOf(context).width * 0.95,
                         height: 2.0,
                         decoration: BoxDecoration(
                           color: FlutterFlowTheme.of(context).secondaryText,
@@ -237,93 +187,30 @@ class _ClassBlockNextClassWidgetState extends State<ClassBlockNextClassWidget> {
                 ),
               ],
             ),
-            if (valueOrDefault<bool>(
-              (int classStart, int currentTime) {
-                return classStart > currentTime &&
-                    (classStart - currentTime) <= 3600;
-              }(widget.classBlock!.scheduledStart!.secondsSinceEpoch,
-                  getCurrentTimestamp.secondsSinceEpoch),
-              false,
-            ))
-              Text(
-                valueOrDefault<String>(
-                  widget.classBlock!.scheduledStart! > getCurrentTimestamp
-                      ? 'Class Starts in:'
-                      : 'Class Progress: ',
-                  'Class Starts in:',
-                ),
-                style: FlutterFlowTheme.of(context).bodyMedium.override(
-                      font: GoogleFonts.outfit(
-                        fontWeight: FontWeight.w500,
-                        fontStyle:
-                            FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                      ),
-                      color: FlutterFlowTheme.of(context).secondaryText,
-                      fontSize: 11.0,
-                      letterSpacing: 0.0,
+            Text(
+              valueOrDefault<String>(
+                widget.classBlock!.scheduledStart! > getCurrentTimestamp
+                    ? 'Class Starts in:'
+                    : 'Class Progress: ',
+                'Class Starts in:',
+              ),
+              style: FlutterFlowTheme.of(context).bodyMedium.override(
+                    font: GoogleFonts.outfit(
                       fontWeight: FontWeight.w500,
                       fontStyle:
                           FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                     ),
-              ),
+                    color: FlutterFlowTheme.of(context).secondaryText,
+                    fontSize: 11.0,
+                    letterSpacing: 0.0,
+                    fontWeight: FontWeight.w500,
+                    fontStyle:
+                        FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                  ),
+            ),
             Builder(
               builder: (context) {
-                if (valueOrDefault<bool>(
-                  (int classStart, int currentTime) {
-                    return classStart > currentTime &&
-                        (classStart - currentTime) <= 3600;
-                  }(widget.classBlock!.scheduledStart!.secondsSinceEpoch,
-                      getCurrentTimestamp.secondsSinceEpoch),
-                  false,
-                )) {
-                  return Row(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Align(
-                        alignment: AlignmentDirectional(-1.0, 0.0),
-                        child: Container(
-                          width: MediaQuery.sizeOf(context).width * 0.9,
-                          decoration: BoxDecoration(),
-                          child: Align(
-                            alignment: AlignmentDirectional(-1.0, 0.0),
-                            child: Padding(
-                              padding: EdgeInsetsDirectional.fromSTEB(
-                                  0.0, 0.0, 4.0, 0.0),
-                              child: AutoSizeText(
-                                valueOrDefault<String>(
-                                  _model.walkRouteDataState?.formattedDuration,
-                                  'You\'re 15 min late. Head over now, it\'s a 5 min walk.',
-                                ),
-                                textAlign: TextAlign.start,
-                                maxLines: 2,
-                                style: FlutterFlowTheme.of(context)
-                                    .bodyMedium
-                                    .override(
-                                      font: GoogleFonts.outfit(
-                                        fontWeight: FontWeight.w600,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontStyle,
-                                      ),
-                                      color: Color(0xFF2E32E4),
-                                      fontSize: 18.0,
-                                      letterSpacing: 0.0,
-                                      fontWeight: FontWeight.w600,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .fontStyle,
-                                    ),
-                                overflow: TextOverflow.clip,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ].divide(SizedBox(width: 0.0)),
-                  );
-                } else if (widget.classBlock!.scheduledStart! >
-                    getCurrentTimestamp) {
+                if (widget.classBlock!.scheduledStart! > getCurrentTimestamp) {
                   return Row(
                     mainAxisSize: MainAxisSize.max,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,

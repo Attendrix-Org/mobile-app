@@ -11,7 +11,7 @@ class ResetPasswordWidget extends StatefulWidget {
   const ResetPasswordWidget({super.key});
 
   static String routeName = 'resetPassword';
-  static String routePath = 'resetPassword';
+  static String routePath = 'reset-password';
 
   @override
   State<ResetPasswordWidget> createState() => _ResetPasswordWidgetState();

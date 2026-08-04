@@ -241,6 +241,21 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               path: ManageNotificationsWidget.routePath,
               requireAuth: true,
               builder: (context, params) => ManageNotificationsWidget(),
+            ),
+            FFRoute(
+              name: GoogleCalendarWidget.routeName,
+              path: GoogleCalendarWidget.routePath,
+              requireAuth: true,
+              builder: (context, params) => GoogleCalendarWidget(
+                success: params.getParam(
+                  'success',
+                  ParamType.bool,
+                ),
+                error: params.getParam(
+                  'error',
+                  ParamType.String,
+                ),
+              ),
             )
           ].map((r) => r.toRoute(appStateNotifier)).toList(),
         ),

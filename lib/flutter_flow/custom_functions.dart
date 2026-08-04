@@ -15,3 +15,4 @@ export '/custom_code/functions/subtract_duration.dart';
 export '/custom_code/functions/map_lat_lng.dart';
 export '/custom_code/functions/generate_walk_message.dart';
 export '/custom_code/functions/relative_time.dart';
+export '/custom_code/functions/edit_days.dart';

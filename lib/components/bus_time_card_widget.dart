@@ -684,6 +684,7 @@ class _BusTimeCardWidgetState extends State<BusTimeCardWidget> {
                                   padding: EdgeInsetsDirectional.fromSTEB(
                                       2.0, 0.0, 2.0, 2.0),
                                   child: Container(
+                                    height: 40.0,
                                     decoration: BoxDecoration(
                                       color: FlutterFlowTheme.of(context)
                                           .primaryBackground,

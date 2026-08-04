@@ -545,7 +545,7 @@ class _AttendanceCalculatorWidgetState
               ),
             ),
             Padding(
-              padding: EdgeInsetsDirectional.fromSTEB(2.0, 0.0, 12.0, 12.0),
+              padding: EdgeInsetsDirectional.fromSTEB(12.0, 0.0, 12.0, 12.0),
               child: Container(
                 width: double.infinity,
                 height: 40.0,
@@ -597,7 +597,7 @@ class _AttendanceCalculatorWidgetState
                     logFirebaseEvent('skip_update_component_state');
                     _model.addToSkip = _model.skipValue!;
                     _model.projectedAttendance =
-                        _model.projectedAttendnaceResultByAttended;
+                        _model.projectedAttendnaceResultBySkip;
                     safeSetState(() {});
 
                     safeSetState(() {});
@@ -815,12 +815,10 @@ class _AttendanceCalculatorWidgetState
                       .take(4)
                       .toList();
 
-                  return ListView.builder(
-                    padding: EdgeInsets.zero,
-                    shrinkWrap: true,
-                    scrollDirection: Axis.vertical,
-                    itemCount: analysisListItemsView.length,
-                    itemBuilder: (context, analysisListItemsViewIndex) {
+                  return Column(
+                    mainAxisSize: MainAxisSize.max,
+                    children: List.generate(analysisListItemsView.length,
+                        (analysisListItemsViewIndex) {
                       final analysisListItemsViewItem =
                           analysisListItemsView[analysisListItemsViewIndex];
                       return Row(
@@ -848,7 +846,7 @@ class _AttendanceCalculatorWidgetState
                           ),
                         ],
                       );
-                    },
+                    }),
                   );
                 },
               ),
@@ -856,14 +854,14 @@ class _AttendanceCalculatorWidgetState
             Align(
               alignment: AlignmentDirectional(0.0, 0.0),
               child: Padding(
-                padding: EdgeInsetsDirectional.fromSTEB(12.0, 6.0, 0.0, 6.0),
+                padding: EdgeInsetsDirectional.fromSTEB(12.0, 8.0, 0.0, 6.0),
                 child: Text(
                   'Calculations are estimates only. Please verify manually.',
                   style: FlutterFlowTheme.of(context).labelMedium.override(
                         fontFamily:
                             FlutterFlowTheme.of(context).labelMediumFamily,
                         color: FlutterFlowTheme.of(context).secondaryText,
-                        fontSize: 10.0,
+                        fontSize: 8.0,
                         letterSpacing: 0.0,
                         useGoogleFonts:
                             !FlutterFlowTheme.of(context).labelMediumIsCustom,

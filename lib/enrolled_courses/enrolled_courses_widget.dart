@@ -209,13 +209,10 @@ class _EnrolledCoursesWidgetState extends State<EnrolledCoursesWidget> {
                             );
                           }
 
-                          return ListView.builder(
-                            padding: EdgeInsets.zero,
-                            primary: false,
-                            shrinkWrap: true,
-                            scrollDirection: Axis.vertical,
-                            itemCount: coreCoursesListView.length,
-                            itemBuilder: (context, coreCoursesListViewIndex) {
+                          return Column(
+                            mainAxisSize: MainAxisSize.max,
+                            children: List.generate(coreCoursesListView.length,
+                                (coreCoursesListViewIndex) {
                               final coreCoursesListViewItem =
                                   coreCoursesListView[coreCoursesListViewIndex];
                               return Padding(
@@ -241,7 +238,7 @@ class _EnrolledCoursesWidgetState extends State<EnrolledCoursesWidget> {
                                   ),
                                 ),
                               );
-                            },
+                            }),
                           );
                         },
                       ),
@@ -291,13 +288,10 @@ class _EnrolledCoursesWidgetState extends State<EnrolledCoursesWidget> {
                             );
                           }
 
-                          return ListView.builder(
-                            padding: EdgeInsets.zero,
-                            primary: false,
-                            shrinkWrap: true,
-                            scrollDirection: Axis.vertical,
-                            itemCount: labCoursesListView.length,
-                            itemBuilder: (context, labCoursesListViewIndex) {
+                          return Column(
+                            mainAxisSize: MainAxisSize.max,
+                            children: List.generate(labCoursesListView.length,
+                                (labCoursesListViewIndex) {
                               final labCoursesListViewItem =
                                   labCoursesListView[labCoursesListViewIndex];
                               return Builder(
@@ -397,7 +391,7 @@ class _EnrolledCoursesWidgetState extends State<EnrolledCoursesWidget> {
                                   ),
                                 ),
                               );
-                            },
+                            }),
                           );
                         },
                       ),
@@ -450,14 +444,11 @@ class _EnrolledCoursesWidgetState extends State<EnrolledCoursesWidget> {
                             );
                           }
 
-                          return ListView.builder(
-                            padding: EdgeInsets.zero,
-                            primary: false,
-                            shrinkWrap: true,
-                            scrollDirection: Axis.vertical,
-                            itemCount: requiredElectivesListView.length,
-                            itemBuilder:
-                                (context, requiredElectivesListViewIndex) {
+                          return Column(
+                            mainAxisSize: MainAxisSize.max,
+                            children:
+                                List.generate(requiredElectivesListView.length,
+                                    (requiredElectivesListViewIndex) {
                               final requiredElectivesListViewItem =
                                   requiredElectivesListView[
                                       requiredElectivesListViewIndex];
@@ -505,7 +496,7 @@ class _EnrolledCoursesWidgetState extends State<EnrolledCoursesWidget> {
                                   ),
                                 ),
                               );
-                            },
+                            }),
                           );
                         },
                       ),

@@ -1,9 +1,6 @@
 import '/backend/schema/structs/index.dart';
-import '/backend/supabase/supabase.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/form_field_controller.dart';
-import '/flutter_flow/request_manager.dart';
-
 import '/index.dart';
 import 'manage_classes_widget.dart' show ManageClassesWidget;
 import 'package:flutter/material.dart';
@@ -37,30 +34,6 @@ class ManageClassesModel extends FlutterFlowModel<ManageClassesWidget> {
 
   String classSlot = 'Regular Class Slot';
 
-  List<ScheduledClassStruct> todayClasses = [];
-  void addToTodayClasses(ScheduledClassStruct item) => todayClasses.add(item);
-  void removeFromTodayClasses(ScheduledClassStruct item) =>
-      todayClasses.remove(item);
-  void removeAtIndexFromTodayClasses(int index) => todayClasses.removeAt(index);
-  void insertAtIndexInTodayClasses(int index, ScheduledClassStruct item) =>
-      todayClasses.insert(index, item);
-  void updateTodayClassesAtIndex(
-          int index, Function(ScheduledClassStruct) updateFn) =>
-      todayClasses[index] = updateFn(todayClasses[index]);
-
-  List<ScheduledClassStruct> upcomingClasses = [];
-  void addToUpcomingClasses(ScheduledClassStruct item) =>
-      upcomingClasses.add(item);
-  void removeFromUpcomingClasses(ScheduledClassStruct item) =>
-      upcomingClasses.remove(item);
-  void removeAtIndexFromUpcomingClasses(int index) =>
-      upcomingClasses.removeAt(index);
-  void insertAtIndexInUpcomingClasses(int index, ScheduledClassStruct item) =>
-      upcomingClasses.insert(index, item);
-  void updateUpcomingClassesAtIndex(
-          int index, Function(ScheduledClassStruct) updateFn) =>
-      upcomingClasses[index] = updateFn(upcomingClasses[index]);
-
   List<ScheduledClassStruct> selectedDayClasses = [];
   void addToSelectedDayClasses(ScheduledClassStruct item) =>
       selectedDayClasses.add(item);
@@ -81,8 +54,6 @@ class ManageClassesModel extends FlutterFlowModel<ManageClassesWidget> {
   List<DateTime>? generatedDatesQuery;
   // Stores action output result for [Custom Action - executeScheduleQuery] action in manageClasses widget.
   List<ScheduledClassStruct>? todayClassesList;
-  // Stores action output result for [Custom Action - executeScheduleQuery] action in manageClasses widget.
-  List<ScheduledClassStruct>? upcomingClassesList;
   // Stores action output result for [Custom Action - executeScheduleQuery] action in Container widget.
   List<ScheduledClassStruct>? selectedDayClassesQuery;
   // State field(s) for TabBar widget.
@@ -95,7 +66,7 @@ class ManageClassesModel extends FlutterFlowModel<ManageClassesWidget> {
   // State field(s) for selectedCourse widget.
   String? selectedCourseValue;
   FormFieldController<String>? selectedCourseValueController;
-  DateTime? datePicked;
+  DateTime? datePicked1;
   // State field(s) for classStartTime widget.
   FormFieldController<List<String>>? classStartTimeValueController;
   String? get classStartTimeValue =>
@@ -127,23 +98,9 @@ class ManageClassesModel extends FlutterFlowModel<ManageClassesWidget> {
       isExtraClassValueController?.value = val != null ? [val] : [];
   // Stores action output result for [Custom Action - scheduleClass] action in scheduleButton widget.
   FeedbackStruct? schedulerFeedback;
-
-  /// Query cache managers for this widget.
-
-  final _userCoursesManager = FutureRequestManager<List<CoursesRow>>();
-  Future<List<CoursesRow>> userCourses({
-    String? uniqueQueryKey,
-    bool? overrideCache,
-    required Future<List<CoursesRow>> Function() requestFn,
-  }) =>
-      _userCoursesManager.performRequest(
-        uniqueQueryKey: uniqueQueryKey,
-        overrideCache: overrideCache,
-        requestFn: requestFn,
-      );
-  void clearUserCoursesCache() => _userCoursesManager.clear();
-  void clearUserCoursesCacheKey(String? uniqueKey) =>
-      _userCoursesManager.clearRequest(uniqueKey);
+  DateTime? datePicked2;
+  // Stores action output result for [Custom Action - executeScheduleQuery] action in Row widget.
+  List<ScheduledClassStruct>? selectedClassesRefresh;
 
   @override
   void initState(BuildContext context) {}
@@ -153,9 +110,5 @@ class ManageClassesModel extends FlutterFlowModel<ManageClassesWidget> {
     tabBarController?.dispose();
     classVenueFocusNode?.dispose();
     classVenueTextController?.dispose();
-
-    /// Dispose query cache managers for this widget.
-
-    clearUserCoursesCache();
   }
 }

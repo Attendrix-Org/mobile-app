@@ -622,22 +622,21 @@ class FFAppState extends ChangeNotifier {
   void clearCourseCatalogCacheKey(String? uniqueKey) =>
       _courseCatalogManager.clearRequest(uniqueKey);
 
-  final _currentDayAcademicCalendarManager =
-      FutureRequestManager<List<AcademicCalendarEventsRow>>();
-  Future<List<AcademicCalendarEventsRow>> currentDayAcademicCalendar({
+  final _userGoogleSyncManager =
+      FutureRequestManager<List<UserGoogleIntegrationsRow>>();
+  Future<List<UserGoogleIntegrationsRow>> userGoogleSync({
     String? uniqueQueryKey,
     bool? overrideCache,
-    required Future<List<AcademicCalendarEventsRow>> Function() requestFn,
+    required Future<List<UserGoogleIntegrationsRow>> Function() requestFn,
   }) =>
-      _currentDayAcademicCalendarManager.performRequest(
+      _userGoogleSyncManager.performRequest(
         uniqueQueryKey: uniqueQueryKey,
         overrideCache: overrideCache,
         requestFn: requestFn,
       );
-  void clearCurrentDayAcademicCalendarCache() =>
-      _currentDayAcademicCalendarManager.clear();
-  void clearCurrentDayAcademicCalendarCacheKey(String? uniqueKey) =>
-      _currentDayAcademicCalendarManager.clearRequest(uniqueKey);
+  void clearUserGoogleSyncCache() => _userGoogleSyncManager.clear();
+  void clearUserGoogleSyncCacheKey(String? uniqueKey) =>
+      _userGoogleSyncManager.clearRequest(uniqueKey);
 
   final _appVersionMetadataCacheManager =
       FutureRequestManager<List<AppVersionControlRow>>();

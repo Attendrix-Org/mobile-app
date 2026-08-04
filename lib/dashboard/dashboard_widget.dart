@@ -1549,16 +1549,12 @@ class _DashboardWidgetState extends State<DashboardWidget>
                                                   );
                                                 }
 
-                                                return ListView.builder(
-                                                  padding: EdgeInsets.zero,
-                                                  primary: false,
-                                                  shrinkWrap: true,
-                                                  scrollDirection:
-                                                      Axis.vertical,
-                                                  itemCount:
+                                                return Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.max,
+                                                  children: List.generate(
                                                       dashboardClassses.length,
-                                                  itemBuilder: (context,
-                                                      dashboardClasssesIndex) {
+                                                      (dashboardClasssesIndex) {
                                                     final dashboardClasssesItem =
                                                         dashboardClassses[
                                                             dashboardClasssesIndex];
@@ -1590,7 +1586,7 @@ class _DashboardWidgetState extends State<DashboardWidget>
                                                         ),
                                                       ),
                                                     );
-                                                  },
+                                                  }),
                                                 );
                                               },
                                             ),
@@ -1838,17 +1834,13 @@ class _DashboardWidgetState extends State<DashboardWidget>
                                                     );
                                                   }
 
-                                                  return ListView.builder(
-                                                    padding: EdgeInsets.zero,
-                                                    primary: false,
-                                                    shrinkWrap: true,
-                                                    scrollDirection:
-                                                        Axis.vertical,
-                                                    itemCount:
+                                                  return Column(
+                                                    mainAxisSize:
+                                                        MainAxisSize.max,
+                                                    children: List.generate(
                                                         upcomingClassesListView
                                                             .length,
-                                                    itemBuilder: (context,
-                                                        upcomingClassesListViewIndex) {
+                                                        (upcomingClassesListViewIndex) {
                                                       final upcomingClassesListViewItem =
                                                           upcomingClassesListView[
                                                               upcomingClassesListViewIndex];
@@ -1881,7 +1873,7 @@ class _DashboardWidgetState extends State<DashboardWidget>
                                                           ),
                                                         ),
                                                       );
-                                                    },
+                                                    }),
                                                   );
                                                 },
                                               ),

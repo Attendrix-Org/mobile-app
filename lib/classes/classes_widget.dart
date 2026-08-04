@@ -359,7 +359,38 @@ class _ClassesWidgetState extends State<ClassesWidget>
                                                     _model.dropDownValue1;
                                                 safeSetState(() {});
                                                 logFirebaseEvent(
+                                                    'DropDown_custom_action');
+                                                _model.generatedDatesDateRange =
+                                                    await actions
+                                                        .generatePastDateRange(
+                                                  getCurrentTimestamp,
+                                                  _model.dateRange!,
+                                                  _model.weekendPolicy!,
+                                                );
+                                                logFirebaseEvent(
+                                                    'DropDown_update_page_state');
+                                                _model.generatedDatesState =
+                                                    _model
+                                                        .generatedDatesDateRange!
+                                                        .toList()
+                                                        .cast<DateTime>();
+                                                logFirebaseEvent(
+                                                    'DropDown_custom_action');
+                                                await actions.syncAppData(
+                                                  false,
+                                                  false,
+                                                  false,
+                                                  true,
+                                                  true,
+                                                  false,
+                                                  false,
+                                                  _model.generatedDatesState
+                                                      .toList(),
+                                                );
+                                                logFirebaseEvent(
                                                     'DropDown_rebuild_page');
+                                                safeSetState(() {});
+
                                                 safeSetState(() {});
                                               },
                                               width: 110.0,
@@ -448,9 +479,38 @@ class _ClassesWidgetState extends State<ClassesWidget>
                                                     'DropDown_update_page_state');
                                                 _model.weekendPolicy =
                                                     _model.dropDownValue2;
-                                                safeSetState(() {});
+                                                logFirebaseEvent(
+                                                    'DropDown_custom_action');
+                                                _model.generatedDatesWeekendPolicy =
+                                                    await actions
+                                                        .generatePastDateRange(
+                                                  getCurrentTimestamp,
+                                                  _model.dateRange!,
+                                                  _model.weekendPolicy!,
+                                                );
+                                                logFirebaseEvent(
+                                                    'DropDown_update_page_state');
+                                                _model.generatedDatesState = _model
+                                                    .generatedDatesWeekendPolicy!
+                                                    .toList()
+                                                    .cast<DateTime>();
+                                                logFirebaseEvent(
+                                                    'DropDown_custom_action');
+                                                await actions.syncAppData(
+                                                  false,
+                                                  false,
+                                                  false,
+                                                  true,
+                                                  true,
+                                                  false,
+                                                  false,
+                                                  _model.generatedDatesState
+                                                      .toList(),
+                                                );
                                                 logFirebaseEvent(
                                                     'DropDown_rebuild_page');
+                                                safeSetState(() {});
+
                                                 safeSetState(() {});
                                               },
                                               width: 135.0,
@@ -593,11 +653,10 @@ class _ClassesWidgetState extends State<ClassesWidget>
                                                                     4.0),
                                                         child: Builder(
                                                           builder: (context) {
-                                                            final classesForDateListView =
-                                                                FFAppState()
-                                                                    .calendarClasses
-                                                                    .where((e) =>
-                                                                        dateTimeFormat(
+                                                            final classesForDateListView = FFAppState()
+                                                                .calendarClasses
+                                                                .where((e) =>
+                                                                    (dateTimeFormat(
                                                                           "d/M/y",
                                                                           e.scheduledStart,
                                                                           locale:
@@ -608,8 +667,11 @@ class _ClassesWidgetState extends State<ClassesWidget>
                                                                           generatedDatesListViewItem,
                                                                           locale:
                                                                               FFLocalizations.of(context).languageCode,
-                                                                        ))
-                                                                    .toList();
+                                                                        )) &&
+                                                                    (e.scheduledStart! <= getCurrentTimestamp))
+                                                                .toList()
+                                                                .sortedList(keyOf: (e) => e.scheduledStart!, desc: true)
+                                                                .toList();
                                                             if (classesForDateListView
                                                                 .isEmpty) {
                                                               return Center(
@@ -633,20 +695,14 @@ class _ClassesWidgetState extends State<ClassesWidget>
                                                               );
                                                             }
 
-                                                            return ListView
-                                                                .builder(
-                                                              padding:
-                                                                  EdgeInsets
-                                                                      .zero,
-                                                              primary: false,
-                                                              shrinkWrap: true,
-                                                              scrollDirection:
-                                                                  Axis.vertical,
-                                                              itemCount:
+                                                            return Column(
+                                                              mainAxisSize:
+                                                                  MainAxisSize
+                                                                      .max,
+                                                              children: List.generate(
                                                                   classesForDateListView
                                                                       .length,
-                                                              itemBuilder: (context,
-                                                                  classesForDateListViewIndex) {
+                                                                  (classesForDateListViewIndex) {
                                                                 final classesForDateListViewItem =
                                                                     classesForDateListView[
                                                                         classesForDateListViewIndex];
@@ -679,7 +735,7 @@ class _ClassesWidgetState extends State<ClassesWidget>
                                                                     ),
                                                                   ),
                                                                 );
-                                                              },
+                                                              }),
                                                             );
                                                           },
                                                         ),
@@ -699,190 +755,138 @@ class _ClassesWidgetState extends State<ClassesWidget>
                             ),
                           ),
                           KeepAliveWidgetWrapper(
-                            builder: (context) => Stack(
-                              children: [
-                                Column(
-                                  mainAxisSize: MainAxisSize.max,
-                                  children: [
-                                    Expanded(
-                                      child: Container(
-                                        width: double.infinity,
-                                        height: double.infinity,
-                                        decoration: BoxDecoration(
-                                          color: FlutterFlowTheme.of(context)
-                                              .secondaryBackground,
-                                          borderRadius:
-                                              BorderRadius.circular(0.0),
-                                        ),
-                                        child: Padding(
-                                          padding:
-                                              EdgeInsetsDirectional.fromSTEB(
-                                                  8.0, 6.0, 8.0, 0.0),
-                                          child: SingleChildScrollView(
-                                            primary: false,
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Row(
-                                                  mainAxisSize:
-                                                      MainAxisSize.max,
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
-                                                  children: [
-                                                    Align(
-                                                      alignment:
-                                                          AlignmentDirectional(
-                                                              -1.0, 0.0),
-                                                      child: Text(
-                                                        'Missed Classes (${valueOrDefault<String>(
-                                                          FFAppState()
-                                                              .missedClasses
-                                                              .length
-                                                              .toString(),
-                                                          '0',
-                                                        )})',
-                                                        style: FlutterFlowTheme
-                                                                .of(context)
-                                                            .headlineSmall
-                                                            .override(
-                                                              fontFamily:
-                                                                  FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .headlineSmallFamily,
-                                                              fontSize: 18.0,
-                                                              letterSpacing:
-                                                                  0.0,
-                                                              useGoogleFonts:
-                                                                  !FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .headlineSmallIsCustom,
-                                                            ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                                SingleChildScrollView(
-                                                  primary: false,
-                                                  child: Column(
-                                                    mainAxisSize:
-                                                        MainAxisSize.max,
-                                                    children: [
-                                                      Builder(
-                                                        builder: (context) {
-                                                          final missedClassesListView =
-                                                              FFAppState()
-                                                                  .missedClasses
-                                                                  .toList();
-                                                          if (missedClassesListView
-                                                              .isEmpty) {
-                                                            return Center(
-                                                              child:
-                                                                  EmptyStateGifWidget(
-                                                                imageUrl:
-                                                                    'https://cdn-icons-gif.flaticon.com/19015/19015298.gif',
-                                                                title:
-                                                                    valueOrDefault<
-                                                                        String>(
-                                                                  functions
-                                                                      .getEmptyStateMessage(
-                                                                          getCurrentTimestamp,
-                                                                          FFAppState()
-                                                                              .userPreferences
-                                                                              .preferredActionTone,
-                                                                          dateTimeFormat(
-                                                                            "d/M/y",
-                                                                            getCurrentTimestamp,
-                                                                            locale:
-                                                                                FFLocalizations.of(context).languageCode,
-                                                                          ))
-                                                                      .firstOrNull,
-                                                                  'No Classes Today!',
-                                                                ),
-                                                                description:
-                                                                    valueOrDefault<
-                                                                        String>(
-                                                                  functions
-                                                                      .getEmptyStateMessage(
-                                                                          getCurrentTimestamp,
-                                                                          FFAppState()
-                                                                              .userPreferences
-                                                                              .preferredActionTone,
-                                                                          dateTimeFormat(
-                                                                            "d/M/y",
-                                                                            getCurrentTimestamp,
-                                                                            locale:
-                                                                                FFLocalizations.of(context).languageCode,
-                                                                          ))
-                                                                      .lastOrNull,
-                                                                  'No Classes Today!',
-                                                                ),
-                                                              ),
-                                                            );
-                                                          }
-
-                                                          return ListView
-                                                              .builder(
-                                                            padding:
-                                                                EdgeInsets.zero,
-                                                            primary: false,
-                                                            shrinkWrap: true,
-                                                            scrollDirection:
-                                                                Axis.vertical,
-                                                            itemCount:
-                                                                missedClassesListView
-                                                                    .length,
-                                                            itemBuilder: (context,
-                                                                missedClassesListViewIndex) {
-                                                              final missedClassesListViewItem =
-                                                                  missedClassesListView[
-                                                                      missedClassesListViewIndex];
-                                                              return Padding(
-                                                                padding:
-                                                                    EdgeInsetsDirectional
-                                                                        .fromSTEB(
-                                                                            0.0,
-                                                                            4.0,
-                                                                            0.0,
-                                                                            0.0),
-                                                                child:
-                                                                    wrapWithModel(
-                                                                  model: _model
-                                                                      .classBlockGeneralModels2
-                                                                      .getModel(
-                                                                    missedClassesListViewItem
-                                                                        .classId,
-                                                                    missedClassesListViewIndex,
-                                                                  ),
-                                                                  updateCallback: () =>
-                                                                      safeSetState(
-                                                                          () {}),
-                                                                  child:
-                                                                      ClassBlockGeneralWidget(
-                                                                    key: Key(
-                                                                      'Keyydi_${missedClassesListViewItem.classId}',
-                                                                    ),
-                                                                    classBlock:
-                                                                        missedClassesListViewItem,
-                                                                  ),
-                                                                ),
-                                                              );
-                                                            },
-                                                          );
-                                                        },
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
+                            builder: (context) => Container(
+                              width: double.infinity,
+                              height: double.infinity,
+                              decoration: BoxDecoration(
+                                color: FlutterFlowTheme.of(context)
+                                    .secondaryBackground,
+                                borderRadius: BorderRadius.circular(0.0),
+                              ),
+                              child: Padding(
+                                padding: EdgeInsetsDirectional.fromSTEB(
+                                    8.0, 6.0, 8.0, 0.0),
+                                child: SingleChildScrollView(
+                                  primary: false,
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Align(
+                                        alignment:
+                                            AlignmentDirectional(-1.0, 0.0),
+                                        child: Text(
+                                          'Missed Classes (${valueOrDefault<String>(
+                                            FFAppState()
+                                                .missedClasses
+                                                .length
+                                                .toString(),
+                                            '0',
+                                          )})',
+                                          style: FlutterFlowTheme.of(context)
+                                              .headlineSmall
+                                              .override(
+                                                fontFamily:
+                                                    FlutterFlowTheme.of(context)
+                                                        .headlineSmallFamily,
+                                                fontSize: 18.0,
+                                                letterSpacing: 0.0,
+                                                useGoogleFonts:
+                                                    !FlutterFlowTheme.of(
+                                                            context)
+                                                        .headlineSmallIsCustom,
+                                              ),
                                         ),
                                       ),
-                                    ),
-                                  ],
+                                      Builder(
+                                        builder: (context) {
+                                          final missedClassesListView =
+                                              FFAppState()
+                                                  .missedClasses
+                                                  .toList();
+                                          if (missedClassesListView.isEmpty) {
+                                            return Center(
+                                              child: EmptyStateGifWidget(
+                                                imageUrl:
+                                                    'https://cdn-icons-gif.flaticon.com/19015/19015298.gif',
+                                                title: valueOrDefault<String>(
+                                                  functions
+                                                      .getEmptyStateMessage(
+                                                          getCurrentTimestamp,
+                                                          FFAppState()
+                                                              .userPreferences
+                                                              .preferredActionTone,
+                                                          dateTimeFormat(
+                                                            "d/M/y",
+                                                            getCurrentTimestamp,
+                                                            locale: FFLocalizations
+                                                                    .of(context)
+                                                                .languageCode,
+                                                          ))
+                                                      .firstOrNull,
+                                                  'No Classes Today!',
+                                                ),
+                                                description:
+                                                    valueOrDefault<String>(
+                                                  functions
+                                                      .getEmptyStateMessage(
+                                                          getCurrentTimestamp,
+                                                          FFAppState()
+                                                              .userPreferences
+                                                              .preferredActionTone,
+                                                          dateTimeFormat(
+                                                            "d/M/y",
+                                                            getCurrentTimestamp,
+                                                            locale: FFLocalizations
+                                                                    .of(context)
+                                                                .languageCode,
+                                                          ))
+                                                      .lastOrNull,
+                                                  'No Classes Today!',
+                                                ),
+                                              ),
+                                            );
+                                          }
+
+                                          return Column(
+                                            mainAxisSize: MainAxisSize.max,
+                                            children: List.generate(
+                                                missedClassesListView.length,
+                                                (missedClassesListViewIndex) {
+                                              final missedClassesListViewItem =
+                                                  missedClassesListView[
+                                                      missedClassesListViewIndex];
+                                              return Padding(
+                                                padding: EdgeInsetsDirectional
+                                                    .fromSTEB(
+                                                        0.0, 4.0, 0.0, 0.0),
+                                                child: wrapWithModel(
+                                                  model: _model
+                                                      .classBlockGeneralModels2
+                                                      .getModel(
+                                                    missedClassesListViewItem
+                                                        .classId,
+                                                    missedClassesListViewIndex,
+                                                  ),
+                                                  updateCallback: () =>
+                                                      safeSetState(() {}),
+                                                  child:
+                                                      ClassBlockGeneralWidget(
+                                                    key: Key(
+                                                      'Keyydi_${missedClassesListViewItem.classId}',
+                                                    ),
+                                                    classBlock:
+                                                        missedClassesListViewItem,
+                                                  ),
+                                                ),
+                                              );
+                                            }),
+                                          );
+                                        },
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ],
+                              ),
                             ),
                           ),
                         ],

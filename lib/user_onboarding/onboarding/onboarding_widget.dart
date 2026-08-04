@@ -17,6 +17,7 @@ import '/flutter_flow/instant_timer.dart';
 import 'dart:async';
 import '/custom_code/actions/index.dart' as actions;
 import '/flutter_flow/custom_functions.dart' as functions;
+import '/flutter_flow/random_data_util.dart' as random_data;
 import '/index.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart'
     as smooth_page_indicator;
@@ -202,26 +203,7 @@ class _OnboardingWidgetState extends State<OnboardingWidget>
           ),
         ],
       ),
-      'buttonOnActionTriggerAnimation': AnimationInfo(
-        trigger: AnimationTrigger.onActionTrigger,
-        applyInitialState: true,
-        effectsBuilder: () => [
-          FadeEffect(
-            curve: Curves.easeInOut,
-            delay: 0.0.ms,
-            duration: 600.0.ms,
-            begin: 0.0,
-            end: 1.0,
-          ),
-        ],
-      ),
     });
-    setupAnimations(
-      animationsMap.values.where((anim) =>
-          anim.trigger == AnimationTrigger.onActionTrigger ||
-          !anim.applyInitialState),
-      this,
-    );
 
     WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
   }
@@ -351,8 +333,6 @@ class _OnboardingWidgetState extends State<OnboardingWidget>
                                                             backgroundColor:
                                                                 Colors
                                                                     .transparent,
-                                                            isDismissible:
-                                                                false,
                                                             enableDrag: false,
                                                             context: context,
                                                             builder: (context) {
@@ -2682,14 +2662,11 @@ class _OnboardingWidgetState extends State<OnboardingWidget>
                                           );
                                         }
 
-                                        return ListView.builder(
-                                          padding: EdgeInsets.zero,
-                                          primary: false,
-                                          shrinkWrap: true,
-                                          scrollDirection: Axis.vertical,
-                                          itemCount: coreCoursesListView.length,
-                                          itemBuilder: (context,
-                                              coreCoursesListViewIndex) {
+                                        return Column(
+                                          mainAxisSize: MainAxisSize.max,
+                                          children: List.generate(
+                                              coreCoursesListView.length,
+                                              (coreCoursesListViewIndex) {
                                             final coreCoursesListViewItem =
                                                 coreCoursesListView[
                                                     coreCoursesListViewIndex];
@@ -2723,7 +2700,7 @@ class _OnboardingWidgetState extends State<OnboardingWidget>
                                                 ),
                                               ),
                                             );
-                                          },
+                                          }),
                                         );
                                       },
                                     ),
@@ -2784,14 +2761,11 @@ class _OnboardingWidgetState extends State<OnboardingWidget>
                                           );
                                         }
 
-                                        return ListView.builder(
-                                          padding: EdgeInsets.zero,
-                                          primary: false,
-                                          shrinkWrap: true,
-                                          scrollDirection: Axis.vertical,
-                                          itemCount: labCoursesListView.length,
-                                          itemBuilder: (context,
-                                              labCoursesListViewIndex) {
+                                        return Column(
+                                          mainAxisSize: MainAxisSize.max,
+                                          children: List.generate(
+                                              labCoursesListView.length,
+                                              (labCoursesListViewIndex) {
                                             final labCoursesListViewItem =
                                                 labCoursesListView[
                                                     labCoursesListViewIndex];
@@ -2839,7 +2813,7 @@ class _OnboardingWidgetState extends State<OnboardingWidget>
                                                 ),
                                               ),
                                             );
-                                          },
+                                          }),
                                         );
                                       },
                                     ),
@@ -3009,15 +2983,11 @@ class _OnboardingWidgetState extends State<OnboardingWidget>
                                           );
                                         }
 
-                                        return ListView.builder(
-                                          padding: EdgeInsets.zero,
-                                          primary: false,
-                                          shrinkWrap: true,
-                                          scrollDirection: Axis.vertical,
-                                          itemCount:
+                                        return Column(
+                                          mainAxisSize: MainAxisSize.max,
+                                          children: List.generate(
                                               requiredElectivesListView.length,
-                                          itemBuilder: (context,
-                                              requiredElectivesListViewIndex) {
+                                              (requiredElectivesListViewIndex) {
                                             final requiredElectivesListViewItem =
                                                 requiredElectivesListView[
                                                     requiredElectivesListViewIndex];
@@ -3074,7 +3044,7 @@ class _OnboardingWidgetState extends State<OnboardingWidget>
                                                 ),
                                               ),
                                             );
-                                          },
+                                          }),
                                         );
                                       },
                                     ),
@@ -3211,6 +3181,100 @@ class _OnboardingWidgetState extends State<OnboardingWidget>
                                                               ?.statusCode ==
                                                           200)) {
                                                     logFirebaseEvent(
+                                                        'Button_custom_action');
+                                                    _model.generatedTimeline =
+                                                        await actions
+                                                            .generatePastDateRange(
+                                                      getCurrentTimestamp,
+                                                      DateRange.sevenDays,
+                                                      WeekendPolicy.excludeAll,
+                                                    );
+                                                    logFirebaseEvent(
+                                                        'Button_custom_action');
+                                                    await actions.syncAppData(
+                                                      true,
+                                                      true,
+                                                      true,
+                                                      true,
+                                                      true,
+                                                      true,
+                                                      true,
+                                                      _model.generatedTimeline
+                                                          ?.toList(),
+                                                    );
+                                                    logFirebaseEvent(
+                                                        'Button_custom_action');
+                                                    _model.generatedGreetingMessageOnboarding =
+                                                        await actions
+                                                            .generateGreeting(
+                                                      FFAppState()
+                                                          .userProfile
+                                                          .username,
+                                                      FFAppState()
+                                                          .userPreferences
+                                                          .preferredActionTone
+                                                          .name,
+                                                      FFAppState()
+                                                          .dashboardClasses
+                                                          .where((e) =>
+                                                              dateTimeFormat(
+                                                                "d/M/y",
+                                                                e.scheduledStart,
+                                                                locale: FFLocalizations.of(
+                                                                        context)
+                                                                    .languageCode,
+                                                              ) ==
+                                                              dateTimeFormat(
+                                                                "d/M/y",
+                                                                getCurrentTimestamp,
+                                                                locale: FFLocalizations.of(
+                                                                        context)
+                                                                    .languageCode,
+                                                              ))
+                                                          .toList(),
+                                                      List.generate(
+                                                          random_data
+                                                              .randomInteger(
+                                                                  2, 4),
+                                                          (index) => random_data
+                                                              .randomName(true,
+                                                                  true)).toList(),
+                                                      FFAppState()
+                                                          .userPreferences
+                                                          .useScheduledClassesForGreetingMessage,
+                                                      FFAppState()
+                                                          .userPreferences
+                                                          .useActionToneForGreetingMessage,
+                                                    );
+                                                    logFirebaseEvent(
+                                                        'Button_update_app_state');
+                                                    FFAppState()
+                                                            .userGreetingMessage =
+                                                        _model
+                                                            .generatedGreetingMessageOnboarding!;
+                                                    FFAppState()
+                                                            .selectedDateClasses =
+                                                        FFAppState()
+                                                            .dashboardClasses
+                                                            .where((e) =>
+                                                                dateTimeFormat(
+                                                                  "d/M/y",
+                                                                  e.scheduledStart,
+                                                                  locale: FFLocalizations.of(
+                                                                          context)
+                                                                      .languageCode,
+                                                                ) ==
+                                                                dateTimeFormat(
+                                                                  "d/M/y",
+                                                                  getCurrentTimestamp,
+                                                                  locale: FFLocalizations.of(
+                                                                          context)
+                                                                      .languageCode,
+                                                                ))
+                                                            .toList()
+                                                            .cast<
+                                                                ScheduledClassStruct>();
+                                                    logFirebaseEvent(
                                                         'Button_update_page_state');
                                                     _model.isOnboardingComplete =
                                                         true;
@@ -3292,7 +3356,7 @@ class _OnboardingWidgetState extends State<OnboardingWidget>
                                                   _model.instantTimer =
                                                       InstantTimer.periodic(
                                                     duration: Duration(
-                                                        milliseconds: 1500),
+                                                        milliseconds: 1000),
                                                     callback: (timer) async {
                                                       logFirebaseEvent(
                                                           'Button_update_page_state');
@@ -3301,7 +3365,9 @@ class _OnboardingWidgetState extends State<OnboardingWidget>
                                                               .onboardingProgress +
                                                           (_model.onboardingProgress <=
                                                                   0.8
-                                                              ? 0.2
+                                                              ? random_data
+                                                                  .randomDouble(
+                                                                      0.0, 0.1)
                                                               : 0.0);
                                                       _model.onboardingProgressMessage =
                                                           functions
@@ -3311,7 +3377,7 @@ class _OnboardingWidgetState extends State<OnboardingWidget>
                                                               1;
                                                       safeSetState(() {});
                                                       if ((_model.onboardingElapsedTIme >=
-                                                              7) &&
+                                                              10) &&
                                                           _model
                                                               .isOnboardingComplete) {
                                                         logFirebaseEvent(
@@ -3321,9 +3387,21 @@ class _OnboardingWidgetState extends State<OnboardingWidget>
                                                         logFirebaseEvent(
                                                             'Button_navigate_to');
 
-                                                        context.pushNamed(
-                                                            DashboardWidget
-                                                                .routeName);
+                                                        context.goNamed(
+                                                          DashboardWidget
+                                                              .routeName,
+                                                          extra: <String,
+                                                              dynamic>{
+                                                            '__transition_info__':
+                                                                TransitionInfo(
+                                                              hasTransition:
+                                                                  true,
+                                                              transitionType:
+                                                                  PageTransitionType
+                                                                      .rightToLeft,
+                                                            ),
+                                                          },
+                                                        );
                                                       }
                                                     },
                                                     startImmediately: true,
@@ -3601,76 +3679,6 @@ class _OnboardingWidgetState extends State<OnboardingWidget>
                                       padding: EdgeInsets.zero,
                                     ),
                                   ),
-                                  if (_model.onboardingElapsedTIme >= 4)
-                                    Padding(
-                                      padding: EdgeInsetsDirectional.fromSTEB(
-                                          0.0, 100.0, 0.0, 0.0),
-                                      child: FFButtonWidget(
-                                        onPressed: () async {
-                                          logFirebaseEvent(
-                                              'ONBOARDING_PAGE_CONTINUE_BTN_ON_TAP');
-                                          logFirebaseEvent(
-                                              'Button_navigate_to');
-
-                                          context.goNamed(
-                                            DashboardWidget.routeName,
-                                            extra: <String, dynamic>{
-                                              '__transition_info__':
-                                                  TransitionInfo(
-                                                hasTransition: true,
-                                                transitionType:
-                                                    PageTransitionType
-                                                        .topToBottom,
-                                              ),
-                                            },
-                                          );
-
-                                          logFirebaseEvent(
-                                              'Button_stop_periodic_action');
-                                          _model.instantTimer?.cancel();
-                                        },
-                                        text: 'Continue ',
-                                        icon: Icon(
-                                          FFIcons.karrowRight,
-                                          size: 24.0,
-                                        ),
-                                        options: FFButtonOptions(
-                                          width: 200.0,
-                                          height: 35.0,
-                                          padding:
-                                              EdgeInsetsDirectional.fromSTEB(
-                                                  16.0, 0.0, 16.0, 0.0),
-                                          iconAlignment: IconAlignment.end,
-                                          iconPadding:
-                                              EdgeInsetsDirectional.fromSTEB(
-                                                  0.0, 0.0, 0.0, 0.0),
-                                          iconColor:
-                                              FlutterFlowTheme.of(context).info,
-                                          color: FlutterFlowTheme.of(context)
-                                              .primary,
-                                          textStyle: FlutterFlowTheme.of(
-                                                  context)
-                                              .titleSmall
-                                              .override(
-                                                fontFamily:
-                                                    FlutterFlowTheme.of(context)
-                                                        .titleSmallFamily,
-                                                color: Colors.white,
-                                                letterSpacing: 0.0,
-                                                useGoogleFonts:
-                                                    !FlutterFlowTheme.of(
-                                                            context)
-                                                        .titleSmallIsCustom,
-                                              ),
-                                          elevation: 0.0,
-                                          borderRadius:
-                                              BorderRadius.circular(12.0),
-                                        ),
-                                      ).animateOnActionTrigger(
-                                        animationsMap[
-                                            'buttonOnActionTriggerAnimation']!,
-                                      ),
-                                    ),
                                 ],
                               ),
                             ),

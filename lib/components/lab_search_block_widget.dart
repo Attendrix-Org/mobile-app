@@ -101,12 +101,10 @@ class _LabSearchBlockWidgetState extends State<LabSearchBlockWidget> {
                   final searchItemsListView =
                       widget.labCourseSearchItems!.toList();
 
-                  return ListView.builder(
-                    padding: EdgeInsets.zero,
-                    shrinkWrap: true,
-                    scrollDirection: Axis.vertical,
-                    itemCount: searchItemsListView.length,
-                    itemBuilder: (context, searchItemsListViewIndex) {
+                  return Column(
+                    mainAxisSize: MainAxisSize.max,
+                    children: List.generate(searchItemsListView.length,
+                        (searchItemsListViewIndex) {
                       final searchItemsListViewItem =
                           searchItemsListView[searchItemsListViewIndex];
                       return Padding(
@@ -227,7 +225,7 @@ class _LabSearchBlockWidgetState extends State<LabSearchBlockWidget> {
                           ),
                         ),
                       );
-                    },
+                    }),
                   );
                 },
               ),

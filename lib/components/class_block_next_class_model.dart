@@ -17,15 +17,13 @@ class ClassBlockNextClassModel
 
   ///  State fields for stateful widgets in this component.
 
-  InstantTimer? progressBarTimer;
-  // Stores action output result for [Custom Action - calculateWalkRoute] action in classBlock_NextClass widget.
-  RouteResultStruct? walkRouteData;
+  InstantTimer? nextClassBlockUpdateTimer;
 
   @override
   void initState(BuildContext context) {}
 
   @override
   void dispose() {
-    progressBarTimer?.cancel();
+    nextClassBlockUpdateTimer?.cancel();
   }
 }

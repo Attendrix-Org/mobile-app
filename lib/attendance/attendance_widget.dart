@@ -243,14 +243,11 @@ class _AttendanceWidgetState extends State<AttendanceWidget> {
                                     .enrolledCourses
                                     .toList();
 
-                                return ListView.builder(
-                                  padding: EdgeInsets.zero,
-                                  primary: false,
-                                  shrinkWrap: true,
-                                  scrollDirection: Axis.vertical,
-                                  itemCount: enrolledCoursesListView.length,
-                                  itemBuilder:
-                                      (context, enrolledCoursesListViewIndex) {
+                                return Column(
+                                  mainAxisSize: MainAxisSize.max,
+                                  children: List.generate(
+                                      enrolledCoursesListView.length,
+                                      (enrolledCoursesListViewIndex) {
                                     final enrolledCoursesListViewItem =
                                         enrolledCoursesListView[
                                             enrolledCoursesListViewIndex];
@@ -321,7 +318,7 @@ class _AttendanceWidgetState extends State<AttendanceWidget> {
                                         ),
                                       ),
                                     );
-                                  },
+                                  }),
                                 );
                               },
                             ),

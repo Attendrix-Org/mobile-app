@@ -326,10 +326,10 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                                 onTap: () async {
                                   logFirebaseEvent(
                                       'SETTINGS_PAGE_bottomContent_ON_TAP');
-                                  logFirebaseEvent(
-                                      'bottomContent_launch_u_r_l');
-                                  await launchURL(
-                                      'https://attendrix.app/terms');
+                                  logFirebaseEvent('bottomContent_navigate_to');
+
+                                  context.pushNamed(
+                                      ManageNotificationsWidget.routeName);
                                 },
                                 child: Row(
                                   mainAxisSize: MainAxisSize.max,
@@ -772,7 +772,6 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                           EdgeInsetsDirectional.fromSTEB(8.0, 0.0, 8.0, 0.0),
                       child: Container(
                         width: double.infinity,
-                        height: 600.0,
                         decoration: BoxDecoration(
                           color:
                               FlutterFlowTheme.of(context).secondaryBackground,
@@ -1410,11 +1409,20 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                                       chipSpacing: 8.0,
                                       rowSpacing: 8.0,
                                       multiselect: false,
+                                      initialized:
+                                          _model.choiceChipsValue1 != null,
                                       alignment: WrapAlignment.start,
                                       controller:
                                           _model.choiceChipsValueController1 ??=
                                               FormFieldController<List<String>>(
-                                        [],
+                                        [
+                                          FFAppState()
+                                                      .userPreferences
+                                                      .preferredTimeFormat ==
+                                                  TimeFormat.twelveHour
+                                              ? '12 Hour Format'
+                                              : '24 Hour Format'
+                                        ],
                                       ),
                                       wrapped: false,
                                     ),
@@ -1762,248 +1770,212 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                     Padding(
                       padding:
                           EdgeInsetsDirectional.fromSTEB(8.0, 0.0, 8.0, 0.0),
-                      child: FutureBuilder<List<UserGoogleIntegrationsRow>>(
-                        future: UserGoogleIntegrationsTable().querySingleRow(
-                          queryFn: (q) => q.eqOrNull(
-                            'user_id',
-                            currentUserUid,
-                          ),
+                      child: Container(
+                        width: double.infinity,
+                        height: 100.0,
+                        decoration: BoxDecoration(
+                          color:
+                              FlutterFlowTheme.of(context).secondaryBackground,
+                          borderRadius: BorderRadius.circular(12.0),
                         ),
-                        builder: (context, snapshot) {
-                          // Customize what your widget looks like when it's loading.
-                          if (!snapshot.hasData) {
-                            return Center(
-                              child: SizedBox(
-                                width: 25.0,
-                                height: 25.0,
-                                child: SpinKitFadingCube(
-                                  color: FlutterFlowTheme.of(context).primary,
-                                  size: 25.0,
+                        child: Padding(
+                          padding: EdgeInsets.all(4.0),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.max,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: EdgeInsetsDirectional.fromSTEB(
+                                    8.0, 0.0, 0.0, 0.0),
+                                child: Text(
+                                  'Minimum Attendance Requirement',
+                                  style: FlutterFlowTheme.of(context)
+                                      .titleMedium
+                                      .override(
+                                        font: GoogleFonts.outfit(
+                                          fontWeight: FontWeight.w600,
+                                          fontStyle:
+                                              FlutterFlowTheme.of(context)
+                                                  .titleMedium
+                                                  .fontStyle,
+                                        ),
+                                        color: FlutterFlowTheme.of(context)
+                                            .primaryText,
+                                        letterSpacing: 0.0,
+                                        fontWeight: FontWeight.w600,
+                                        fontStyle: FlutterFlowTheme.of(context)
+                                            .titleMedium
+                                            .fontStyle,
+                                      ),
                                 ),
                               ),
-                            );
-                          }
-                          List<UserGoogleIntegrationsRow>
-                              containerUserGoogleIntegrationsRowList =
-                              snapshot.data!;
-
-                          final containerUserGoogleIntegrationsRow =
-                              containerUserGoogleIntegrationsRowList.isNotEmpty
-                                  ? containerUserGoogleIntegrationsRowList.first
-                                  : null;
-
-                          return Container(
-                            width: double.infinity,
-                            height: 100.0,
-                            decoration: BoxDecoration(
-                              color: FlutterFlowTheme.of(context)
-                                  .secondaryBackground,
-                              borderRadius: BorderRadius.circular(12.0),
-                            ),
-                            child: Padding(
-                              padding: EdgeInsets.all(4.0),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.max,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Padding(
-                                    padding: EdgeInsetsDirectional.fromSTEB(
-                                        8.0, 0.0, 0.0, 0.0),
-                                    child: Text(
-                                      'Minimum Attendance Requirement',
-                                      style: FlutterFlowTheme.of(context)
-                                          .titleMedium
-                                          .override(
-                                            font: GoogleFonts.outfit(
-                                              fontWeight: FontWeight.w600,
-                                              fontStyle:
-                                                  FlutterFlowTheme.of(context)
-                                                      .titleMedium
-                                                      .fontStyle,
-                                            ),
-                                            color: FlutterFlowTheme.of(context)
-                                                .primaryText,
-                                            letterSpacing: 0.0,
-                                            fontWeight: FontWeight.w600,
-                                            fontStyle:
-                                                FlutterFlowTheme.of(context)
-                                                    .titleMedium
-                                                    .fontStyle,
-                                          ),
+                              Padding(
+                                padding: EdgeInsetsDirectional.fromSTEB(
+                                    6.0, 0.0, 6.0, 0.0),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: FlutterFlowTheme.of(context)
+                                        .primaryBackground,
+                                    borderRadius: BorderRadius.circular(16.0),
+                                    border: Border.all(
+                                      color: FlutterFlowTheme.of(context)
+                                          .alternate,
+                                      width: 2.0,
                                     ),
                                   ),
-                                  Padding(
-                                    padding: EdgeInsetsDirectional.fromSTEB(
-                                        6.0, 0.0, 6.0, 0.0),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        color: FlutterFlowTheme.of(context)
-                                            .primaryBackground,
-                                        borderRadius:
-                                            BorderRadius.circular(16.0),
-                                        border: Border.all(
-                                          color: FlutterFlowTheme.of(context)
-                                              .alternate,
-                                          width: 2.0,
-                                        ),
-                                      ),
-                                      child: Padding(
-                                        padding: EdgeInsets.all(6.0),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.max,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(
-                                              'Set Global Default',
-                                              style: FlutterFlowTheme.of(
-                                                      context)
-                                                  .bodyMedium
-                                                  .override(
-                                                    font: GoogleFonts.outfit(
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                      fontStyle:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .bodyMedium
-                                                              .fontStyle,
-                                                    ),
-                                                    fontSize: 15.0,
-                                                    letterSpacing: 0.0,
-                                                    fontWeight: FontWeight.w500,
-                                                    fontStyle:
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .bodyMedium
-                                                            .fontStyle,
-                                                  ),
-                                            ),
-                                            Container(
-                                              width: MediaQuery.sizeOf(context)
-                                                      .width *
-                                                  0.4,
-                                              height: 40.0,
-                                              decoration: BoxDecoration(
-                                                color:
-                                                    FlutterFlowTheme.of(context)
-                                                        .secondaryBackground,
-                                                borderRadius:
-                                                    BorderRadius.circular(12.0),
-                                                shape: BoxShape.rectangle,
-                                                border: Border.all(
-                                                  color: FlutterFlowTheme.of(
-                                                          context)
-                                                      .alternate,
-                                                ),
-                                              ),
-                                              child: FlutterFlowCountController(
-                                                decrementIconBuilder:
-                                                    (enabled) => Icon(
-                                                  Icons.remove_rounded,
-                                                  color: enabled
-                                                      ? FlutterFlowTheme.of(
-                                                              context)
-                                                          .secondaryText
-                                                      : FlutterFlowTheme.of(
-                                                              context)
-                                                          .alternate,
-                                                  size: 24.0,
-                                                ),
-                                                incrementIconBuilder:
-                                                    (enabled) => Icon(
-                                                  Icons.add_rounded,
-                                                  color: enabled
-                                                      ? FlutterFlowTheme.of(
-                                                              context)
-                                                          .primary
-                                                      : FlutterFlowTheme.of(
-                                                              context)
-                                                          .alternate,
-                                                  size: 24.0,
-                                                ),
-                                                countBuilder: (count) => Text(
-                                                  count.toString(),
-                                                  style:
+                                  child: Padding(
+                                    padding: EdgeInsets.all(6.0),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.max,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          'Set Global Default',
+                                          style: FlutterFlowTheme.of(context)
+                                              .bodyMedium
+                                              .override(
+                                                font: GoogleFonts.outfit(
+                                                  fontWeight: FontWeight.w500,
+                                                  fontStyle:
                                                       FlutterFlowTheme.of(
                                                               context)
-                                                          .titleLarge
-                                                          .override(
-                                                            fontFamily:
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .titleLargeFamily,
-                                                            letterSpacing: 0.0,
-                                                            useGoogleFonts:
-                                                                !FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .titleLargeIsCustom,
-                                                          ),
+                                                          .bodyMedium
+                                                          .fontStyle,
                                                 ),
-                                                count: _model
-                                                    .countControllerValue ??= 80,
-                                                updateCount: (count) async {
-                                                  safeSetState(() => _model
-                                                          .countControllerValue =
-                                                      count);
-                                                  logFirebaseEvent(
-                                                      'SETTINGS_CountController_qsqk0rpk_ON_FOR');
-                                                  logFirebaseEvent(
-                                                      'CountController_backend_call');
-                                                  await UsersTable().update(
-                                                    data: {
-                                                      'min_attendance_target':
-                                                          _model
-                                                              .countControllerValue,
-                                                    },
-                                                    matchingRows: (rows) =>
-                                                        rows.eqOrNull(
-                                                      'id',
-                                                      currentUserUid,
-                                                    ),
-                                                  );
-                                                },
-                                                stepSize: 5,
-                                                minimum: 50,
-                                                maximum: 95,
-                                                contentPadding:
-                                                    EdgeInsetsDirectional
-                                                        .fromSTEB(12.0, 0.0,
-                                                            12.0, 0.0),
+                                                fontSize: 15.0,
+                                                letterSpacing: 0.0,
+                                                fontWeight: FontWeight.w500,
+                                                fontStyle:
+                                                    FlutterFlowTheme.of(context)
+                                                        .bodyMedium
+                                                        .fontStyle,
                                               ),
-                                            ),
-                                          ],
                                         ),
-                                      ),
+                                        Container(
+                                          width:
+                                              MediaQuery.sizeOf(context).width *
+                                                  0.4,
+                                          height: 40.0,
+                                          decoration: BoxDecoration(
+                                            color: FlutterFlowTheme.of(context)
+                                                .secondaryBackground,
+                                            borderRadius:
+                                                BorderRadius.circular(12.0),
+                                            shape: BoxShape.rectangle,
+                                            border: Border.all(
+                                              color:
+                                                  FlutterFlowTheme.of(context)
+                                                      .alternate,
+                                            ),
+                                          ),
+                                          child: FlutterFlowCountController(
+                                            decrementIconBuilder: (enabled) =>
+                                                Icon(
+                                              Icons.remove_rounded,
+                                              color: enabled
+                                                  ? FlutterFlowTheme.of(context)
+                                                      .secondaryText
+                                                  : FlutterFlowTheme.of(context)
+                                                      .alternate,
+                                              size: 24.0,
+                                            ),
+                                            incrementIconBuilder: (enabled) =>
+                                                Icon(
+                                              Icons.add_rounded,
+                                              color: enabled
+                                                  ? FlutterFlowTheme.of(context)
+                                                      .primary
+                                                  : FlutterFlowTheme.of(context)
+                                                      .alternate,
+                                              size: 24.0,
+                                            ),
+                                            countBuilder: (count) => Text(
+                                              count.toString(),
+                                              style:
+                                                  FlutterFlowTheme.of(context)
+                                                      .titleLarge
+                                                      .override(
+                                                        fontFamily:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .titleLargeFamily,
+                                                        letterSpacing: 0.0,
+                                                        useGoogleFonts:
+                                                            !FlutterFlowTheme
+                                                                    .of(context)
+                                                                .titleLargeIsCustom,
+                                                      ),
+                                            ),
+                                            count: _model
+                                                .countControllerValue ??= 80,
+                                            updateCount: (count) async {
+                                              safeSetState(() =>
+                                                  _model.countControllerValue =
+                                                      count);
+                                              logFirebaseEvent(
+                                                  'SETTINGS_CountController_qsqk0rpk_ON_FOR');
+                                              logFirebaseEvent(
+                                                  'CountController_backend_call');
+                                              await UsersTable().update(
+                                                data: {
+                                                  'min_attendance_target':
+                                                      _model
+                                                          .countControllerValue,
+                                                },
+                                                matchingRows: (rows) =>
+                                                    rows.eqOrNull(
+                                                  'id',
+                                                  currentUserUid,
+                                                ),
+                                              );
+                                            },
+                                            stepSize: 5,
+                                            minimum: 50,
+                                            maximum: 95,
+                                            contentPadding:
+                                                EdgeInsetsDirectional.fromSTEB(
+                                                    12.0, 0.0, 12.0, 0.0),
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                ].divide(SizedBox(height: 8.0)),
+                                ),
                               ),
-                            ),
-                          );
-                        },
+                            ].divide(SizedBox(height: 8.0)),
+                          ),
+                        ),
                       ),
                     ),
                     Padding(
                       padding:
                           EdgeInsetsDirectional.fromSTEB(8.0, 0.0, 8.0, 0.0),
                       child: FutureBuilder<List<UserGoogleIntegrationsRow>>(
-                        future: UserGoogleIntegrationsTable().querySingleRow(
-                          queryFn: (q) => q.eqOrNull(
-                            'user_id',
-                            currentUserUid,
+                        future: FFAppState().userGoogleSync(
+                          uniqueQueryKey: 'USER_GOOGLE_SYNC',
+                          requestFn: () =>
+                              UserGoogleIntegrationsTable().querySingleRow(
+                            queryFn: (q) => q.eqOrNull(
+                              'user_id',
+                              currentUserUid,
+                            ),
                           ),
                         ),
                         builder: (context, snapshot) {
                           // Customize what your widget looks like when it's loading.
                           if (!snapshot.hasData) {
                             return Center(
-                              child: SizedBox(
-                                width: 25.0,
-                                height: 25.0,
-                                child: SpinKitFadingCube(
-                                  color: FlutterFlowTheme.of(context).primary,
-                                  size: 25.0,
+                              child: Padding(
+                                padding: EdgeInsetsDirectional.fromSTEB(
+                                    0.0, 40.0, 0.0, 40.0),
+                                child: SizedBox(
+                                  width: 20.0,
+                                  height: 20.0,
+                                  child: SpinKitFadingCube(
+                                    color: FlutterFlowTheme.of(context).primary,
+                                    size: 20.0,
+                                  ),
                                 ),
                               ),
                             );
@@ -2093,10 +2065,13 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                                             ),
                                             Text(
                                               valueOrDefault<String>(
-                                                containerUserGoogleIntegrationsRow
-                                                    ?.syncStatus,
-                                                'Error_UNKNOWN',
-                                              ),
+                                                        containerUserGoogleIntegrationsRow
+                                                            ?.syncStatus,
+                                                        'Error_UNKNOWN',
+                                                      ) ==
+                                                      'active'
+                                                  ? 'Connected & Sync Active'
+                                                  : 'Not Connected',
                                               style: FlutterFlowTheme.of(
                                                       context)
                                                   .bodyMedium
@@ -2165,28 +2140,116 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                                                             .fontStyle,
                                                   ),
                                             ),
-                                            Row(
-                                              mainAxisSize: MainAxisSize.max,
-                                              children: [
-                                                Icon(
-                                                  FFIcons.krefresh,
-                                                  color: FlutterFlowTheme.of(
-                                                          context)
-                                                      .primary,
-                                                  size: 24.0,
-                                                ),
-                                                Padding(
-                                                  padding: EdgeInsetsDirectional
-                                                      .fromSTEB(
-                                                          4.0, 0.0, 4.0, 0.0),
-                                                  child: Text(
-                                                    'Sync Now',
-                                                    style: FlutterFlowTheme.of(
+                                            InkWell(
+                                              splashColor: Colors.transparent,
+                                              focusColor: Colors.transparent,
+                                              hoverColor: Colors.transparent,
+                                              highlightColor:
+                                                  Colors.transparent,
+                                              onTap: () async {
+                                                logFirebaseEvent(
+                                                    'SETTINGS_PAGE_Row_ml8x76ah_ON_TAP');
+                                                logFirebaseEvent(
+                                                    'Row_custom_action');
+                                                _model.syncStatus = await actions
+                                                    .syncNowGoogleCalendar();
+                                                if (_model.syncStatus!) {
+                                                  logFirebaseEvent(
+                                                      'Row_show_snack_bar');
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(
+                                                    SnackBar(
+                                                      content: Text(
+                                                        'Google Calendar synced successfully!',
+                                                        style:
+                                                            GoogleFonts.outfit(
+                                                          color: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .info,
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                          fontSize: 12.0,
+                                                        ),
+                                                      ),
+                                                      duration: Duration(
+                                                          milliseconds: 4000),
+                                                      backgroundColor:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .success,
+                                                    ),
+                                                  );
+                                                } else {
+                                                  logFirebaseEvent(
+                                                      'Row_show_snack_bar');
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(
+                                                    SnackBar(
+                                                      content: Text(
+                                                        'Sync failed. Please try again.',
+                                                        style:
+                                                            GoogleFonts.outfit(
+                                                          color: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .info,
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                          fontSize: 12.0,
+                                                        ),
+                                                      ),
+                                                      duration: Duration(
+                                                          milliseconds: 4000),
+                                                      backgroundColor:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .error,
+                                                    ),
+                                                  );
+                                                }
+
+                                                logFirebaseEvent(
+                                                    'Row_rebuild_page');
+                                                safeSetState(() {});
+
+                                                safeSetState(() {});
+                                              },
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.max,
+                                                children: [
+                                                  Icon(
+                                                    FFIcons.krefresh,
+                                                    color: FlutterFlowTheme.of(
                                                             context)
-                                                        .bodyMedium
-                                                        .override(
-                                                          font: GoogleFonts
-                                                              .outfit(
+                                                        .primary,
+                                                    size: 24.0,
+                                                  ),
+                                                  Padding(
+                                                    padding:
+                                                        EdgeInsetsDirectional
+                                                            .fromSTEB(4.0, 0.0,
+                                                                4.0, 0.0),
+                                                    child: Text(
+                                                      'Sync Now',
+                                                      style: FlutterFlowTheme
+                                                              .of(context)
+                                                          .bodyMedium
+                                                          .override(
+                                                            font: GoogleFonts
+                                                                .outfit(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w600,
+                                                              fontStyle:
+                                                                  FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .bodyMedium
+                                                                      .fontStyle,
+                                                            ),
+                                                            color: FlutterFlowTheme
+                                                                    .of(context)
+                                                                .primary,
+                                                            fontSize: 16.0,
+                                                            letterSpacing: 0.0,
                                                             fontWeight:
                                                                 FontWeight.w600,
                                                             fontStyle:
@@ -2195,22 +2258,10 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                                                                     .bodyMedium
                                                                     .fontStyle,
                                                           ),
-                                                          color: FlutterFlowTheme
-                                                                  .of(context)
-                                                              .primary,
-                                                          fontSize: 16.0,
-                                                          letterSpacing: 0.0,
-                                                          fontWeight:
-                                                              FontWeight.w600,
-                                                          fontStyle:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .bodyMedium
-                                                                  .fontStyle,
-                                                        ),
+                                                    ),
                                                   ),
-                                                ),
-                                              ],
+                                                ],
+                                              ),
                                             ),
                                           ],
                                         ),

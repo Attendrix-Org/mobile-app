@@ -17,6 +17,7 @@ class CacheMetadataStruct extends BaseStruct {
     DateTime? apodLastFetchedAt,
     int? generatedAt,
     List<String>? calendarDates,
+    int? userPreferencesUpdatedAt,
   })  : _appVersion = appVersion,
         _profileUpdatedAt = profileUpdatedAt,
         _dashboardUpdatedAt = dashboardUpdatedAt,
@@ -26,7 +27,8 @@ class CacheMetadataStruct extends BaseStruct {
         _messUpdatedAt = messUpdatedAt,
         _apodLastFetchedAt = apodLastFetchedAt,
         _generatedAt = generatedAt,
-        _calendarDates = calendarDates;
+        _calendarDates = calendarDates,
+        _userPreferencesUpdatedAt = userPreferencesUpdatedAt;
 
   // "appVersion" field.
   String? _appVersion;
@@ -122,6 +124,16 @@ class CacheMetadataStruct extends BaseStruct {
 
   bool hasCalendarDates() => _calendarDates != null;
 
+  // "userPreferencesUpdatedAt" field.
+  int? _userPreferencesUpdatedAt;
+  int get userPreferencesUpdatedAt => _userPreferencesUpdatedAt ?? 0;
+  set userPreferencesUpdatedAt(int? val) => _userPreferencesUpdatedAt = val;
+
+  void incrementUserPreferencesUpdatedAt(int amount) =>
+      userPreferencesUpdatedAt = userPreferencesUpdatedAt + amount;
+
+  bool hasUserPreferencesUpdatedAt() => _userPreferencesUpdatedAt != null;
+
   static CacheMetadataStruct fromMap(Map<String, dynamic> data) =>
       CacheMetadataStruct(
         appVersion: data['appVersion'] as String?,
@@ -135,6 +147,8 @@ class CacheMetadataStruct extends BaseStruct {
         apodLastFetchedAt: data['apodLastFetchedAt'] as DateTime?,
         generatedAt: castToType<int>(data['generatedAt']),
         calendarDates: getDataList(data['calendarDates']),
+        userPreferencesUpdatedAt:
+            castToType<int>(data['userPreferencesUpdatedAt']),
       );
 
   static CacheMetadataStruct? maybeFromMap(dynamic data) => data is Map
@@ -152,6 +166,7 @@ class CacheMetadataStruct extends BaseStruct {
         'apodLastFetchedAt': _apodLastFetchedAt,
         'generatedAt': _generatedAt,
         'calendarDates': _calendarDates,
+        'userPreferencesUpdatedAt': _userPreferencesUpdatedAt,
       }.withoutNulls;
 
   @override
@@ -196,6 +211,10 @@ class CacheMetadataStruct extends BaseStruct {
           _calendarDates,
           ParamType.String,
           isList: true,
+        ),
+        'userPreferencesUpdatedAt': serializeParam(
+          _userPreferencesUpdatedAt,
+          ParamType.int,
         ),
       }.withoutNulls;
 
@@ -251,6 +270,11 @@ class CacheMetadataStruct extends BaseStruct {
           ParamType.String,
           true,
         ),
+        userPreferencesUpdatedAt: deserializeParam(
+          data['userPreferencesUpdatedAt'],
+          ParamType.int,
+          false,
+        ),
       );
 
   @override
@@ -269,7 +293,8 @@ class CacheMetadataStruct extends BaseStruct {
         messUpdatedAt == other.messUpdatedAt &&
         apodLastFetchedAt == other.apodLastFetchedAt &&
         generatedAt == other.generatedAt &&
-        listEquality.equals(calendarDates, other.calendarDates);
+        listEquality.equals(calendarDates, other.calendarDates) &&
+        userPreferencesUpdatedAt == other.userPreferencesUpdatedAt;
   }
 
   @override
@@ -283,7 +308,8 @@ class CacheMetadataStruct extends BaseStruct {
         messUpdatedAt,
         apodLastFetchedAt,
         generatedAt,
-        calendarDates
+        calendarDates,
+        userPreferencesUpdatedAt
       ]);
 }
 
@@ -297,6 +323,7 @@ CacheMetadataStruct createCacheMetadataStruct({
   int? messUpdatedAt,
   DateTime? apodLastFetchedAt,
   int? generatedAt,
+  int? userPreferencesUpdatedAt,
 }) =>
     CacheMetadataStruct(
       appVersion: appVersion,
@@ -308,4 +335,5 @@ CacheMetadataStruct createCacheMetadataStruct({
       messUpdatedAt: messUpdatedAt,
       apodLastFetchedAt: apodLastFetchedAt,
       generatedAt: generatedAt,
+      userPreferencesUpdatedAt: userPreferencesUpdatedAt,
     );

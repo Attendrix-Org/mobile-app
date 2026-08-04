@@ -275,13 +275,10 @@ class _CourseSearchWidgetState extends State<CourseSearchWidget> {
                           final electiveDataListView =
                               _model.filteredElectiveData.toList();
 
-                          return ListView.builder(
-                            padding: EdgeInsets.zero,
-                            primary: false,
-                            shrinkWrap: true,
-                            scrollDirection: Axis.vertical,
-                            itemCount: electiveDataListView.length,
-                            itemBuilder: (context, electiveDataListViewIndex) {
+                          return Column(
+                            mainAxisSize: MainAxisSize.max,
+                            children: List.generate(electiveDataListView.length,
+                                (electiveDataListViewIndex) {
                               final electiveDataListViewItem =
                                   electiveDataListView[
                                       electiveDataListViewIndex];
@@ -327,7 +324,7 @@ class _CourseSearchWidgetState extends State<CourseSearchWidget> {
                                   ),
                                 ),
                               );
-                            },
+                            }),
                           );
                         },
                       ),
@@ -343,13 +340,10 @@ class _CourseSearchWidgetState extends State<CourseSearchWidget> {
                         builder: (context) {
                           final electiveData = widget.electiveData!.toList();
 
-                          return ListView.builder(
-                            padding: EdgeInsets.zero,
-                            primary: false,
-                            shrinkWrap: true,
-                            scrollDirection: Axis.vertical,
-                            itemCount: electiveData.length,
-                            itemBuilder: (context, electiveDataIndex) {
+                          return Column(
+                            mainAxisSize: MainAxisSize.max,
+                            children: List.generate(electiveData.length,
+                                (electiveDataIndex) {
                               final electiveDataItem =
                                   electiveData[electiveDataIndex];
                               return Padding(
@@ -394,7 +388,7 @@ class _CourseSearchWidgetState extends State<CourseSearchWidget> {
                                   ),
                                 ),
                               );
-                            },
+                            }),
                           );
                         },
                       ),

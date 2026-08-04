@@ -26,3 +26,4 @@ export '/enrolled_courses/enrolled_courses_widget.dart'
 export '/settings/settings_widget.dart' show SettingsWidget;
 export '/manage_notifications/manage_notifications_widget.dart'
     show ManageNotificationsWidget;
+export '/google_calendar/google_calendar_widget.dart' show GoogleCalendarWidget;
