@@ -1,0 +1,47 @@
+name: Generate Notification Icons
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'assets/branding/notification_icon.svg'
+  workflow_dispatch: {}
+
+concurrency:
+  group: notification-icons
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  generate-icons:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate and validate notification icons
+        uses: ./.github/actions/generate-notification-icons
+
+      - name: Commit and push generated icons
+        env:
+          GIT_AUTHOR_NAME: github-actions[bot]
+          GIT_AUTHOR_EMAIL: github-actions[bot]@users.noreply.github.com
+          GIT_COMMITTER_NAME: github-actions[bot]
+          GIT_COMMITTER_EMAIL: github-actions[bot]@users.noreply.github.com
+        run: |
+          git add \
+            android/app/src/main/res/drawable-mdpi/ic_notification.png \
+            android/app/src/main/res/drawable-hdpi/ic_notification.png \
+            android/app/src/main/res/drawable-xhdpi/ic_notification.png \
+            android/app/src/main/res/drawable-xxhdpi/ic_notification.png \
+            android/app/src/main/res/drawable-xxxhdpi/ic_notification.png
+
+          if git diff --cached --quiet; then
+            echo "No changes to notification icons; nothing to commit."
+            exit 0
+          fi
+
+          git commit -m "chore: regenerate notification icons from notification_icon.svg"
+          git push origin HEAD:main

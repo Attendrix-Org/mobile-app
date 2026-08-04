@@ -1,0 +1,23 @@
+name: Generate notification icons
+description: Renders android/app/src/main/res/drawable-*/ic_notification.png from assets/branding/notification_icon.svg, optimizes, and validates them.
+
+runs:
+  using: composite
+  steps:
+    - name: Install Inkscape, ImageMagick, and optipng
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y --no-install-recommends inkscape imagemagick optipng
+
+    - name: Generate icon PNGs from SVG
+      shell: bash
+      run: bash scripts/generate_notification_icons.sh
+
+    - name: Optimize icon PNGs
+      shell: bash
+      run: bash scripts/optimize_notification_icons.sh
+
+    - name: Validate generated icons
+      shell: bash
+      run: bash scripts/validate_notification_icons.sh
