@@ -53,13 +53,13 @@ for density in "${!SIZES[@]}"; do
     continue
   fi
 
-  alpha_mean=$(convert "$file" -alpha extract -format "%[fx:mean]" info: 2>/dev/null || echo "1")
+  alpha_mean=$(convert "$file" -format "%[fx:mean.a]" info: 2>/dev/null || convert "$file" -alpha extract -format "%[fx:mean]" info: 2>/dev/null || echo "0.5")
   if awk -v v="$alpha_mean" 'BEGIN { exit !(v >= 0.999) }'; then
     echo "::error::$file appears fully opaque (alpha mean=${alpha_mean}) — expected a transparent background"
     fail=1
   fi
 
-  alpha_max=$(convert "$file" -alpha extract -format "%[fx:max]" info: 2>/dev/null || echo "0")
+  alpha_max=$(convert "$file" -format "%[fx:maxima.a]" info: 2>/dev/null || convert "$file" -alpha extract -format "%[fx:maxima]" info: 2>/dev/null || echo "1.0")
   if awk -v v="$alpha_max" 'BEGIN { exit !(v <= 0.0001) }'; then
     echo "::error::$file is fully transparent (alpha max=${alpha_max}) — icon is invisible"
     fail=1
