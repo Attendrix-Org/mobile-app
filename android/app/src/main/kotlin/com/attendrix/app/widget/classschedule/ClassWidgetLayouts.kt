@@ -26,9 +26,12 @@ import com.attendrix.app.widget.WidgetTokens
 import com.attendrix.app.widget.core.EmptyState
 import com.attendrix.app.widget.core.WidgetClock
 
+// ---------------------------------------------------------------------------
+// Small — single focused entity
+// ---------------------------------------------------------------------------
 @Composable
-fun SmallClassLayout(state: ClassWidgetState.Ready, isStale: Boolean = false) {
-    val targetClass = state.currentClass ?: state.nextClass
+fun SmallClassLayout(state: ClassWidgetState.Ready, isStale: Boolean = false, staleByMinutes: Int = 0) {
+    val target = state.currentClass ?: state.nextClass
     val nowMillis = WidgetClock.currentTimeMillis()
 
     Column(
@@ -39,66 +42,83 @@ fun SmallClassLayout(state: ClassWidgetState.Ready, isStale: Boolean = false) {
             .padding(WidgetTokens.Spacing.md)
             .clickable(actionStartActivity<MainActivity>())
     ) {
-        if (targetClass != null) {
-            val isLive = targetClass.isLive(nowMillis)
-            val badgeLabel = if (isLive) "LIVE" else "NEXT"
-            val countdownFmt = if (isLive) {
-                "${WidgetClock.remainingMinutes(targetClass.endMillis, nowMillis)} min left"
-            } else {
-                "in ${WidgetClock.formatCountdown(targetClass.startMillis, nowMillis)}"
+        if (target != null) {
+            val isLive = target.isLive(nowMillis)
+            val isCancelled = target.status == com.attendrix.app.widget.model.WidgetStatus.CANCELLED
+
+            val statusWord = when {
+                isCancelled -> "CANCELLED"
+                isLive      -> "LIVE"
+                else        -> "NEXT"
             }
 
-            ClassWidgetComponents.Header(
-                contextTitle = badgeLabel,
-                isStale = isStale
+            // Status line (+ stale age trailing)
+            ClassWidgetComponents.StatusLine(
+                statusLabel = statusWord,
+                isLive = isLive,
+                isStale = isStale,
+                staleByMinutes = staleByMinutes
             )
 
-            Spacer(modifier = GlanceModifier.height(4.dp))
+            Spacer(modifier = GlanceModifier.height(6.dp))
 
+            // Dominant: course name
             Text(
-                text = targetClass.courseName,
+                text = target.courseName,
                 maxLines = 1,
                 style = TextStyle(
-                    fontSize = WidgetTokens.Typography.Title,
+                    fontSize = WidgetTokens.Typography.Hero,
                     fontWeight = FontWeight.Bold,
                     color = WidgetTokens.Colours.TextPrimary,
                     fontFamily = FontFamily.SansSerif
                 )
             )
 
-            Spacer(modifier = GlanceModifier.height(4.dp))
-
-            Text(
-                text = targetClass.venue.ifBlank { "TBD" },
-                maxLines = 1,
-                style = TextStyle(
-                    fontSize = WidgetTokens.Typography.Body,
-                    color = WidgetTokens.Colours.TextSecondary,
-                    fontFamily = FontFamily.SansSerif
-                )
-            )
-
             Spacer(modifier = GlanceModifier.defaultWeight())
 
-            Text(
-                text = countdownFmt,
-                style = TextStyle(
-                    fontSize = WidgetTokens.Typography.Caption,
-                    fontWeight = FontWeight.Bold,
-                    color = WidgetTokens.Colours.Primary,
-                    fontFamily = FontFamily.SansSerif
+            // Bottom: venue + countdown on one line
+            val countdown = if (isLive) {
+                "${WidgetClock.remainingMinutes(target.endMillis, nowMillis)} min left"
+            } else {
+                "in ${WidgetClock.formatCountdown(target.startMillis, nowMillis)}"
+            }
+            val venue = target.venue.ifBlank { "TBD" }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = venue,
+                    maxLines = 1,
+                    modifier = GlanceModifier.defaultWeight(),
+                    style = TextStyle(
+                        fontSize = WidgetTokens.Typography.Body,
+                        color = WidgetTokens.Colours.TextSecondary,
+                        fontFamily = FontFamily.SansSerif
+                    )
                 )
-            )
+                if (!isCancelled) {
+                    Spacer(modifier = GlanceModifier.width(4.dp))
+                    Text(
+                        text = countdown,
+                        style = TextStyle(
+                            fontSize = WidgetTokens.Typography.Caption,
+                            fontWeight = FontWeight.Bold,
+                            color = if (isLive) WidgetTokens.Colours.StatusLive else WidgetTokens.Colours.StatusNext,
+                            fontFamily = FontFamily.SansSerif
+                        )
+                    )
+                }
+            }
         } else {
-            ClassWidgetComponents.Header(
-                contextTitle = "DONE",
-                isStale = isStale
+            // No active or upcoming class
+            ClassWidgetComponents.StatusLine(
+                statusLabel = "DONE",
+                isStale = isStale,
+                staleByMinutes = staleByMinutes
             )
-            Spacer(modifier = GlanceModifier.height(4.dp))
+            Spacer(modifier = GlanceModifier.height(6.dp))
             Text(
                 text = "No more classes",
                 style = TextStyle(
-                    fontSize = WidgetTokens.Typography.Body,
+                    fontSize = WidgetTokens.Typography.Hero,
                     fontWeight = FontWeight.Bold,
                     color = WidgetTokens.Colours.TextPrimary,
                     fontFamily = FontFamily.SansSerif
@@ -108,7 +128,7 @@ fun SmallClassLayout(state: ClassWidgetState.Ready, isStale: Boolean = false) {
             Text(
                 text = "Today",
                 style = TextStyle(
-                    fontSize = WidgetTokens.Typography.Caption,
+                    fontSize = WidgetTokens.Typography.Body,
                     color = WidgetTokens.Colours.TextSecondary,
                     fontFamily = FontFamily.SansSerif
                 )
@@ -117,9 +137,12 @@ fun SmallClassLayout(state: ClassWidgetState.Ready, isStale: Boolean = false) {
     }
 }
 
+// ---------------------------------------------------------------------------
+// Medium — hero card with supporting metadata
+// ---------------------------------------------------------------------------
 @Composable
-fun MediumClassLayout(state: ClassWidgetState.Ready, isStale: Boolean = false) {
-    val activeClass = state.currentClass ?: state.nextClass
+fun MediumClassLayout(state: ClassWidgetState.Ready, isStale: Boolean = false, staleByMinutes: Int = 0) {
+    val active = state.currentClass ?: state.nextClass
     val nowMillis = WidgetClock.currentTimeMillis()
 
     Column(
@@ -129,29 +152,39 @@ fun MediumClassLayout(state: ClassWidgetState.Ready, isStale: Boolean = false) {
             .cornerRadius(WidgetTokens.Radius.Card)
             .padding(WidgetTokens.Spacing.md)
     ) {
-        ClassWidgetComponents.Header(
-            contextTitle = if (state.currentClass != null) "Live Class" else "Next Class",
-            isStale = isStale
-        )
+        if (isStale && staleByMinutes > 0) {
+            val ageText = if (staleByMinutes >= 60) "${staleByMinutes / 60}h ago" else "${staleByMinutes}m ago"
+            Text(
+                text = "STALE · $ageText",
+                style = TextStyle(
+                    fontSize = WidgetTokens.Typography.Label,
+                    color = WidgetTokens.Colours.StatusWarning,
+                    fontFamily = FontFamily.SansSerif
+                )
+            )
+            Spacer(modifier = GlanceModifier.height(4.dp))
+        }
 
-        Spacer(modifier = GlanceModifier.height(6.dp))
-
-        if (activeClass != null) {
-            ClassWidgetComponents.UpcomingHeroCard(
-                item = activeClass,
+        if (active != null) {
+            ClassWidgetComponents.ClassHeroCard(
+                item = active,
                 progress = state.progress,
                 nowMillis = nowMillis
             )
         } else {
-            ClassWidgetComponents.ContextualEmptyStateView(EmptyState.NO_CLASSES)
+            ClassWidgetComponents.EmptyStateContent(EmptyState.NO_CLASSES)
         }
     }
 }
 
+// ---------------------------------------------------------------------------
+// Large — hero + compact timeline
+// ---------------------------------------------------------------------------
 @Composable
-fun LargeClassLayout(state: ClassWidgetState.Ready, isStale: Boolean = false) {
-    val activeClass = state.currentClass ?: state.nextClass
+fun LargeClassLayout(state: ClassWidgetState.Ready, isStale: Boolean = false, staleByMinutes: Int = 0) {
+    val active = state.currentClass ?: state.nextClass
     val nowMillis = WidgetClock.currentTimeMillis()
+    val MAX_TIMELINE_ROWS = 3
 
     Column(
         modifier = GlanceModifier
@@ -160,27 +193,73 @@ fun LargeClassLayout(state: ClassWidgetState.Ready, isStale: Boolean = false) {
             .cornerRadius(WidgetTokens.Radius.Card)
             .padding(WidgetTokens.Spacing.md)
     ) {
-        ClassWidgetComponents.Header(
-            contextTitle = "Timeline",
-            isStale = isStale
-        )
+        // Stale notice (only if stale)
+        if (isStale && staleByMinutes > 0) {
+            val ageText = if (staleByMinutes >= 60) "${staleByMinutes / 60}h ago" else "${staleByMinutes}m ago"
+            Text(
+                text = "STALE · $ageText",
+                style = TextStyle(
+                    fontSize = WidgetTokens.Typography.Label,
+                    color = WidgetTokens.Colours.StatusWarning,
+                    fontFamily = FontFamily.SansSerif
+                )
+            )
+            Spacer(modifier = GlanceModifier.height(4.dp))
+        }
 
+        // TODAY label
+        Text(
+            text = "TODAY",
+            style = TextStyle(
+                fontSize = WidgetTokens.Typography.Label,
+                fontWeight = FontWeight.Bold,
+                color = WidgetTokens.Colours.TextMuted,
+                fontFamily = FontFamily.SansSerif
+            )
+        )
         Spacer(modifier = GlanceModifier.height(6.dp))
 
-        if (activeClass != null) {
-            ClassWidgetComponents.UpcomingHeroCard(
-                item = activeClass,
+        if (active != null) {
+            // Hero card
+            ClassWidgetComponents.ClassHeroCard(
+                item = active,
                 progress = state.progress,
                 nowMillis = nowMillis
             )
-            Spacer(modifier = GlanceModifier.height(8.dp))
 
-            state.upcomingRows.take(2).forEach { row ->
-                ClassWidgetComponents.ClassRowItem(item = row, nowMillis = nowMillis)
+            if (state.upcomingRows.isNotEmpty()) {
+                Spacer(modifier = GlanceModifier.height(WidgetTokens.Spacing.sm))
+
+                // Divider line
+                Box(
+                    modifier = GlanceModifier
+                        .fillMaxWidth()
+                        .height(1.dp)
+                        .background(WidgetTokens.Colours.Divider)
+                ) {}
+
                 Spacer(modifier = GlanceModifier.height(4.dp))
+
+                val visible = state.upcomingRows.take(MAX_TIMELINE_ROWS)
+                visible.forEach { row ->
+                    ClassWidgetComponents.ClassTimelineRow(item = row, nowMillis = nowMillis)
+                }
+
+                val overflow = state.upcomingRows.size - MAX_TIMELINE_ROWS
+                if (overflow > 0) {
+                    Spacer(modifier = GlanceModifier.height(2.dp))
+                    Text(
+                        text = "+$overflow more",
+                        style = TextStyle(
+                            fontSize = WidgetTokens.Typography.Label,
+                            color = WidgetTokens.Colours.TextMuted,
+                            fontFamily = FontFamily.SansSerif
+                        )
+                    )
+                }
             }
         } else {
-            ClassWidgetComponents.ContextualEmptyStateView(EmptyState.NO_CLASSES)
+            ClassWidgetComponents.EmptyStateContent(EmptyState.NO_CLASSES)
         }
     }
 }

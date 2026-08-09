@@ -17,10 +17,16 @@ import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
 import androidx.glance.layout.Column
+import androidx.glance.layout.Spacer
 import androidx.glance.layout.fillMaxSize
+import androidx.glance.layout.height
 import androidx.glance.layout.padding
+import androidx.glance.text.FontFamily
+import androidx.glance.text.FontWeight
+import androidx.glance.text.Text
+import androidx.glance.text.TextStyle
 import com.attendrix.app.MainActivity
-import com.attendrix.app.widget.classschedule.ClassWidgetComponents
+import com.attendrix.app.widget.core.EmptyState
 import com.attendrix.app.widget.core.WidgetStateStore
 import com.attendrix.app.widget.messmenu.LargeMessMenuLayout
 import com.attendrix.app.widget.messmenu.MediumMessMenuLayout
@@ -58,6 +64,8 @@ class AttendrixMessMenuWidgetReceiver : GlanceAppWidgetReceiver() {
 @Composable
 fun MessMenuStateRenderer(widgetState: MessMenuWidgetState) {
     val size = LocalSize.current
+    val isSmall = size.width < AttendrixMessMenuWidget.MEDIUM_RECTANGLE.width
+    val isLarge = size.height >= AttendrixMessMenuWidget.LARGE_RECTANGLE.height
 
     when (widgetState) {
         is MessMenuWidgetState.Loading -> {
@@ -68,9 +76,27 @@ fun MessMenuStateRenderer(widgetState: MessMenuWidgetState) {
                     .cornerRadius(WidgetTokens.Radius.Card)
                     .padding(WidgetTokens.Spacing.md)
             ) {
-                MessMenuWidgetComponents.Header(messName = "Mess Menu")
+                Text(
+                    text = "MESS MENU",
+                    style = TextStyle(
+                        fontSize = WidgetTokens.Typography.Label,
+                        fontWeight = FontWeight.Bold,
+                        color = WidgetTokens.Colours.TextMuted,
+                        fontFamily = FontFamily.SansSerif
+                    )
+                )
+                Spacer(modifier = GlanceModifier.height(6.dp))
+                Text(
+                    text = "Syncing menu…",
+                    style = TextStyle(
+                        fontSize = WidgetTokens.Typography.Body,
+                        color = WidgetTokens.Colours.TextSecondary,
+                        fontFamily = FontFamily.SansSerif
+                    )
+                )
             }
         }
+
         is MessMenuWidgetState.Error -> {
             Column(
                 modifier = GlanceModifier
@@ -80,10 +106,10 @@ fun MessMenuStateRenderer(widgetState: MessMenuWidgetState) {
                     .padding(WidgetTokens.Spacing.md)
                     .clickable(actionStartActivity<MainActivity>())
             ) {
-                MessMenuWidgetComponents.Header(messName = "Mess Menu")
-                ClassWidgetComponents.ContextualEmptyStateView(com.attendrix.app.widget.core.EmptyState.NO_MENU_AVAILABLE)
+                MessMenuWidgetComponents.MessEmptyStateContent(EmptyState.NO_MENU_AVAILABLE)
             }
         }
+
         is MessMenuWidgetState.Empty -> {
             Column(
                 modifier = GlanceModifier
@@ -93,28 +119,23 @@ fun MessMenuStateRenderer(widgetState: MessMenuWidgetState) {
                     .padding(WidgetTokens.Spacing.md)
                     .clickable(actionStartActivity<MainActivity>())
             ) {
-                MessMenuWidgetComponents.Header(messName = "Mess Menu")
-                ClassWidgetComponents.ContextualEmptyStateView(widgetState.reason)
+                MessMenuWidgetComponents.MessEmptyStateContent(widgetState.reason)
             }
         }
-        is MessMenuWidgetState.Ready -> {
-            val isSmall = size.width < AttendrixMessMenuWidget.MEDIUM_RECTANGLE.width
-            val isLarge = size.height >= AttendrixMessMenuWidget.LARGE_RECTANGLE.height
 
+        is MessMenuWidgetState.Ready -> {
             when {
                 isSmall -> SmallMessMenuLayout(widgetState)
                 isLarge -> LargeMessMenuLayout(widgetState)
-                else -> MediumMessMenuLayout(widgetState)
+                else    -> MediumMessMenuLayout(widgetState)
             }
         }
-        is MessMenuWidgetState.Stale -> {
-            val isSmall = size.width < AttendrixMessMenuWidget.MEDIUM_RECTANGLE.width
-            val isLarge = size.height >= AttendrixMessMenuWidget.LARGE_RECTANGLE.height
 
+        is MessMenuWidgetState.Stale -> {
             when {
-                isSmall -> SmallMessMenuLayout(widgetState.readyState, isStale = true)
-                isLarge -> LargeMessMenuLayout(widgetState.readyState, isStale = true)
-                else -> MediumMessMenuLayout(widgetState.readyState, isStale = true)
+                isSmall -> SmallMessMenuLayout(widgetState.readyState, isStale = true, staleByMinutes = widgetState.staleByMinutes)
+                isLarge -> LargeMessMenuLayout(widgetState.readyState, isStale = true, staleByMinutes = widgetState.staleByMinutes)
+                else    -> MediumMessMenuLayout(widgetState.readyState, isStale = true, staleByMinutes = widgetState.staleByMinutes)
             }
         }
     }
