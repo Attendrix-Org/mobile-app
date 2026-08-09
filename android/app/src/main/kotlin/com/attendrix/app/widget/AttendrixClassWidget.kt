@@ -22,6 +22,15 @@ import androidx.glance.layout.padding
 import androidx.glance.preview.ExperimentalGlancePreviewApi
 import androidx.glance.preview.Preview
 import com.attendrix.app.MainActivity
+import com.attendrix.app.widget.classschedule.ClassWidgetComponents
+import com.attendrix.app.widget.classschedule.ClassWidgetMapper
+import com.attendrix.app.widget.classschedule.LargeClassLayout
+import com.attendrix.app.widget.classschedule.MediumClassLayout
+import com.attendrix.app.widget.classschedule.SmallClassLayout
+import com.attendrix.app.widget.core.ClassWidgetState
+import com.attendrix.app.widget.core.WidgetStateStore
+import com.attendrix.app.widget.core.WidgetTokens
+import com.attendrix.app.widget.core.WidgetUpdater
 
 class AttendrixClassWidget : GlanceAppWidget() {
 
@@ -34,23 +43,23 @@ class AttendrixClassWidget : GlanceAppWidget() {
     override val sizeMode = SizeMode.Responsive(setOf(SMALL_SQUARE, MEDIUM_RECTANGLE, LARGE_RECTANGLE))
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
-        val snapshot = WidgetStateRepository.getSnapshot(context)
-        val uiState = WidgetStateMapper.toUiState(snapshot)
+        val snapshot = WidgetStateStore.getClassSnapshot(context)
+        val widgetState = ClassWidgetMapper.toWidgetState(snapshot)
 
         provideContent {
             GlanceTheme {
-                WidgetStateRenderer(snapshot = snapshot, uiState = uiState)
+                ClassStateRenderer(widgetState = widgetState)
             }
         }
     }
 }
 
 @Composable
-fun WidgetStateRenderer(snapshot: WidgetState, uiState: WidgetUiState) {
+fun ClassStateRenderer(widgetState: ClassWidgetState) {
     val size = LocalSize.current
 
-    when (uiState) {
-        is WidgetUiState.Loading -> {
+    when (widgetState) {
+        is ClassWidgetState.Loading -> {
             Column(
                 modifier = GlanceModifier
                     .fillMaxSize()
@@ -58,24 +67,10 @@ fun WidgetStateRenderer(snapshot: WidgetState, uiState: WidgetUiState) {
                     .cornerRadius(WidgetTokens.Radius.Card)
                     .padding(WidgetTokens.Spacing.md)
             ) {
-                WidgetComponents.Header(contextTitle = "Syncing", isSyncing = true)
-                WidgetComponents.StaticLoadingPlaceholder()
+                ClassWidgetComponents.Header(contextTitle = "Syncing")
             }
         }
-        is WidgetUiState.Error -> {
-            Column(
-                modifier = GlanceModifier
-                    .fillMaxSize()
-                    .background(WidgetTokens.Colours.Background)
-                    .cornerRadius(WidgetTokens.Radius.Card)
-                    .padding(WidgetTokens.Spacing.md)
-                    .clickable(actionStartActivity<MainActivity>())
-            ) {
-                WidgetComponents.Header(contextTitle = "Error")
-                WidgetComponents.ErrorStateView()
-            }
-        }
-        is WidgetUiState.Empty -> {
+        is ClassWidgetState.Error -> {
             Column(
                 modifier = GlanceModifier
                     .fillMaxSize()
@@ -84,18 +79,41 @@ fun WidgetStateRenderer(snapshot: WidgetState, uiState: WidgetUiState) {
                     .padding(WidgetTokens.Spacing.md)
                     .clickable(actionStartActivity<MainActivity>())
             ) {
-                WidgetComponents.Header(contextTitle = "Schedule")
-                WidgetComponents.ContextualEmptyStateView(uiState.reason)
+                ClassWidgetComponents.Header(contextTitle = "Error")
+                ClassWidgetComponents.ContextualEmptyStateView(com.attendrix.app.widget.core.EmptyState.NO_CLASSES)
             }
         }
-        is WidgetUiState.Ready, is WidgetUiState.Offline -> {
+        is ClassWidgetState.Empty -> {
+            Column(
+                modifier = GlanceModifier
+                    .fillMaxSize()
+                    .background(WidgetTokens.Colours.Background)
+                    .cornerRadius(WidgetTokens.Radius.Card)
+                    .padding(WidgetTokens.Spacing.md)
+                    .clickable(actionStartActivity<MainActivity>())
+            ) {
+                ClassWidgetComponents.Header(contextTitle = "Schedule")
+                ClassWidgetComponents.ContextualEmptyStateView(widgetState.reason)
+            }
+        }
+        is ClassWidgetState.Ready -> {
             val isSmall = size.width < AttendrixClassWidget.MEDIUM_RECTANGLE.width
             val isLarge = size.height >= AttendrixClassWidget.LARGE_RECTANGLE.height
 
             when {
-                isSmall -> SmallLayout(snapshot)
-                isLarge -> LargeLayout(snapshot)
-                else -> MediumLayout(snapshot)
+                isSmall -> SmallClassLayout(widgetState)
+                isLarge -> LargeClassLayout(widgetState)
+                else -> MediumClassLayout(widgetState)
+            }
+        }
+        is ClassWidgetState.Stale -> {
+            val isSmall = size.width < AttendrixClassWidget.MEDIUM_RECTANGLE.width
+            val isLarge = size.height >= AttendrixClassWidget.LARGE_RECTANGLE.height
+
+            when {
+                isSmall -> SmallClassLayout(widgetState.readyState, isStale = true)
+                isLarge -> LargeClassLayout(widgetState.readyState, isStale = true)
+                else -> MediumClassLayout(widgetState.readyState, isStale = true)
             }
         }
     }
@@ -104,32 +122,5 @@ fun WidgetStateRenderer(snapshot: WidgetState, uiState: WidgetUiState) {
 class RefreshWidgetAction : ActionCallback {
     override suspend fun onAction(context: Context, glanceId: GlanceId, parameters: androidx.glance.action.ActionParameters) {
         WidgetUpdater.updateAllWidgets(context)
-    }
-}
-
-@OptIn(ExperimentalGlancePreviewApi::class)
-@Preview(widthDp = 140, heightDp = 110)
-@Composable
-fun WidgetPreviewSmall() {
-    GlanceTheme {
-        SmallLayout(WidgetState(version = 4, state = "Ready"))
-    }
-}
-
-@OptIn(ExperimentalGlancePreviewApi::class)
-@Preview(widthDp = 260, heightDp = 110)
-@Composable
-fun WidgetPreviewMedium() {
-    GlanceTheme {
-        MediumLayout(WidgetState(version = 4, state = "Ready"))
-    }
-}
-
-@OptIn(ExperimentalGlancePreviewApi::class)
-@Preview(widthDp = 260, heightDp = 220)
-@Composable
-fun WidgetPreviewLarge() {
-    GlanceTheme {
-        LargeLayout(WidgetState(version = 4, state = "Ready"))
     }
 }

@@ -303,10 +303,23 @@ class HomeWidgetService {
     };
   }
 
+  static Map<String, dynamic> _wrapEnvelope(Map<String, dynamic> payloadMap) {
+    final now = DateTime.now();
+    return {
+      'schemaVersion': 6,
+      'generatedAt': now.millisecondsSinceEpoch,
+      'validUntil': now.add(const Duration(hours: 24)).millisecondsSinceEpoch,
+      'timezone': 'Asia/Kolkata',
+      'source': 'app_state',
+      'payload': payloadMap,
+    };
+  }
+
   /// Generic update method for Class Widget.
   static Future<bool> update(Map<String, dynamic> stateMap) async {
     try {
-      final jsonStr = jsonEncode(stateMap);
+      final envelope = _wrapEnvelope(stateMap);
+      final jsonStr = jsonEncode(envelope);
       await HomeWidget.saveWidgetData(_widgetStateKey, jsonStr);
       await HomeWidget.updateWidget(
         name: _androidClassWidgetReceiver,
@@ -351,14 +364,14 @@ class HomeWidgetService {
     });
   }
 
-  /// Convenience API: Update Mess Menu Widget (Payload v5).
+  /// Convenience API: Update Mess Menu Widget (Payload v5 / Schema v6 Envelope).
   static Future<bool> updateMessMenu({
     required String messName,
     Map<String, dynamic>? currentMeal,
     Map<String, dynamic>? nextMeal,
     List<Map<String, dynamic>> todayMeals = const [],
     String state = 'Ready',
-    String emptyReason = 'NO_CLASSES',
+    String emptyReason = 'NO_MENU_AVAILABLE',
   }) async {
     try {
       final payload = {
@@ -373,7 +386,8 @@ class HomeWidgetService {
         'updatedAtMillis': DateTime.now().millisecondsSinceEpoch,
       };
 
-      final jsonStr = jsonEncode(payload);
+      final envelope = _wrapEnvelope(payload);
+      final jsonStr = jsonEncode(envelope);
       await HomeWidget.saveWidgetData(_messMenuWidgetStateKey, jsonStr);
       await HomeWidget.updateWidget(
         name: _androidMessMenuWidgetReceiver,

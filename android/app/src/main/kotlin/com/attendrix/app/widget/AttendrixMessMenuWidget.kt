@@ -19,9 +19,16 @@ import androidx.glance.background
 import androidx.glance.layout.Column
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.padding
-import androidx.glance.preview.ExperimentalGlancePreviewApi
-import androidx.glance.preview.Preview
 import com.attendrix.app.MainActivity
+import com.attendrix.app.widget.classschedule.ClassWidgetComponents
+import com.attendrix.app.widget.core.MessMenuWidgetState
+import com.attendrix.app.widget.core.WidgetStateStore
+import com.attendrix.app.widget.core.WidgetTokens
+import com.attendrix.app.widget.messmenu.LargeMessMenuLayout
+import com.attendrix.app.widget.messmenu.MediumMessMenuLayout
+import com.attendrix.app.widget.messmenu.MessMenuWidgetComponents
+import com.attendrix.app.widget.messmenu.MessMenuWidgetMapper
+import com.attendrix.app.widget.messmenu.SmallMessMenuLayout
 
 class AttendrixMessMenuWidget : GlanceAppWidget() {
 
@@ -29,41 +36,17 @@ class AttendrixMessMenuWidget : GlanceAppWidget() {
         val SMALL_SQUARE = DpSize(140.dp, 110.dp)
         val MEDIUM_RECTANGLE = DpSize(260.dp, 110.dp)
         val LARGE_RECTANGLE = DpSize(260.dp, 220.dp)
-        private const val PREFS_NAME = "HomeWidgetPreferences"
-        private const val KEY = "mess_menu_widget_state_json"
-
-        fun getSnapshot(context: Context): MessMenuWidgetState {
-            val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            val jsonStr = prefs.getString(KEY, null)
-            if (jsonStr.isNullOrBlank()) {
-                return MessMenuWidgetState(state = "Empty", emptyReason = EmptyState.NO_MESS_SELECTED)
-            }
-            return MessMenuWidgetState.fromJson(jsonStr)
-        }
     }
 
     override val sizeMode = SizeMode.Responsive(setOf(SMALL_SQUARE, MEDIUM_RECTANGLE, LARGE_RECTANGLE))
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
-        val snapshot = getSnapshot(context)
-        val uiState = when (snapshot.state) {
-            "Loading" -> WidgetUiState.Loading
-            "Offline" -> WidgetUiState.Offline(WidgetState(version = 5), snapshot.updatedAtMillis)
-            "Error", "SyncFailed" -> WidgetUiState.Error("Couldn't load mess menu")
-            "AuthExpired" -> WidgetUiState.Empty(EmptyState.LOGGED_OUT)
-            "Empty" -> WidgetUiState.Empty(snapshot.emptyReason)
-            else -> {
-                if (snapshot.currentMeal == null && snapshot.nextMeal == null && snapshot.todayMeals.isEmpty()) {
-                    WidgetUiState.Empty(snapshot.emptyReason)
-                } else {
-                    WidgetUiState.Ready(WidgetState(version = 5))
-                }
-            }
-        }
+        val snapshot = WidgetStateStore.getMessMenuSnapshot(context)
+        val widgetState = MessMenuWidgetMapper.toWidgetState(snapshot)
 
         provideContent {
             GlanceTheme {
-                MessMenuStateRenderer(snapshot = snapshot, uiState = uiState)
+                MessMenuStateRenderer(widgetState = widgetState)
             }
         }
     }
@@ -74,11 +57,11 @@ class AttendrixMessMenuWidgetReceiver : GlanceAppWidgetReceiver() {
 }
 
 @Composable
-fun MessMenuStateRenderer(snapshot: MessMenuWidgetState, uiState: WidgetUiState) {
+fun MessMenuStateRenderer(widgetState: MessMenuWidgetState) {
     val size = LocalSize.current
 
-    when (uiState) {
-        is WidgetUiState.Loading -> {
+    when (widgetState) {
+        is MessMenuWidgetState.Loading -> {
             Column(
                 modifier = GlanceModifier
                     .fillMaxSize()
@@ -86,24 +69,10 @@ fun MessMenuStateRenderer(snapshot: MessMenuWidgetState, uiState: WidgetUiState)
                     .cornerRadius(WidgetTokens.Radius.Card)
                     .padding(WidgetTokens.Spacing.md)
             ) {
-                WidgetComponents.Header(contextTitle = "Syncing", brand = "MESS MENU", isSyncing = true)
-                WidgetComponents.StaticLoadingPlaceholder()
+                MessMenuWidgetComponents.MessMenuHeader(messName = "Mess Menu")
             }
         }
-        is WidgetUiState.Error -> {
-            Column(
-                modifier = GlanceModifier
-                    .fillMaxSize()
-                    .background(WidgetTokens.Colours.Background)
-                    .cornerRadius(WidgetTokens.Radius.Card)
-                    .padding(WidgetTokens.Spacing.md)
-                    .clickable(actionStartActivity<MainActivity>())
-            ) {
-                WidgetComponents.Header(contextTitle = "Error", brand = "MESS MENU")
-                WidgetComponents.ErrorStateView()
-            }
-        }
-        is WidgetUiState.Empty -> {
+        is MessMenuWidgetState.Error -> {
             Column(
                 modifier = GlanceModifier
                     .fillMaxSize()
@@ -112,46 +81,42 @@ fun MessMenuStateRenderer(snapshot: MessMenuWidgetState, uiState: WidgetUiState)
                     .padding(WidgetTokens.Spacing.md)
                     .clickable(actionStartActivity<MainActivity>())
             ) {
-                WidgetComponents.Header(contextTitle = "Mess Menu", brand = "ATTENDRIX")
-                WidgetComponents.ContextualEmptyStateView(uiState.reason)
+                MessMenuWidgetComponents.MessMenuHeader(messName = "Mess Menu")
+                ClassWidgetComponents.ContextualEmptyStateView(com.attendrix.app.widget.core.EmptyState.NO_MENU_AVAILABLE)
             }
         }
-        is WidgetUiState.Ready, is WidgetUiState.Offline -> {
+        is MessMenuWidgetState.Empty -> {
+            Column(
+                modifier = GlanceModifier
+                    .fillMaxSize()
+                    .background(WidgetTokens.Colours.Background)
+                    .cornerRadius(WidgetTokens.Radius.Card)
+                    .padding(WidgetTokens.Spacing.md)
+                    .clickable(actionStartActivity<MainActivity>())
+            ) {
+                MessMenuWidgetComponents.MessMenuHeader(messName = "Mess Menu")
+                ClassWidgetComponents.ContextualEmptyStateView(widgetState.reason)
+            }
+        }
+        is MessMenuWidgetState.Ready -> {
             val isSmall = size.width < AttendrixMessMenuWidget.MEDIUM_RECTANGLE.width
             val isLarge = size.height >= AttendrixMessMenuWidget.LARGE_RECTANGLE.height
 
             when {
-                isSmall -> SmallMessMenuLayout(snapshot)
-                isLarge -> LargeMessMenuLayout(snapshot)
-                else -> MediumMessMenuLayout(snapshot)
+                isSmall -> SmallMessMenuLayout(widgetState)
+                isLarge -> LargeMessMenuLayout(widgetState)
+                else -> MediumMessMenuLayout(widgetState)
             }
         }
-    }
-}
+        is MessMenuWidgetState.Stale -> {
+            val isSmall = size.width < AttendrixMessMenuWidget.MEDIUM_RECTANGLE.width
+            val isLarge = size.height >= AttendrixMessMenuWidget.LARGE_RECTANGLE.height
 
-@OptIn(ExperimentalGlancePreviewApi::class)
-@Preview(widthDp = 140, heightDp = 110)
-@Composable
-fun MessMenuPreviewSmall() {
-    GlanceTheme {
-        SmallMessMenuLayout(MessMenuWidgetState(version = 5, state = "Ready"))
-    }
-}
-
-@OptIn(ExperimentalGlancePreviewApi::class)
-@Preview(widthDp = 260, heightDp = 110)
-@Composable
-fun MessMenuPreviewMedium() {
-    GlanceTheme {
-        MediumMessMenuLayout(MessMenuWidgetState(version = 5, state = "Ready"))
-    }
-}
-
-@OptIn(ExperimentalGlancePreviewApi::class)
-@Preview(widthDp = 260, heightDp = 220)
-@Composable
-fun MessMenuPreviewLarge() {
-    GlanceTheme {
-        LargeMessMenuLayout(MessMenuWidgetState(version = 5, state = "Ready"))
+            when {
+                isSmall -> SmallMessMenuLayout(widgetState.readyState, isStale = true)
+                isLarge -> LargeMessMenuLayout(widgetState.readyState, isStale = true)
+                else -> MediumMessMenuLayout(widgetState.readyState, isStale = true)
+            }
+        }
     }
 }
