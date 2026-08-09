@@ -1,5 +1,8 @@
 package com.attendrix.app.widget.classschedule
 
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -8,6 +11,7 @@ import androidx.glance.GlanceModifier
 import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.LinearProgressIndicator
+import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.background
@@ -27,14 +31,10 @@ import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import com.attendrix.app.MainActivity
-import com.attendrix.app.widget.AttendrixClassWidget
 import com.attendrix.app.widget.RefreshWidgetAction
 import com.attendrix.app.widget.core.EmptyState
 import com.attendrix.app.widget.core.WidgetClock
 import com.attendrix.app.widget.core.WidgetTokens
-import com.attendrix.app.widget.model.AttendanceModel
-import com.attendrix.app.widget.model.WidgetClass
-import com.attendrix.app.widget.model.WidgetStatus
 
 object ClassWidgetComponents {
 
@@ -74,20 +74,130 @@ object ClassWidgetComponents {
     }
 
     @Composable
-    fun UpcomingHeroCard(item: WidgetClass, nowMillis: Long = WidgetClock.currentTimeMillis()) {
+    fun StatusBadge(status: com.attendrix.app.widget.model.WidgetStatus, isAbsent: Boolean = false) {
+        val (label, bgColor, textColor) = when {
+            isAbsent -> Triple("ABSENT", ColorProvider(Color(0xFFFEE2E2)), ColorProvider(Color(0xFF991B1B)))
+            status == com.attendrix.app.widget.model.WidgetStatus.LIVE -> Triple("LIVE NOW", ColorProvider(Color(0xFFDCFCE7)), ColorProvider(Color(0xFF166534)))
+            status == com.attendrix.app.widget.model.WidgetStatus.CANCELLED -> Triple("CANCELLED", ColorProvider(Color(0xFFFEE2E2)), ColorProvider(Color(0xFF991B1B)))
+            status == com.attendrix.app.widget.model.WidgetStatus.RESCHEDULED -> Triple("RESCHEDULED", ColorProvider(Color(0xFFFEF3C7)), ColorProvider(Color(0xFFB45309)))
+            status == com.attendrix.app.widget.model.WidgetStatus.COMPLETED -> Triple("DONE", ColorProvider(Color(0xFFF3F4F6)), ColorProvider(Color(0xFF4B5563)))
+            else -> Triple("NEXT UP", WidgetTokens.Colours.Primary, ColorProvider(Color(0xFFFFFFFF)))
+        }
+
+        Box(
+            modifier = GlanceModifier
+                .background(bgColor)
+                .cornerRadius(WidgetTokens.Radius.Chip)
+                .padding(horizontal = 8.dp, vertical = 3.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = label,
+                style = TextStyle(
+                    fontSize = WidgetTokens.Typography.Micro,
+                    fontWeight = FontWeight.Bold,
+                    color = textColor,
+                    fontFamily = FontFamily.SansSerif
+                )
+            )
+        }
+    }
+
+    @Composable
+    fun AttendancePill(attendance: com.attendrix.app.widget.model.AttendanceModel) {
+        val percentage = attendance.percentage
+        val required = attendance.required.toDouble()
+
+        val (bgColor, textColor, label) = when {
+            percentage < required -> Triple(
+                ColorProvider(Color(0xFFFFCDD2)),
+                ColorProvider(Color(0xFFB3261E)),
+                "${percentage.toInt()}% · At Risk"
+            )
+            percentage <= (required + 5.0) -> Triple(
+                ColorProvider(Color(0xFFFFF0C2)),
+                ColorProvider(Color(0xFF7A5900)),
+                "${percentage.toInt()}% · On Wire"
+            )
+            else -> Triple(
+                ColorProvider(Color(0xFFE2F3E8)),
+                ColorProvider(Color(0xFF0F5223)),
+                "${percentage.toInt()}% · Safe"
+            )
+        }
+
+        Box(
+            modifier = GlanceModifier
+                .background(bgColor)
+                .cornerRadius(WidgetTokens.Radius.Chip)
+                .padding(horizontal = 8.dp, vertical = 3.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = label,
+                style = TextStyle(
+                    fontSize = WidgetTokens.Typography.Micro,
+                    fontWeight = FontWeight.Bold,
+                    color = textColor,
+                    fontFamily = FontFamily.SansSerif
+                )
+            )
+        }
+    }
+
+    @Composable
+    fun CourseTypePill(label: String) {
+        val (bgColor, textColor) = when (label.lowercase()) {
+            "lab" -> Pair(ColorProvider(Color(0xFFE0F2FE)), ColorProvider(Color(0xFF0369A1)))
+            "extra class" -> Pair(ColorProvider(Color(0xFFD1FAE5)), ColorProvider(Color(0xFF047857)))
+            "plus slot" -> Pair(ColorProvider(Color(0xFFEDE7F6)), ColorProvider(Color(0xFF6D28D9)))
+            "elective" -> Pair(ColorProvider(Color(0xFFFEF3C7)), ColorProvider(Color(0xFFB45309)))
+            else -> Pair(ColorProvider(Color(0xFFF3F4F6)), ColorProvider(Color(0xFF4B5563)))
+        }
+
+        Box(
+            modifier = GlanceModifier
+                .background(bgColor)
+                .cornerRadius(WidgetTokens.Radius.Chip)
+                .padding(horizontal = 6.dp, vertical = 2.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = label,
+                style = TextStyle(
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = textColor,
+                    fontFamily = FontFamily.SansSerif
+                )
+            )
+        }
+    }
+
+    @Composable
+    fun UpcomingHeroCard(item: com.attendrix.app.widget.model.WidgetClass, progress: Double = 0.0, nowMillis: Long = WidgetClock.currentTimeMillis()) {
         val isLive = item.isLive(nowMillis)
         val timeFmt = WidgetClock.formatTimeRange(item.startMillis, item.endMillis)
         val countdownFmt = if (isLive) {
             val remMin = WidgetClock.remainingMinutes(item.endMillis, nowMillis)
-            "${remMin}m remaining"
+            "${remMin}m left"
         } else {
             WidgetClock.formatCountdown(item.startMillis, nowMillis)
         }
 
-        val badgeBg = if (isLive) ColorProvider(Color(0xFF24A869)) else WidgetTokens.Colours.Primary
-        val badgeText = if (isLive) "LIVE NOW" else "NEXT UP"
-        val cardBg = if (isLive) WidgetTokens.Colours.HeroContainerLive else WidgetTokens.Colours.HeroContainerUpcoming
-        val accentColor = if (isLive) Color(0xFF24A869) else Color(0xFF6F61EF)
+        val isCancelled = item.status == com.attendrix.app.widget.model.WidgetStatus.CANCELLED
+        val isRescheduled = item.status == com.attendrix.app.widget.model.WidgetStatus.RESCHEDULED
+
+        val cardBg = when {
+            isCancelled -> ColorProvider(Color(0xFFFFF1F2))
+            isLive -> WidgetTokens.Colours.HeroContainerLive
+            else -> WidgetTokens.Colours.HeroContainerUpcoming
+        }
+        val accentColor = when {
+            isCancelled -> Color(0xFFE11D48)
+            isLive -> Color(0xFF24A869)
+            else -> Color(0xFF6F61EF)
+        }
 
         Row(
             modifier = GlanceModifier
@@ -111,25 +221,12 @@ object ClassWidgetComponents {
                     .padding(WidgetTokens.Spacing.md)
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = GlanceModifier
-                            .background(badgeBg)
-                            .cornerRadius(WidgetTokens.Radius.Chip)
-                            .padding(horizontal = 10.dp, vertical = 3.dp)
-                    ) {
-                        Text(
-                            text = badgeText,
-                            style = TextStyle(
-                                fontSize = WidgetTokens.Typography.Micro,
-                                fontWeight = FontWeight.Bold,
-                                color = ColorProvider(Color(0xFFFFFFFF)),
-                                fontFamily = FontFamily.SansSerif
-                            )
-                        )
-                    }
+                    StatusBadge(status = if (isLive) com.attendrix.app.widget.model.WidgetStatus.LIVE else item.status, isAbsent = item.isAbsent)
 
                     Spacer(modifier = GlanceModifier.defaultWeight())
-                    DynamicAttendancePill(item.attendance)
+                    if (!isCancelled && item.attendance.percentage > 0) {
+                        AttendancePill(item.attendance)
+                    }
                 }
 
                 Spacer(modifier = GlanceModifier.height(6.dp))
@@ -166,6 +263,16 @@ object ClassWidgetComponents {
 
                 Spacer(modifier = GlanceModifier.height(6.dp))
 
+                if (isLive && progress > 0.0) {
+                    LinearProgressIndicator(
+                        progress = progress.toFloat(),
+                        modifier = GlanceModifier.fillMaxWidth().height(4.dp),
+                        color = ColorProvider(Color(0xFF24A869)),
+                        backgroundColor = ColorProvider(Color(0xFFDCFCE7))
+                    )
+                    Spacer(modifier = GlanceModifier.height(4.dp))
+                }
+
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = timeFmt,
@@ -178,7 +285,7 @@ object ClassWidgetComponents {
                     )
                     Spacer(modifier = GlanceModifier.defaultWeight())
                     Text(
-                        text = countdownFmt,
+                        text = if (isCancelled) "Class Cancelled" else if (isRescheduled) "Rescheduled" else countdownFmt,
                         style = TextStyle(
                             fontSize = WidgetTokens.Typography.Caption,
                             fontWeight = FontWeight.Bold,
@@ -192,78 +299,7 @@ object ClassWidgetComponents {
     }
 
     @Composable
-    fun CourseTypePill(label: String) {
-        val (bgColor, textColor) = when (label.lowercase()) {
-            "lab" -> Pair(ColorProvider(Color(0xFFE0F2FE)), ColorProvider(Color(0xFF0369A1)))
-            "extra class" -> Pair(ColorProvider(Color(0xFFD1FAE5)), ColorProvider(Color(0xFF047857)))
-            "plus slot" -> Pair(ColorProvider(Color(0xFFEDE7F6)), ColorProvider(Color(0xFF6D28D9)))
-            "elective" -> Pair(ColorProvider(Color(0xFFFEF3C7)), ColorProvider(Color(0xFFB45309)))
-            else -> Pair(ColorProvider(Color(0xFFF3F4F6)), ColorProvider(Color(0xFF4B5563)))
-        }
-
-        Box(
-            modifier = GlanceModifier
-                .background(bgColor)
-                .cornerRadius(WidgetTokens.Radius.Chip)
-                .padding(horizontal = 6.dp, vertical = 2.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = label,
-                style = TextStyle(
-                    fontSize = 10.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = textColor,
-                    fontFamily = FontFamily.SansSerif
-                )
-            )
-        }
-    }
-
-    @Composable
-    fun DynamicAttendancePill(attendance: AttendanceModel) {
-        val percentage = attendance.percentage
-        val required = attendance.required.toDouble()
-
-        val (bgColor, textColor, label) = when {
-            percentage < required -> Triple(
-                ColorProvider(Color(0xFFFFCDD2)),
-                ColorProvider(Color(0xFFB3261E)),
-                "${percentage.toInt()}% (Req:${attendance.required}%)"
-            )
-            percentage <= (required + 5.0) -> Triple(
-                ColorProvider(Color(0xFFFFF0C2)),
-                ColorProvider(Color(0xFF7A5900)),
-                "${percentage.toInt()}% (On Wire)"
-            )
-            else -> Triple(
-                ColorProvider(Color(0xFFE2F3E8)),
-                ColorProvider(Color(0xFF0F5223)),
-                "${percentage.toInt()}% Safe"
-            )
-        }
-
-        Box(
-            modifier = GlanceModifier
-                .background(bgColor)
-                .cornerRadius(WidgetTokens.Radius.Chip)
-                .padding(horizontal = 8.dp, vertical = 3.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = label,
-                style = TextStyle(
-                    fontSize = WidgetTokens.Typography.Micro,
-                    fontWeight = FontWeight.Bold,
-                    color = textColor,
-                    fontFamily = FontFamily.SansSerif
-                )
-            )
-        }
-    }
-
-    @Composable
-    fun ClassRowItem(item: WidgetClass, nowMillis: Long = WidgetClock.currentTimeMillis()) {
+    fun ClassRowItem(item: com.attendrix.app.widget.model.WidgetClass, nowMillis: Long = WidgetClock.currentTimeMillis()) {
         val timeFmt = WidgetClock.formatTimeRange(item.startMillis, item.endMillis)
         val countdownFmt = WidgetClock.formatCountdown(item.startMillis, nowMillis)
 
@@ -272,7 +308,7 @@ object ClassWidgetComponents {
                 .fillMaxWidth()
                 .background(WidgetTokens.Colours.Surface)
                 .cornerRadius(WidgetTokens.Radius.Card)
-                .padding(horizontal = WidgetTokens.Spacing.md, vertical = 10.dp)
+                .padding(horizontal = WidgetTokens.Spacing.md, vertical = 8.dp)
                 .clickable(actionStartActivity<MainActivity>()),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -326,15 +362,15 @@ object ClassWidgetComponents {
     @Composable
     fun ContextualEmptyStateView(reason: EmptyState) {
         val (title, description, buttonLabel) = when (reason) {
-            EmptyState.NO_CLASSES -> Triple("No classes today", "You have no classes scheduled for today.", null)
-            EmptyState.NO_MENU_AVAILABLE -> Triple("No menu available", "Today's menu isn't available yet.", null)
-            EmptyState.NO_MESS_SELECTED -> Triple("Choose your mess", "Select your mess in Attendrix.", "Select Mess")
-            EmptyState.MESS_MISSING -> Triple("Mess unavailable", "Your selected mess couldn't be found.", "Choose Another")
-            EmptyState.WEEKEND -> Triple("Enjoy your weekend", "No classes scheduled today.", null)
-            EmptyState.HOLIDAY -> Triple("Holiday today", "Classes resume tomorrow.", null)
-            EmptyState.NO_TIMETABLE -> Triple("No timetable", "Sync your timetable to begin.", null)
-            EmptyState.SEMESTER_NOT_STARTED -> Triple("Ready for semester", "Your schedule will appear here.", null)
-            EmptyState.LOGGED_OUT -> Triple("Sign in", "Sign in to Attendrix.", "Sign In")
+            EmptyState.WEEKEND -> Triple("Weekend", "No classes scheduled today. Enjoy your day!", null)
+            EmptyState.HOLIDAY -> Triple("Holiday Today", "No classes today.", null)
+            EmptyState.NO_CLASSES -> Triple("No Classes", "Nothing scheduled for today.", null)
+            EmptyState.NO_TIMETABLE -> Triple("No Timetable", "Sync your timetable in Attendrix.", "Open Timetable")
+            EmptyState.SEMESTER_NOT_STARTED -> Triple("Ready for Semester", "Your schedule will appear here.", null)
+            EmptyState.LOGGED_OUT -> Triple("Sign In", "Sign in to Attendrix to view schedule.", "Sign In")
+            EmptyState.NO_MESS_SELECTED -> Triple("Select Mess", "Choose your mess in Attendrix.", "Select Mess")
+            EmptyState.MESS_MISSING -> Triple("Mess Unavailable", "Selected mess couldn't be found.", "Choose Another")
+            EmptyState.NO_MENU_AVAILABLE -> Triple("No Menu", "Today's menu isn't available.", null)
         }
 
         Column(
@@ -371,7 +407,7 @@ object ClassWidgetComponents {
                     modifier = GlanceModifier
                         .background(WidgetTokens.Colours.Primary)
                         .cornerRadius(WidgetTokens.Radius.Button)
-                        .height(48.dp)
+                        .height(44.dp)
                         .padding(horizontal = 16.dp)
                         .clickable(actionStartActivity<MainActivity>()),
                     contentAlignment = Alignment.Center

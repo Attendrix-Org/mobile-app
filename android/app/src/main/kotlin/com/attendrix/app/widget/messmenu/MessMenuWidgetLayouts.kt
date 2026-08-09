@@ -17,16 +17,12 @@ import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import com.attendrix.app.MainActivity
-import com.attendrix.app.widget.classschedule.ClassWidgetComponents
 import com.attendrix.app.widget.core.EmptyState
-import com.attendrix.app.widget.core.MessMenuWidgetState
-import com.attendrix.app.widget.core.WidgetClock
 import com.attendrix.app.widget.core.WidgetTokens
 
 @Composable
 fun SmallMessMenuLayout(state: MessMenuWidgetState.Ready, isStale: Boolean = false) {
-    val activeMeal = state.currentMeal ?: state.nextMeal ?: state.todayMeals.firstOrNull()
-    val nowMillis = WidgetClock.currentTimeMillis()
+    val meal = state.currentMeal ?: state.nextMeal
 
     Column(
         modifier = GlanceModifier
@@ -36,28 +32,38 @@ fun SmallMessMenuLayout(state: MessMenuWidgetState.Ready, isStale: Boolean = fal
             .padding(WidgetTokens.Spacing.md)
             .clickable(actionStartActivity<MainActivity>())
     ) {
-        MessMenuWidgetComponents.MessMenuHeader(
+        MessMenuWidgetComponents.Header(
             messName = state.messName,
             isStale = isStale
         )
 
         Spacer(modifier = GlanceModifier.height(4.dp))
 
-        if (activeMeal != null) {
+        if (meal != null) {
             Text(
-                text = activeMeal.mealName,
+                text = meal.mealName.uppercase(),
                 style = TextStyle(
-                    fontSize = WidgetTokens.Typography.Body,
+                    fontSize = WidgetTokens.Typography.Caption,
+                    fontWeight = FontWeight.Bold,
+                    color = WidgetTokens.Colours.Primary,
+                    fontFamily = FontFamily.SansSerif
+                )
+            )
+            Spacer(modifier = GlanceModifier.height(2.dp))
+            Text(
+                text = meal.mainItems.firstOrNull() ?: "Meal items",
+                maxLines = 1,
+                style = TextStyle(
+                    fontSize = WidgetTokens.Typography.Title,
                     fontWeight = FontWeight.Bold,
                     color = WidgetTokens.Colours.TextPrimary,
                     fontFamily = FontFamily.SansSerif
                 )
             )
-
-            val mainText = if (activeMeal.mainItems.isNotEmpty()) activeMeal.mainItems.joinToString(", ") else activeMeal.staples
+            Spacer(modifier = GlanceModifier.height(2.dp))
             Text(
-                text = mainText,
-                maxLines = 2,
+                text = meal.mainItems.drop(1).take(2).joinToString(", "),
+                maxLines = 1,
                 style = TextStyle(
                     fontSize = WidgetTokens.Typography.Caption,
                     color = WidgetTokens.Colours.TextSecondary,
@@ -65,15 +71,22 @@ fun SmallMessMenuLayout(state: MessMenuWidgetState.Ready, isStale: Boolean = fal
                 )
             )
         } else {
-            ClassWidgetComponents.ContextualEmptyStateView(EmptyState.NO_MENU_AVAILABLE)
+            Text(
+                text = "No Menu",
+                style = TextStyle(
+                    fontSize = WidgetTokens.Typography.Title,
+                    fontWeight = FontWeight.Bold,
+                    color = WidgetTokens.Colours.TextPrimary,
+                    fontFamily = FontFamily.SansSerif
+                )
+            )
         }
     }
 }
 
 @Composable
 fun MediumMessMenuLayout(state: MessMenuWidgetState.Ready, isStale: Boolean = false) {
-    val activeMeal = state.currentMeal ?: state.nextMeal ?: state.todayMeals.firstOrNull()
-    val nowMillis = WidgetClock.currentTimeMillis()
+    val meal = state.currentMeal ?: state.nextMeal
 
     Column(
         modifier = GlanceModifier
@@ -82,25 +95,25 @@ fun MediumMessMenuLayout(state: MessMenuWidgetState.Ready, isStale: Boolean = fa
             .cornerRadius(WidgetTokens.Radius.Card)
             .padding(WidgetTokens.Spacing.md)
     ) {
-        MessMenuWidgetComponents.MessMenuHeader(
+        MessMenuWidgetComponents.Header(
             messName = state.messName,
             isStale = isStale
         )
 
         Spacer(modifier = GlanceModifier.height(6.dp))
 
-        if (activeMeal != null) {
-            MessMenuWidgetComponents.HeroMealCard(meal = activeMeal, nowMillis = nowMillis)
+        if (meal != null) {
+            MessMenuWidgetComponents.MealHeroCard(meal = meal, isCurrent = state.currentMeal != null)
         } else {
-            ClassWidgetComponents.ContextualEmptyStateView(EmptyState.NO_MENU_AVAILABLE)
+            MessMenuWidgetComponents.ContextualMessEmptyStateView(EmptyState.NO_MENU_AVAILABLE)
         }
     }
 }
 
 @Composable
 fun LargeMessMenuLayout(state: MessMenuWidgetState.Ready, isStale: Boolean = false) {
-    val activeMeal = state.currentMeal ?: state.nextMeal ?: state.todayMeals.firstOrNull()
-    val nowMillis = WidgetClock.currentTimeMillis()
+    val meal = state.currentMeal ?: state.nextMeal
+    val nextMeal = if (state.currentMeal != null) state.nextMeal else null
 
     Column(
         modifier = GlanceModifier
@@ -109,24 +122,21 @@ fun LargeMessMenuLayout(state: MessMenuWidgetState.Ready, isStale: Boolean = fal
             .cornerRadius(WidgetTokens.Radius.Card)
             .padding(WidgetTokens.Spacing.md)
     ) {
-        MessMenuWidgetComponents.MessMenuHeader(
+        MessMenuWidgetComponents.Header(
             messName = state.messName,
             isStale = isStale
         )
 
         Spacer(modifier = GlanceModifier.height(6.dp))
 
-        if (activeMeal != null) {
-            MessMenuWidgetComponents.HeroMealCard(meal = activeMeal, nowMillis = nowMillis)
-
-            Spacer(modifier = GlanceModifier.height(6.dp))
-
-            state.todayMeals.filter { it.mealName != activeMeal.mealName }.take(2).forEach { meal ->
-                MessMenuWidgetComponents.MealRowItem(meal = meal)
-                Spacer(modifier = GlanceModifier.height(4.dp))
+        if (meal != null) {
+            MessMenuWidgetComponents.MealHeroCard(meal = meal, isCurrent = true)
+            if (nextMeal != null) {
+                Spacer(modifier = GlanceModifier.height(8.dp))
+                MessMenuWidgetComponents.MealHeroCard(meal = nextMeal, isCurrent = false)
             }
         } else {
-            ClassWidgetComponents.ContextualEmptyStateView(EmptyState.NO_MENU_AVAILABLE)
+            MessMenuWidgetComponents.ContextualMessEmptyStateView(EmptyState.NO_MENU_AVAILABLE)
         }
     }
 }

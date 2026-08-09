@@ -22,22 +22,19 @@ import androidx.glance.layout.width
 import androidx.glance.text.FontFamily
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
+import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import com.attendrix.app.MainActivity
 import com.attendrix.app.widget.RefreshWidgetAction
-import com.attendrix.app.widget.core.WidgetClock
+import com.attendrix.app.widget.core.EmptyState
 import com.attendrix.app.widget.core.WidgetTokens
 import com.attendrix.app.widget.model.DietType
-import com.attendrix.app.widget.model.MealItem
 
 object MessMenuWidgetComponents {
 
     @Composable
-    fun MessMenuHeader(
-        messName: String,
-        isStale: Boolean = false
-    ) {
+    fun Header(messName: String, isStale: Boolean = false) {
         Row(
             modifier = GlanceModifier
                 .fillMaxWidth()
@@ -56,6 +53,7 @@ object MessMenuWidgetComponents {
                 )
                 Text(
                     text = messName,
+                    maxLines = 1,
                     style = TextStyle(
                         fontSize = WidgetTokens.Typography.Title,
                         fontWeight = FontWeight.Bold,
@@ -63,117 +61,17 @@ object MessMenuWidgetComponents {
                         fontFamily = FontFamily.SansSerif
                     )
                 )
-            }
-        }
-    }
-
-    @Composable
-    fun HeroMealCard(meal: MealItem, nowMillis: Long = WidgetClock.currentTimeMillis()) {
-        val isLive = meal.isLive(nowMillis)
-        val cardBg = if (isLive) WidgetTokens.Colours.HeroContainerLive else WidgetTokens.Colours.HeroContainerUpcoming
-        val accentColor = if (isLive) Color(0xFF24A869) else Color(0xFF6F61EF)
-        val badgeText = if (isLive) "SERVED NOW" else "NEXT MEAL"
-
-        Row(
-            modifier = GlanceModifier
-                .fillMaxWidth()
-                .background(cardBg)
-                .cornerRadius(WidgetTokens.Radius.Card)
-                .clickable(actionStartActivity<MainActivity>()),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
-                modifier = GlanceModifier
-                    .width(6.dp)
-                    .height(130.dp)
-                    .background(ColorProvider(accentColor))
-                    .cornerRadius(3.dp)
-            ) {}
-
-            Column(
-                modifier = GlanceModifier
-                    .fillMaxWidth()
-                    .padding(WidgetTokens.Spacing.md)
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = GlanceModifier
-                            .background(ColorProvider(accentColor))
-                            .cornerRadius(WidgetTokens.Radius.Chip)
-                            .padding(horizontal = 8.dp, vertical = 3.dp)
-                    ) {
-                        Text(
-                            text = badgeText,
-                            style = TextStyle(
-                                fontSize = WidgetTokens.Typography.Micro,
-                                fontWeight = FontWeight.Bold,
-                                color = ColorProvider(Color(0xFFFFFFFF)),
-                                fontFamily = FontFamily.SansSerif
-                            )
-                        )
-                    }
-
-                    Spacer(modifier = GlanceModifier.width(8.dp))
-                    DietBadge(dietType = meal.dietType)
-
-                    Spacer(modifier = GlanceModifier.defaultWeight())
-                    Text(
-                        text = meal.timeRange,
-                        style = TextStyle(
-                            fontSize = WidgetTokens.Typography.Micro,
-                            color = WidgetTokens.Colours.TextSecondary,
-                            fontFamily = FontFamily.SansSerif
-                        )
-                    )
-                }
-
-                Spacer(modifier = GlanceModifier.height(4.dp))
-
-                Text(
-                    text = meal.mealName,
-                    style = TextStyle(
-                        fontSize = WidgetTokens.Typography.Title,
-                        fontWeight = FontWeight.Bold,
-                        color = WidgetTokens.Colours.TextPrimary,
-                        fontFamily = FontFamily.SansSerif
-                    )
-                )
-
-                Spacer(modifier = GlanceModifier.height(2.dp))
-
-                val mainText = if (meal.mainItems.isNotEmpty()) meal.mainItems.joinToString(", ") else "Special Menu"
-                Text(
-                    text = mainText,
-                    maxLines = 2,
-                    style = TextStyle(
-                        fontSize = WidgetTokens.Typography.Body,
-                        color = WidgetTokens.Colours.TextPrimary,
-                        fontFamily = FontFamily.SansSerif
-                    )
-                )
-
-                if (meal.staples.isNotBlank()) {
-                    Spacer(modifier = GlanceModifier.height(2.dp))
-                    Text(
-                        text = "Staples: ${meal.staples}",
-                        maxLines = 1,
-                        style = TextStyle(
-                            fontSize = WidgetTokens.Typography.Caption,
-                            color = WidgetTokens.Colours.TextSecondary,
-                            fontFamily = FontFamily.SansSerif
-                        )
-                    )
-                }
             }
         }
     }
 
     @Composable
     fun DietBadge(dietType: DietType) {
-        val (bgColor, textColor, label) = when (dietType) {
-            DietType.VEG -> Triple(ColorProvider(Color(0xFFDCFCE7)), ColorProvider(Color(0xFF166534)), "VEG")
-            DietType.EGG -> Triple(ColorProvider(Color(0xFFFEF3C7)), ColorProvider(Color(0xFFB45309)), "EGG")
-            DietType.NON_VEG -> Triple(ColorProvider(Color(0xFFFEE2E2)), ColorProvider(Color(0xFF991B1B)), "NON-VEG")
+        val (label, bgColor, textColor) = when (dietType) {
+            DietType.VEG -> Triple("VEG", ColorProvider(Color(0xFFDCFCE7)), ColorProvider(Color(0xFF166534)))
+            DietType.EGG -> Triple("EGG", ColorProvider(Color(0xFFFEF3C7)), ColorProvider(Color(0xFFB45309)))
+            DietType.NON_VEG -> Triple("NON-VEG", ColorProvider(Color(0xFFFEE2E2)), ColorProvider(Color(0xFF991B1B)))
+            DietType.SPECIAL -> Triple("SPECIAL", ColorProvider(Color(0xFFEDE7F6)), ColorProvider(Color(0xFF6D28D9)))
         }
 
         Box(
@@ -196,33 +94,34 @@ object MessMenuWidgetComponents {
     }
 
     @Composable
-    fun MealRowItem(meal: MealItem) {
-        Row(
+    fun MealHeroCard(meal: com.attendrix.app.widget.model.MealItem, isCurrent: Boolean = true) {
+        val mainDishes = meal.mainItems.take(2).joinToString(", ")
+        val staplesStr = meal.staples.ifBlank { meal.mainItems.drop(2).joinToString(", ") }
+        val remainingCount = (meal.mainItems.size - 2).coerceAtLeast(0)
+
+        Column(
             modifier = GlanceModifier
                 .fillMaxWidth()
-                .background(WidgetTokens.Colours.Surface)
+                .background(if (isCurrent) WidgetTokens.Colours.HeroContainerLive else WidgetTokens.Colours.Surface)
                 .cornerRadius(WidgetTokens.Radius.Card)
-                .padding(horizontal = WidgetTokens.Spacing.md, vertical = 8.dp)
-                .clickable(actionStartActivity<MainActivity>()),
-            verticalAlignment = Alignment.CenterVertically
+                .padding(WidgetTokens.Spacing.md)
+                .clickable(actionStartActivity<MainActivity>())
         ) {
-            Column(modifier = GlanceModifier.defaultWeight()) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = meal.mealName,
-                        style = TextStyle(
-                            fontSize = WidgetTokens.Typography.Body,
-                            fontWeight = FontWeight.Bold,
-                            color = WidgetTokens.Colours.TextPrimary,
-                            fontFamily = FontFamily.SansSerif
-                        )
-                    )
-                    Spacer(modifier = GlanceModifier.width(6.dp))
-                    DietBadge(dietType = meal.dietType)
-                }
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = if (meal.mainItems.isNotEmpty()) meal.mainItems.joinToString(", ") else meal.staples,
-                    maxLines = 1,
+                    text = meal.mealName.uppercase(),
+                    style = TextStyle(
+                        fontSize = WidgetTokens.Typography.Body,
+                        fontWeight = FontWeight.Bold,
+                        color = WidgetTokens.Colours.TextPrimary,
+                        fontFamily = FontFamily.SansSerif
+                    )
+                )
+                Spacer(modifier = GlanceModifier.width(6.dp))
+                DietBadge(meal.dietType)
+                Spacer(modifier = GlanceModifier.defaultWeight())
+                Text(
+                    text = meal.timeRange,
                     style = TextStyle(
                         fontSize = WidgetTokens.Typography.Caption,
                         color = WidgetTokens.Colours.TextSecondary,
@@ -231,13 +130,67 @@ object MessMenuWidgetComponents {
                 )
             }
 
-            Spacer(modifier = GlanceModifier.width(6.dp))
+            Spacer(modifier = GlanceModifier.height(6.dp))
 
             Text(
-                text = meal.timeRange,
+                text = mainDishes.ifBlank { "Menu items scheduled" },
+                maxLines = 1,
                 style = TextStyle(
-                    fontSize = WidgetTokens.Typography.Micro,
+                    fontSize = WidgetTokens.Typography.Title,
+                    fontWeight = FontWeight.Bold,
+                    color = WidgetTokens.Colours.TextPrimary,
+                    fontFamily = FontFamily.SansSerif
+                )
+            )
+
+            if (staplesStr.isNotBlank()) {
+                Spacer(modifier = GlanceModifier.height(2.dp))
+                Text(
+                    text = if (remainingCount > 0) "$staplesStr • +$remainingCount more" else staplesStr,
+                    maxLines = 1,
+                    style = TextStyle(
+                        fontSize = WidgetTokens.Typography.Caption,
+                        color = WidgetTokens.Colours.TextSecondary,
+                        fontFamily = FontFamily.SansSerif
+                    )
+                )
+            }
+        }
+    }
+
+    @Composable
+    fun ContextualMessEmptyStateView(reason: EmptyState) {
+        val (title, description) = when (reason) {
+            EmptyState.NO_MESS_SELECTED -> Pair("Select Mess", "Choose your mess in Attendrix.")
+            EmptyState.NO_MENU_AVAILABLE -> Pair("No Menu", "Today's menu isn't available.")
+            EmptyState.HOLIDAY -> Pair("Mess Closed", "Mess is closed for holiday today.")
+            else -> Pair("No Menu Available", "Open Attendrix to sync mess menu.")
+        }
+
+        Column(
+            modifier = GlanceModifier
+                .fillMaxWidth()
+                .background(WidgetTokens.Colours.Surface)
+                .cornerRadius(WidgetTokens.Radius.Card)
+                .padding(WidgetTokens.Spacing.md),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = title,
+                style = TextStyle(
+                    fontSize = WidgetTokens.Typography.Title,
+                    fontWeight = FontWeight.Bold,
+                    color = WidgetTokens.Colours.TextPrimary,
+                    fontFamily = FontFamily.SansSerif
+                )
+            )
+            Spacer(modifier = GlanceModifier.height(4.dp))
+            Text(
+                text = description,
+                style = TextStyle(
+                    fontSize = WidgetTokens.Typography.Body,
                     color = WidgetTokens.Colours.TextSecondary,
+                    textAlign = TextAlign.Center,
                     fontFamily = FontFamily.SansSerif
                 )
             )

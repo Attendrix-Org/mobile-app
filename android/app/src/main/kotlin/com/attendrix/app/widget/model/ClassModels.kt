@@ -31,6 +31,7 @@ enum class WidgetStatus {
     UPCOMING,
     COMPLETED,
     CANCELLED,
+    RESCHEDULED,
     ABSENT,
     HOLIDAY
 }
