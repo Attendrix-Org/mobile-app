@@ -84,10 +84,10 @@ class CampusBuildingStruct extends BaseStruct {
         id: data['id']?.toString(),
         name: data['name']?.toString(),
         category: (data['category'] ?? data['building_type'] ?? data['amenity'])?.toString(),
-        lat: castToNum(data['lat'])?.toDouble(),
-        lng: castToNum(data['lng'] ?? data['lon'])?.toDouble(),
+        lat: castToType<double>(data['lat']),
+        lng: castToType<double>(data['lng'] ?? data['lon']),
         nearestNodeId: (data['nearest_node_id'] ?? data['nearestNodeId'])?.toString(),
-        snapDistM: castToNum(data['snap_dist_m'] ?? data['snapDistM'])?.toDouble(),
+        snapDistM: castToType<double>(data['snap_dist_m'] ?? data['snapDistM']),
         description: data['description']?.toString(),
         createdAt: (data['created_at'] ?? data['createdAt'])?.toString(),
       );
