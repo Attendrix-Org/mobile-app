@@ -67,5 +67,29 @@
             android:name="flutterEmbedding"
             android:value="2" />
 
+        <receiver
+            android:name="com.attendrix.app.widget.AttendrixClassWidgetReceiver"
+            android:exported="true"
+            android:label="Attendrix Class Widget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/attendrix_class_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name="com.attendrix.app.widget.AttendrixMessMenuWidgetReceiver"
+            android:exported="true"
+            android:label="Attendrix Mess Menu Widget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/attendrix_mess_menu_widget_info" />
+        </receiver>
+
     </application>
 </manifest>

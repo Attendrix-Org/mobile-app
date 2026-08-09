@@ -18,10 +18,12 @@ import 'package:flutter/foundation.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
+import '/services/home_widget_service.dart';
 import 'index.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await HomeWidgetService.initialize();
   GoRouter.optionURLReflectsImperativeAPIs = true;
   usePathUrlStrategy();
 
