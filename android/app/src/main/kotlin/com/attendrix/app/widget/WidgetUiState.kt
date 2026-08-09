@@ -17,7 +17,8 @@ enum class EmptyState {
     SEMESTER_NOT_STARTED,
     NO_CLASSES,
     NO_MESS_SELECTED,
-    MESS_MISSING
+    MESS_MISSING,
+    NO_MENU_AVAILABLE
 }
 
 sealed interface WidgetUiState {

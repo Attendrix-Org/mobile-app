@@ -194,7 +194,7 @@ class HomeWidgetService {
             nextMeal: nextMeal,
             todayMeals: todayMeals,
             state: todayMeals.isEmpty ? 'Empty' : 'Ready',
-            emptyReason: todayMeals.isEmpty ? 'NO_CLASSES' : 'NO_CLASSES',
+            emptyReason: todayMeals.isEmpty ? 'NO_MENU_AVAILABLE' : 'NO_MENU_AVAILABLE',
           );
         }
       }

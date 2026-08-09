@@ -551,7 +551,8 @@ object WidgetComponents {
             EmptyState.NO_TIMETABLE -> Triple("No timetable", "Sync your timetable to begin.", null)
             EmptyState.SEMESTER_NOT_STARTED -> Triple("Ready for semester", "Your schedule will appear here.", null)
             EmptyState.LOGGED_OUT -> Triple("Sign in", "Sign in to Attendrix.", "Sign In")
-            EmptyState.NO_CLASSES -> Triple("No menu available", "Today's menu isn't available yet.", null)
+            EmptyState.NO_CLASSES -> Triple("No classes today", "You have no classes scheduled for today.", null)
+            EmptyState.NO_MENU_AVAILABLE -> Triple("No menu available", "Today's menu isn't available yet.", null)
         }
 
         Column(
