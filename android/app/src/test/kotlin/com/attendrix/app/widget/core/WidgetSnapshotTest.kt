@@ -38,8 +38,8 @@ class WidgetSnapshotTest {
         assertEquals(now, snapshot.generatedAt)
         assertEquals("Asia/Kolkata", snapshot.timezone)
         assertEquals("app_state", snapshot.source)
-        assertFalse(snapshot.isExpired)
-        assertFalse(snapshot.isStale)
+        assertFalse(snapshot.isExpired())
+        assertFalse(snapshot.isStale())
         assertNotNull(snapshot.payload.optJSONObject("currentClass"))
     }
 
@@ -59,7 +59,7 @@ class WidgetSnapshotTest {
 
         assertEquals(4, snapshot.schemaVersion)
         assertEquals(now, snapshot.generatedAt)
-        assertFalse(snapshot.isExpired)
+        assertFalse(snapshot.isExpired())
         assertEquals("Ready", snapshot.payload.optString("state"))
         assertEquals(85.5, snapshot.payload.optDouble("overallAttendancePercentage"), 0.01)
     }
@@ -70,7 +70,7 @@ class WidgetSnapshotTest {
 
         assertEquals(6, snapshot.schemaVersion)
         assertNotNull(snapshot.payload)
-        assertFalse(snapshot.isExpired)
+        assertFalse(snapshot.isExpired())
     }
 
     @Test
@@ -79,7 +79,7 @@ class WidgetSnapshotTest {
 
         assertEquals(6, snapshot.schemaVersion)
         assertNotNull(snapshot.payload)
-        assertFalse(snapshot.isExpired)
+        assertFalse(snapshot.isExpired())
     }
 
     @Test
@@ -90,7 +90,7 @@ class WidgetSnapshotTest {
             validUntil = past
         )
 
-        assertTrue(snapshot.isExpired)
+        assertTrue(snapshot.isExpired())
     }
 
     @Test
@@ -102,6 +102,6 @@ class WidgetSnapshotTest {
             validUntil = now + 86400000L
         )
 
-        assertTrue(snapshot.isStale)
+        assertTrue(snapshot.isStale())
     }
 }

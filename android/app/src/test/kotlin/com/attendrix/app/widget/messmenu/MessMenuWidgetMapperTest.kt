@@ -1,7 +1,7 @@
 package com.attendrix.app.widget.messmenu
 
 import com.attendrix.app.widget.core.EmptyState
-import com.attendrix.app.widget.core.MessMenuWidgetState
+import com.attendrix.app.widget.messmenu.MessMenuWidgetState
 import com.attendrix.app.widget.core.WidgetSnapshot
 import com.attendrix.app.widget.model.DietType
 import org.json.JSONArray
