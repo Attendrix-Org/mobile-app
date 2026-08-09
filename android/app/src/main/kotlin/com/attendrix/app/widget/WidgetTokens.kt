@@ -53,6 +53,7 @@ object WidgetTokens {
         val TextPrimary = ColorProvider(Color(0xFF14181B))
         val TextSecondary = ColorProvider(Color(0xFF57636C))
         val Error = ColorProvider(Color(0xFFFF5963))
+        val Warning = ColorProvider(Color(0xFFB45309))
 
         // Hero Card Themes
         val HeroContainerLive = ColorProvider(Color(0xFFE2F3E8))     // Mint Green (Now Serving / Live)

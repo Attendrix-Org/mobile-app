@@ -19,18 +19,14 @@ import androidx.glance.background
 import androidx.glance.layout.Column
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.padding
-import androidx.glance.preview.ExperimentalGlancePreviewApi
-import androidx.glance.preview.Preview
 import com.attendrix.app.MainActivity
 import com.attendrix.app.widget.classschedule.ClassWidgetComponents
 import com.attendrix.app.widget.classschedule.ClassWidgetMapper
+import com.attendrix.app.widget.classschedule.ClassWidgetState
 import com.attendrix.app.widget.classschedule.LargeClassLayout
 import com.attendrix.app.widget.classschedule.MediumClassLayout
 import com.attendrix.app.widget.classschedule.SmallClassLayout
-import com.attendrix.app.widget.core.ClassWidgetState
 import com.attendrix.app.widget.core.WidgetStateStore
-import com.attendrix.app.widget.core.WidgetTokens
-import com.attendrix.app.widget.core.WidgetUpdater
 
 class AttendrixClassWidget : GlanceAppWidget() {
 

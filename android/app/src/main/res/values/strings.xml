@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <resources>
     <string name="app_name">Attendrix</string>
-
+    <string name="widget_description">View your upcoming class schedule at a glance.</string>
+    <string name="mess_menu_widget_description">View your mess menu schedule at a glance.</string>
 </resources>

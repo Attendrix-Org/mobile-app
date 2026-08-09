@@ -22,9 +22,9 @@ import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import com.attendrix.app.MainActivity
+import com.attendrix.app.widget.WidgetTokens
 import com.attendrix.app.widget.core.EmptyState
 import com.attendrix.app.widget.core.WidgetClock
-import com.attendrix.app.widget.core.WidgetTokens
 
 @Composable
 fun SmallClassLayout(state: ClassWidgetState.Ready, isStale: Boolean = false) {

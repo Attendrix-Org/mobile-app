@@ -1,8 +1,5 @@
 package com.attendrix.app.widget.classschedule
 
-import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -11,7 +8,6 @@ import androidx.glance.GlanceModifier
 import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.LinearProgressIndicator
-import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.background
@@ -32,9 +28,9 @@ import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import com.attendrix.app.MainActivity
 import com.attendrix.app.widget.RefreshWidgetAction
+import com.attendrix.app.widget.WidgetTokens
 import com.attendrix.app.widget.core.EmptyState
 import com.attendrix.app.widget.core.WidgetClock
-import com.attendrix.app.widget.core.WidgetTokens
 
 object ClassWidgetComponents {
 
@@ -47,7 +43,7 @@ object ClassWidgetComponents {
         Row(
             modifier = GlanceModifier
                 .fillMaxWidth()
-                .clickable(actionRunCallback<RefreshWidgetAction>()),
+                .clickable(actionStartActivity<MainActivity>()),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = GlanceModifier.defaultWeight()) {
@@ -130,7 +126,8 @@ object ClassWidgetComponents {
             modifier = GlanceModifier
                 .background(bgColor)
                 .cornerRadius(WidgetTokens.Radius.Chip)
-                .padding(horizontal = 8.dp, vertical = 3.dp),
+                .padding(horizontal = 8.dp, vertical = 3.dp)
+                .clickable(actionStartActivity<MainActivity>()),
             contentAlignment = Alignment.Center
         ) {
             Text(
@@ -138,35 +135,6 @@ object ClassWidgetComponents {
                 style = TextStyle(
                     fontSize = WidgetTokens.Typography.Micro,
                     fontWeight = FontWeight.Bold,
-                    color = textColor,
-                    fontFamily = FontFamily.SansSerif
-                )
-            )
-        }
-    }
-
-    @Composable
-    fun CourseTypePill(label: String) {
-        val (bgColor, textColor) = when (label.lowercase()) {
-            "lab" -> Pair(ColorProvider(Color(0xFFE0F2FE)), ColorProvider(Color(0xFF0369A1)))
-            "extra class" -> Pair(ColorProvider(Color(0xFFD1FAE5)), ColorProvider(Color(0xFF047857)))
-            "plus slot" -> Pair(ColorProvider(Color(0xFFEDE7F6)), ColorProvider(Color(0xFF6D28D9)))
-            "elective" -> Pair(ColorProvider(Color(0xFFFEF3C7)), ColorProvider(Color(0xFFB45309)))
-            else -> Pair(ColorProvider(Color(0xFFF3F4F6)), ColorProvider(Color(0xFF4B5563)))
-        }
-
-        Box(
-            modifier = GlanceModifier
-                .background(bgColor)
-                .cornerRadius(WidgetTokens.Radius.Chip)
-                .padding(horizontal = 6.dp, vertical = 2.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = label,
-                style = TextStyle(
-                    fontSize = 10.sp,
-                    fontWeight = FontWeight.Medium,
                     color = textColor,
                     fontFamily = FontFamily.SansSerif
                 )
@@ -231,28 +199,21 @@ object ClassWidgetComponents {
 
                 Spacer(modifier = GlanceModifier.height(6.dp))
 
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = item.courseName,
-                        maxLines = 1,
-                        style = TextStyle(
-                            fontSize = WidgetTokens.Typography.Title,
-                            fontWeight = FontWeight.Bold,
-                            color = WidgetTokens.Colours.TextPrimary,
-                            fontFamily = FontFamily.SansSerif
-                        ),
-                        modifier = GlanceModifier.defaultWeight()
+                Text(
+                    text = item.courseName,
+                    maxLines = 1,
+                    style = TextStyle(
+                        fontSize = WidgetTokens.Typography.Title,
+                        fontWeight = FontWeight.Bold,
+                        color = WidgetTokens.Colours.TextPrimary,
+                        fontFamily = FontFamily.SansSerif
                     )
-                    if (item.courseTypeLabel().isNotBlank()) {
-                        Spacer(modifier = GlanceModifier.width(6.dp))
-                        CourseTypePill(item.courseTypeLabel())
-                    }
-                }
+                )
 
                 Spacer(modifier = GlanceModifier.height(2.dp))
 
                 Text(
-                    text = "${item.courseCode} • ${item.venue.ifBlank { "TBD" }}",
+                    text = "${item.venue.ifBlank { "TBD" }} • $timeFmt",
                     maxLines = 1,
                     style = TextStyle(
                         fontSize = WidgetTokens.Typography.Body,
@@ -275,16 +236,6 @@ object ClassWidgetComponents {
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        text = timeFmt,
-                        style = TextStyle(
-                            fontSize = WidgetTokens.Typography.Caption,
-                            fontWeight = FontWeight.Medium,
-                            color = WidgetTokens.Colours.TextPrimary,
-                            fontFamily = FontFamily.SansSerif
-                        )
-                    )
-                    Spacer(modifier = GlanceModifier.defaultWeight())
-                    Text(
                         text = if (isCancelled) "Class Cancelled" else if (isRescheduled) "Rescheduled" else countdownFmt,
                         style = TextStyle(
                             fontSize = WidgetTokens.Typography.Caption,
@@ -301,7 +252,6 @@ object ClassWidgetComponents {
     @Composable
     fun ClassRowItem(item: com.attendrix.app.widget.model.WidgetClass, nowMillis: Long = WidgetClock.currentTimeMillis()) {
         val timeFmt = WidgetClock.formatTimeRange(item.startMillis, item.endMillis)
-        val countdownFmt = WidgetClock.formatCountdown(item.startMillis, nowMillis)
 
         Row(
             modifier = GlanceModifier
@@ -324,34 +274,11 @@ object ClassWidgetComponents {
                     )
                 )
                 Text(
-                    text = "${item.courseCode} • ${item.venue.ifBlank { "TBD" }}",
+                    text = "${item.venue.ifBlank { "TBD" }} • $timeFmt",
                     maxLines = 1,
                     style = TextStyle(
                         fontSize = WidgetTokens.Typography.Caption,
                         color = WidgetTokens.Colours.TextSecondary,
-                        fontFamily = FontFamily.SansSerif
-                    )
-                )
-            }
-
-            Spacer(modifier = GlanceModifier.width(8.dp))
-
-            Column(horizontalAlignment = Alignment.End) {
-                Text(
-                    text = timeFmt,
-                    style = TextStyle(
-                        fontSize = WidgetTokens.Typography.Caption,
-                        fontWeight = FontWeight.Medium,
-                        color = WidgetTokens.Colours.TextPrimary,
-                        fontFamily = FontFamily.SansSerif
-                    )
-                )
-                Text(
-                    text = "in $countdownFmt",
-                    style = TextStyle(
-                        fontSize = WidgetTokens.Typography.Micro,
-                        fontWeight = FontWeight.Medium,
-                        color = WidgetTokens.Colours.Primary,
                         fontFamily = FontFamily.SansSerif
                     )
                 )
@@ -361,16 +288,16 @@ object ClassWidgetComponents {
 
     @Composable
     fun ContextualEmptyStateView(reason: EmptyState) {
-        val (title, description, buttonLabel) = when (reason) {
-            EmptyState.WEEKEND -> Triple("Weekend", "No classes scheduled today. Enjoy your day!", null)
-            EmptyState.HOLIDAY -> Triple("Holiday Today", "No classes today.", null)
-            EmptyState.NO_CLASSES -> Triple("No Classes", "Nothing scheduled for today.", null)
-            EmptyState.NO_TIMETABLE -> Triple("No Timetable", "Sync your timetable in Attendrix.", "Open Timetable")
-            EmptyState.SEMESTER_NOT_STARTED -> Triple("Ready for Semester", "Your schedule will appear here.", null)
-            EmptyState.LOGGED_OUT -> Triple("Sign In", "Sign in to Attendrix to view schedule.", "Sign In")
-            EmptyState.NO_MESS_SELECTED -> Triple("Select Mess", "Choose your mess in Attendrix.", "Select Mess")
-            EmptyState.MESS_MISSING -> Triple("Mess Unavailable", "Selected mess couldn't be found.", "Choose Another")
-            EmptyState.NO_MENU_AVAILABLE -> Triple("No Menu", "Today's menu isn't available.", null)
+        val (title, description) = when (reason) {
+            EmptyState.WEEKEND -> Pair("Weekend", "No classes scheduled today. Enjoy your day!")
+            EmptyState.HOLIDAY -> Pair("Holiday Today", "No classes today.")
+            EmptyState.NO_CLASSES -> Pair("No Classes", "Nothing scheduled for today.")
+            EmptyState.NO_TIMETABLE -> Pair("No Timetable", "Sync your timetable in Attendrix.")
+            EmptyState.SEMESTER_NOT_STARTED -> Pair("Ready for Semester", "Your schedule will appear here.")
+            EmptyState.LOGGED_OUT -> Pair("Sign In", "Sign in to Attendrix to view schedule.")
+            EmptyState.NO_MESS_SELECTED -> Pair("Select Mess", "Choose your mess in Attendrix.")
+            EmptyState.MESS_MISSING -> Pair("Mess Unavailable", "Selected mess couldn't be found.")
+            EmptyState.NO_MENU_AVAILABLE -> Pair("No Menu", "Today's menu isn't available.")
         }
 
         Column(
@@ -378,7 +305,8 @@ object ClassWidgetComponents {
                 .fillMaxWidth()
                 .background(WidgetTokens.Colours.Surface)
                 .cornerRadius(WidgetTokens.Radius.Card)
-                .padding(WidgetTokens.Spacing.md),
+                .padding(WidgetTokens.Spacing.md)
+                .clickable(actionStartActivity<MainActivity>()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
@@ -400,29 +328,6 @@ object ClassWidgetComponents {
                     fontFamily = FontFamily.SansSerif
                 )
             )
-
-            if (buttonLabel != null) {
-                Spacer(modifier = GlanceModifier.height(8.dp))
-                Box(
-                    modifier = GlanceModifier
-                        .background(WidgetTokens.Colours.Primary)
-                        .cornerRadius(WidgetTokens.Radius.Button)
-                        .height(44.dp)
-                        .padding(horizontal = 16.dp)
-                        .clickable(actionStartActivity<MainActivity>()),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = buttonLabel,
-                        style = TextStyle(
-                            fontSize = WidgetTokens.Typography.Body,
-                            fontWeight = FontWeight.Bold,
-                            color = WidgetTokens.Colours.Surface,
-                            fontFamily = FontFamily.SansSerif
-                        )
-                    )
-                }
-            }
         }
     }
 }

@@ -21,13 +21,12 @@ import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.padding
 import com.attendrix.app.MainActivity
 import com.attendrix.app.widget.classschedule.ClassWidgetComponents
-import com.attendrix.app.widget.core.MessMenuWidgetState
 import com.attendrix.app.widget.core.WidgetStateStore
-import com.attendrix.app.widget.core.WidgetTokens
 import com.attendrix.app.widget.messmenu.LargeMessMenuLayout
 import com.attendrix.app.widget.messmenu.MediumMessMenuLayout
 import com.attendrix.app.widget.messmenu.MessMenuWidgetComponents
 import com.attendrix.app.widget.messmenu.MessMenuWidgetMapper
+import com.attendrix.app.widget.messmenu.MessMenuWidgetState
 import com.attendrix.app.widget.messmenu.SmallMessMenuLayout
 
 class AttendrixMessMenuWidget : GlanceAppWidget() {
@@ -69,7 +68,7 @@ fun MessMenuStateRenderer(widgetState: MessMenuWidgetState) {
                     .cornerRadius(WidgetTokens.Radius.Card)
                     .padding(WidgetTokens.Spacing.md)
             ) {
-                MessMenuWidgetComponents.MessMenuHeader(messName = "Mess Menu")
+                MessMenuWidgetComponents.Header(messName = "Mess Menu")
             }
         }
         is MessMenuWidgetState.Error -> {
@@ -81,7 +80,7 @@ fun MessMenuStateRenderer(widgetState: MessMenuWidgetState) {
                     .padding(WidgetTokens.Spacing.md)
                     .clickable(actionStartActivity<MainActivity>())
             ) {
-                MessMenuWidgetComponents.MessMenuHeader(messName = "Mess Menu")
+                MessMenuWidgetComponents.Header(messName = "Mess Menu")
                 ClassWidgetComponents.ContextualEmptyStateView(com.attendrix.app.widget.core.EmptyState.NO_MENU_AVAILABLE)
             }
         }
@@ -94,7 +93,7 @@ fun MessMenuStateRenderer(widgetState: MessMenuWidgetState) {
                     .padding(WidgetTokens.Spacing.md)
                     .clickable(actionStartActivity<MainActivity>())
             ) {
-                MessMenuWidgetComponents.MessMenuHeader(messName = "Mess Menu")
+                MessMenuWidgetComponents.Header(messName = "Mess Menu")
                 ClassWidgetComponents.ContextualEmptyStateView(widgetState.reason)
             }
         }

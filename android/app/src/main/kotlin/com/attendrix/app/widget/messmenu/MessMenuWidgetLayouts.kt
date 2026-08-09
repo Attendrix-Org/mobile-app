@@ -18,7 +18,7 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import com.attendrix.app.MainActivity
 import com.attendrix.app.widget.core.EmptyState
-import com.attendrix.app.widget.core.WidgetTokens
+import com.attendrix.app.widget.WidgetTokens
 
 @Composable
 fun SmallMessMenuLayout(state: MessMenuWidgetState.Ready, isStale: Boolean = false) {

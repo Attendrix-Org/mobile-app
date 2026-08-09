@@ -8,7 +8,8 @@ import java.util.Calendar
 enum class DietType {
     VEG,
     EGG,
-    NON_VEG
+    NON_VEG,
+    SPECIAL
 }
 
 data class MealItem(

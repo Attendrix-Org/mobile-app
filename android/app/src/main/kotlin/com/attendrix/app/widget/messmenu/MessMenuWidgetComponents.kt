@@ -27,8 +27,8 @@ import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import com.attendrix.app.MainActivity
 import com.attendrix.app.widget.RefreshWidgetAction
+import com.attendrix.app.widget.WidgetTokens
 import com.attendrix.app.widget.core.EmptyState
-import com.attendrix.app.widget.core.WidgetTokens
 import com.attendrix.app.widget.model.DietType
 
 object MessMenuWidgetComponents {
@@ -38,7 +38,7 @@ object MessMenuWidgetComponents {
         Row(
             modifier = GlanceModifier
                 .fillMaxWidth()
-                .clickable(actionRunCallback<RefreshWidgetAction>()),
+                .clickable(actionStartActivity<MainActivity>()),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = GlanceModifier.defaultWeight()) {
@@ -172,7 +172,8 @@ object MessMenuWidgetComponents {
                 .fillMaxWidth()
                 .background(WidgetTokens.Colours.Surface)
                 .cornerRadius(WidgetTokens.Radius.Card)
-                .padding(WidgetTokens.Spacing.md),
+                .padding(WidgetTokens.Spacing.md)
+                .clickable(actionStartActivity<MainActivity>()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
