@@ -113,7 +113,7 @@ ScheduledClassStruct _parseScheduleRow(Map<String, dynamic> data) {
   if (courseTypeRaw != null) {
     category = deserializeEnum<CourseType>(courseTypeRaw);
   }
-  category ??= CourseType.theory;
+  category ??= CourseType.IC;
 
   final startRaw =
       (data['scheduledStart'] ?? data['scheduled_start'])?.toString();
