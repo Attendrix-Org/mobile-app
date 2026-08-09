@@ -89,6 +89,12 @@
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/attendrix_mess_menu_widget_info" />
+        <receiver
+            android:name="com.attendrix.app.widget.core.WidgetRefreshReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.attendrix.app.WIDGET_BOUNDARY_REFRESH" />
+            </intent-filter>
         </receiver>
 
     </application>

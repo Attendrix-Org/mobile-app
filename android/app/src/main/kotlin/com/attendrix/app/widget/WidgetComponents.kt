@@ -691,8 +691,13 @@ object WidgetComponents {
 
 class ToggleAbsenceAction : ActionCallback {
     override suspend fun onAction(context: Context, glanceId: GlanceId, parameters: androidx.glance.action.ActionParameters) {
-        val snapshot = WidgetStateRepository.getSnapshot(context)
-        val activeClass = snapshot.currentClass
+        val snapshot = com.attendrix.app.widget.core.WidgetStateStore.getClassSnapshot(context)
+        val state = com.attendrix.app.widget.classschedule.ClassWidgetMapper.toWidgetState(snapshot)
+        val activeClass = when (state) {
+            is com.attendrix.app.widget.core.ClassWidgetState.Ready -> state.currentClass
+            is com.attendrix.app.widget.core.ClassWidgetState.Stale -> state.readyState.currentClass
+            else -> null
+        }
         if (activeClass != null) {
             WidgetBridge.notifyAbsenceChanged(context, activeClass.classId, !activeClass.isAbsent)
         }
