@@ -1,144 +1,299 @@
-import '/backend/schema/util/schema_util.dart';
+// ignore_for_file: unnecessary_getters_setters
+
+
+import 'index.dart';
 import '/flutter_flow/flutter_flow_util.dart';
-import 'package:flutter/material.dart';
 
 class RouteResultStruct extends BaseStruct {
   RouteResultStruct({
-    List<LatLng>? polyline,
-    double? distanceMeters,
-    String? formattedDistance,
-    int? durationSeconds,
-    String? formattedDuration,
-    int? walkMinutes,
-    int? leaveInMinutes,
-    String? confidence,
-    bool? isLate,
-    bool? isLeaveNow,
-    String? statusMessage,
-    DateTime? departureTime,
-    DateTime? arrivalTime,
-  })  : _polyline = polyline,
-        _distanceMeters = distanceMeters,
-        _formattedDistance = formattedDistance,
-        _durationSeconds = durationSeconds,
-        _formattedDuration = formattedDuration,
-        _walkMinutes = walkMinutes,
-        _leaveInMinutes = leaveInMinutes,
-        _confidence = confidence,
-        _isLate = isLate,
-        _isLeaveNow = isLeaveNow,
-        _statusMessage = statusMessage,
-        _departureTime = departureTime,
-        _arrivalTime = arrivalTime;
+    String? busId,
+    String? routeName,
+    int? walkTimeMinutes,
+    String? nearestStopName,
+    String? nextBusDestination,
+    int? nextBusMinutes,
+    DateTime? nextBusTime,
+    List<BusArrivalStruct>? availableBuses,
+    DateTime? updatedAt,
+    bool? hasAvailableBus,
+  })  : _busId = busId,
+        _routeName = routeName,
+        _walkTimeMinutes = walkTimeMinutes,
+        _nearestStopName = nearestStopName,
+        _nextBusDestination = nextBusDestination,
+        _nextBusMinutes = nextBusMinutes,
+        _nextBusTime = nextBusTime,
+        _availableBuses = availableBuses,
+        _updatedAt = updatedAt,
+        _hasAvailableBus = hasAvailableBus;
 
-  List<LatLng>? _polyline;
-  List<LatLng> get polyline => _polyline ?? [];
-  set polyline(List<LatLng>? val) => _polyline = val;
-  bool hasPolyline() => _polyline != null;
+  // "busId" field.
+  String? _busId;
+  String get busId => _busId ?? '';
+  set busId(String? val) => _busId = val;
 
-  double? _distanceMeters;
-  double get distanceMeters => _distanceMeters ?? 0.0;
-  set distanceMeters(double? val) => _distanceMeters = val;
-  bool hasDistanceMeters() => _distanceMeters != null;
+  bool hasBusId() => _busId != null;
 
-  String? _formattedDistance;
-  String get formattedDistance => _formattedDistance ?? '';
-  set formattedDistance(String? val) => _formattedDistance = val;
-  bool hasFormattedDistance() => _formattedDistance != null;
+  // "routeName" field.
+  String? _routeName;
+  String get routeName => _routeName ?? '';
+  set routeName(String? val) => _routeName = val;
 
-  int? _durationSeconds;
-  int get durationSeconds => _durationSeconds ?? 0;
-  set durationSeconds(int? val) => _durationSeconds = val;
-  bool hasDurationSeconds() => _durationSeconds != null;
+  bool hasRouteName() => _routeName != null;
 
-  String? _formattedDuration;
-  String get formattedDuration => _formattedDuration ?? '';
-  set formattedDuration(String? val) => _formattedDuration = val;
-  bool hasFormattedDuration() => _formattedDuration != null;
+  // "walkTimeMinutes" field.
+  int? _walkTimeMinutes;
+  int get walkTimeMinutes => _walkTimeMinutes ?? 0;
+  set walkTimeMinutes(int? val) => _walkTimeMinutes = val;
 
-  int? _walkMinutes;
-  int get walkMinutes => _walkMinutes ?? 0;
-  set walkMinutes(int? val) => _walkMinutes = val;
-  bool hasWalkMinutes() => _walkMinutes != null;
+  void incrementWalkTimeMinutes(int amount) =>
+      walkTimeMinutes = walkTimeMinutes + amount;
 
-  int? _leaveInMinutes;
-  int get leaveInMinutes => _leaveInMinutes ?? 0;
-  set leaveInMinutes(int? val) => _leaveInMinutes = val;
-  bool hasLeaveInMinutes() => _leaveInMinutes != null;
+  bool hasWalkTimeMinutes() => _walkTimeMinutes != null;
 
-  String? _confidence;
-  String get confidence => _confidence ?? 'none';
-  set confidence(String? val) => _confidence = val;
-  bool hasConfidence() => _confidence != null;
+  // "nearestStopName" field.
+  String? _nearestStopName;
+  String get nearestStopName => _nearestStopName ?? '';
+  set nearestStopName(String? val) => _nearestStopName = val;
 
-  bool? _isLate;
-  bool get isLate => _isLate ?? false;
-  set isLate(bool? val) => _isLate = val;
-  bool hasIsLate() => _isLate != null;
+  bool hasNearestStopName() => _nearestStopName != null;
 
-  bool? _isLeaveNow;
-  bool get isLeaveNow => _isLeaveNow ?? false;
-  set isLeaveNow(bool? val) => _isLeaveNow = val;
-  bool hasIsLeaveNow() => _isLeaveNow != null;
+  // "nextBusDestination" field.
+  String? _nextBusDestination;
+  String get nextBusDestination => _nextBusDestination ?? '';
+  set nextBusDestination(String? val) => _nextBusDestination = val;
 
-  String? _statusMessage;
-  String get statusMessage => _statusMessage ?? '';
-  set statusMessage(String? val) => _statusMessage = val;
-  bool hasStatusMessage() => _statusMessage != null;
+  bool hasNextBusDestination() => _nextBusDestination != null;
 
-  DateTime? _departureTime;
-  DateTime? get departureTime => _departureTime;
-  set departureTime(DateTime? val) => _departureTime = val;
-  bool hasDepartureTime() => _departureTime != null;
+  // "nextBusMinutes" field.
+  int? _nextBusMinutes;
+  int get nextBusMinutes => _nextBusMinutes ?? 0;
+  set nextBusMinutes(int? val) => _nextBusMinutes = val;
 
-  DateTime? _arrivalTime;
-  DateTime? get arrivalTime => _arrivalTime;
-  set arrivalTime(DateTime? val) => _arrivalTime = val;
-  bool hasArrivalTime() => _arrivalTime != null;
+  void incrementNextBusMinutes(int amount) =>
+      nextBusMinutes = nextBusMinutes + amount;
 
-  static RouteResultStruct fromMap(Map<String, dynamic> data) => RouteResultStruct(
-        polyline: data['polyline'] != null
-            ? (data['polyline'] as List)
-                .map((e) => e is LatLng ? e : LatLng(e['latitude'] as double, e['longitude'] as double))
-                .toList()
-            : null,
-        distanceMeters: castToNum(data['distanceMeters'] ?? data['distance_meters'])?.toDouble(),
-        formattedDistance: (data['formattedDistance'] ?? data['formatted_distance'])?.toString(),
-        durationSeconds: castToNum(data['durationSeconds'] ?? data['duration_seconds'])?.toInt(),
-        formattedDuration: (data['formattedDuration'] ?? data['formatted_duration'])?.toString(),
-        walkMinutes: castToNum(data['walkMinutes'] ?? data['walk_minutes'])?.toInt(),
-        leaveInMinutes: castToNum(data['leaveInMinutes'] ?? data['leave_in_minutes'])?.toInt(),
-        confidence: data['confidence']?.toString(),
-        isLate: data['isLate'] ?? data['is_late'],
-        isLeaveNow: data['isLeaveNow'] ?? data['is_leave_now'],
-        statusMessage: (data['statusMessage'] ?? data['status_message'])?.toString(),
-        departureTime: data['departureTime'] != null
-            ? DateTime.tryParse(data['departureTime'].toString())
-            : null,
-        arrivalTime: data['arrivalTime'] != null
-            ? DateTime.tryParse(data['arrivalTime'].toString())
-            : null,
+  bool hasNextBusMinutes() => _nextBusMinutes != null;
+
+  // "nextBusTime" field.
+  DateTime? _nextBusTime;
+  DateTime? get nextBusTime => _nextBusTime;
+  set nextBusTime(DateTime? val) => _nextBusTime = val;
+
+  bool hasNextBusTime() => _nextBusTime != null;
+
+  // "availableBuses" field.
+  List<BusArrivalStruct>? _availableBuses;
+  List<BusArrivalStruct> get availableBuses => _availableBuses ?? const [];
+  set availableBuses(List<BusArrivalStruct>? val) => _availableBuses = val;
+
+  void updateAvailableBuses(Function(List<BusArrivalStruct>) updateFn) {
+    updateFn(_availableBuses ??= []);
+  }
+
+  bool hasAvailableBuses() => _availableBuses != null;
+
+  // "updatedAt" field.
+  DateTime? _updatedAt;
+  DateTime? get updatedAt => _updatedAt;
+  set updatedAt(DateTime? val) => _updatedAt = val;
+
+  bool hasUpdatedAt() => _updatedAt != null;
+
+  // "hasAvailableBus" field.
+  bool? _hasAvailableBus;
+  bool get hasAvailableBus => _hasAvailableBus ?? false;
+  set hasAvailableBus(bool? val) => _hasAvailableBus = val;
+
+  bool hasHasAvailableBus() => _hasAvailableBus != null;
+
+  static RouteResultStruct fromMap(Map<String, dynamic> data) =>
+      RouteResultStruct(
+        busId: data['busId'] as String?,
+        routeName: data['routeName'] as String?,
+        walkTimeMinutes: castToType<int>(data['walkTimeMinutes']),
+        nearestStopName: data['nearestStopName'] as String?,
+        nextBusDestination: data['nextBusDestination'] as String?,
+        nextBusMinutes: castToType<int>(data['nextBusMinutes']),
+        nextBusTime: data['nextBusTime'] as DateTime?,
+        availableBuses: getStructList(
+          data['availableBuses'],
+          BusArrivalStruct.fromMap,
+        ),
+        updatedAt: data['updatedAt'] as DateTime?,
+        hasAvailableBus: data['hasAvailableBus'] as bool?,
+      );
+
+  static RouteResultStruct? maybeFromMap(dynamic data) => data is Map
+      ? RouteResultStruct.fromMap(data.cast<String, dynamic>())
+      : null;
+
+  Map<String, dynamic> toMap() => {
+        'busId': _busId,
+        'routeName': _routeName,
+        'walkTimeMinutes': _walkTimeMinutes,
+        'nearestStopName': _nearestStopName,
+        'nextBusDestination': _nextBusDestination,
+        'nextBusMinutes': _nextBusMinutes,
+        'nextBusTime': _nextBusTime,
+        'availableBuses': _availableBuses?.map((e) => e.toMap()).toList(),
+        'updatedAt': _updatedAt,
+        'hasAvailableBus': _hasAvailableBus,
+      }.withoutNulls;
+
+  @override
+  Map<String, dynamic> toSerializableMap() => {
+        'busId': serializeParam(
+          _busId,
+          ParamType.String,
+        ),
+        'routeName': serializeParam(
+          _routeName,
+          ParamType.String,
+        ),
+        'walkTimeMinutes': serializeParam(
+          _walkTimeMinutes,
+          ParamType.int,
+        ),
+        'nearestStopName': serializeParam(
+          _nearestStopName,
+          ParamType.String,
+        ),
+        'nextBusDestination': serializeParam(
+          _nextBusDestination,
+          ParamType.String,
+        ),
+        'nextBusMinutes': serializeParam(
+          _nextBusMinutes,
+          ParamType.int,
+        ),
+        'nextBusTime': serializeParam(
+          _nextBusTime,
+          ParamType.DateTime,
+        ),
+        'availableBuses': serializeParam(
+          _availableBuses,
+          ParamType.DataStruct,
+          isList: true,
+        ),
+        'updatedAt': serializeParam(
+          _updatedAt,
+          ParamType.DateTime,
+        ),
+        'hasAvailableBus': serializeParam(
+          _hasAvailableBus,
+          ParamType.bool,
+        ),
+      }.withoutNulls;
+
+  static RouteResultStruct fromSerializableMap(Map<String, dynamic> data) =>
+      RouteResultStruct(
+        busId: deserializeParam(
+          data['busId'],
+          ParamType.String,
+          false,
+        ),
+        routeName: deserializeParam(
+          data['routeName'],
+          ParamType.String,
+          false,
+        ),
+        walkTimeMinutes: deserializeParam(
+          data['walkTimeMinutes'],
+          ParamType.int,
+          false,
+        ),
+        nearestStopName: deserializeParam(
+          data['nearestStopName'],
+          ParamType.String,
+          false,
+        ),
+        nextBusDestination: deserializeParam(
+          data['nextBusDestination'],
+          ParamType.String,
+          false,
+        ),
+        nextBusMinutes: deserializeParam(
+          data['nextBusMinutes'],
+          ParamType.int,
+          false,
+        ),
+        nextBusTime: deserializeParam(
+          data['nextBusTime'],
+          ParamType.DateTime,
+          false,
+        ),
+        availableBuses: deserializeStructParam<BusArrivalStruct>(
+          data['availableBuses'],
+          ParamType.DataStruct,
+          true,
+          structBuilder: BusArrivalStruct.fromSerializableMap,
+        ),
+        updatedAt: deserializeParam(
+          data['updatedAt'],
+          ParamType.DateTime,
+          false,
+        ),
+        hasAvailableBus: deserializeParam(
+          data['hasAvailableBus'],
+          ParamType.bool,
+          false,
+        ),
       );
 
   @override
-  Map<String, dynamic> toMap() => {
-        'polyline': _polyline,
-        'distanceMeters': _distanceMeters,
-        'formattedDistance': _formattedDistance,
-        'durationSeconds': _durationSeconds,
-        'formattedDuration': _formattedDuration,
-        'walkMinutes': _walkMinutes,
-        'leaveInMinutes': _leaveInMinutes,
-        'confidence': _confidence,
-        'isLate': _isLate,
-        'isLeaveNow': _isLeaveNow,
-        'statusMessage': _statusMessage,
-        'departureTime': _departureTime?.toIso8601String(),
-        'arrivalTime': _arrivalTime?.toIso8601String(),
-      };
+  String toString() => 'RouteResultStruct(${toMap()})';
 
   @override
-  Map<String, dynamic> toSerializableMap() => toMap();
+  bool operator ==(Object other) {
+    const listEquality = ListEquality();
+    return other is RouteResultStruct &&
+        busId == other.busId &&
+        routeName == other.routeName &&
+        walkTimeMinutes == other.walkTimeMinutes &&
+        nearestStopName == other.nearestStopName &&
+        nextBusDestination == other.nextBusDestination &&
+        nextBusMinutes == other.nextBusMinutes &&
+        nextBusTime == other.nextBusTime &&
+        listEquality.equals(availableBuses, other.availableBuses) &&
+        updatedAt == other.updatedAt &&
+        hasAvailableBus == other.hasAvailableBus;
+  }
 
-  static RouteResultStruct fromSerializableMap(Map<String, dynamic> data) => fromMap(data);
+  @override
+  int get hashCode => const ListEquality().hash([
+        busId,
+        routeName,
+        walkTimeMinutes,
+        nearestStopName,
+        nextBusDestination,
+        nextBusMinutes,
+        nextBusTime,
+        availableBuses,
+        updatedAt,
+        hasAvailableBus
+      ]);
 }
+
+RouteResultStruct createRouteResultStruct({
+  String? busId,
+  String? routeName,
+  int? walkTimeMinutes,
+  String? nearestStopName,
+  String? nextBusDestination,
+  int? nextBusMinutes,
+  DateTime? nextBusTime,
+  DateTime? updatedAt,
+  bool? hasAvailableBus,
+}) =>
+    RouteResultStruct(
+      busId: busId,
+      routeName: routeName,
+      walkTimeMinutes: walkTimeMinutes,
+      nearestStopName: nearestStopName,
+      nextBusDestination: nextBusDestination,
+      nextBusMinutes: nextBusMinutes,
+      nextBusTime: nextBusTime,
+      updatedAt: updatedAt,
+      hasAvailableBus: hasAvailableBus,
+    );

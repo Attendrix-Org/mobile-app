@@ -710,14 +710,11 @@ class _CalendarWidgetState extends State<CalendarWidget> {
                                   );
                                 }
 
-                                return ListView.builder(
-                                  padding: EdgeInsets.zero,
-                                  primary: false,
-                                  shrinkWrap: true,
-                                  scrollDirection: Axis.vertical,
-                                  itemCount: selectedDateClassesListView.length,
-                                  itemBuilder: (context,
-                                      selectedDateClassesListViewIndex) {
+                                return Column(
+                                  mainAxisSize: MainAxisSize.max,
+                                  children: List.generate(
+                                      selectedDateClassesListView.length,
+                                      (selectedDateClassesListViewIndex) {
                                     final selectedDateClassesListViewItem =
                                         selectedDateClassesListView[
                                             selectedDateClassesListViewIndex];
@@ -856,16 +853,12 @@ class _CalendarWidgetState extends State<CalendarWidget> {
                                                 );
                                               }
 
-                                              return ListView.builder(
-                                                padding: EdgeInsets.zero,
-                                                primary: false,
-                                                shrinkWrap: true,
-                                                scrollDirection: Axis.vertical,
-                                                itemCount:
+                                              return Column(
+                                                mainAxisSize: MainAxisSize.max,
+                                                children: List.generate(
                                                     individualClassBlockView
                                                         .length,
-                                                itemBuilder: (context,
-                                                    individualClassBlockViewIndex) {
+                                                    (individualClassBlockViewIndex) {
                                                   final individualClassBlockViewItem =
                                                       individualClassBlockView[
                                                           individualClassBlockViewIndex];
@@ -894,14 +887,14 @@ class _CalendarWidgetState extends State<CalendarWidget> {
                                                       ),
                                                     ),
                                                   );
-                                                },
+                                                }),
                                               );
                                             },
                                           ),
                                         ),
                                       ],
                                     );
-                                  },
+                                  }),
                                 );
                               },
                             ),

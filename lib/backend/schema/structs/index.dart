@@ -1,6 +1,7 @@
 export '/backend/schema/util/schema_util.dart';
 
 export 'app_bootstrap_struct.dart';
+export 'bus_arrival_struct.dart';
 export 'bus_route_struct.dart';
 export 'bus_timing_struct.dart';
 export 'cache_metadata_struct.dart';

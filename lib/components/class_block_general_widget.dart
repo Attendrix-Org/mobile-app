@@ -97,9 +97,6 @@ class _ClassBlockGeneralWidgetState extends State<ClassBlockGeneralWidget> {
               },
             );
           }
-
-          logFirebaseEvent('Container_dismiss_dialog');
-          Navigator.pop(context);
         },
         child: AnimatedContainer(
           duration: Duration(milliseconds: 300),

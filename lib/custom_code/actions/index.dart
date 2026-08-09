@@ -50,8 +50,22 @@ export '/custom_code/actions/opt_in_push_notifications.dart'
 export '/custom_code/actions/opt_out_push_notifications.dart'
     show optOutPushNotifications;
 export '/custom_code/actions/has_push_permission.dart' show hasPushPermission;
-export '/custom_code/actions/calculate_walk_route.dart' show calculateWalkRoute;
-export '/custom_code/actions/get_campus_building_data.dart' show getCampusBuildingData;
-export '/custom_code/actions/sync_local_notifications_action.dart' show syncLocalNotificationsAction;
-export '/custom_code/actions/generate_notification_message.dart' show generateNotificationMessage;
-
+export '/custom_code/actions/report_class_cancelled.dart'
+    show reportClassCancelled;
+export '/custom_code/actions/get_campus_building_data.dart'
+    show getCampusBuildingData;
+export '/custom_code/actions/convert_path_to_uploaded_file.dart'
+    show convertPathToUploadedFile;
+export '/custom_code/actions/generate_notification_message.dart'
+    show generateNotificationMessage;
+export '/custom_code/actions/open_google_calendar.dart' show openGoogleCalendar;
+export '/custom_code/actions/sync_now_google_calendar.dart'
+    show syncNowGoogleCalendar;
+export '/custom_code/actions/is_roll_number_unique.dart'
+    show isRollNumberUnique;
+export '/custom_code/actions/reset_user_attendance.dart'
+    show resetUserAttendance;
+export '/custom_code/actions/delete_user_account.dart' show deleteUserAccount;
+export '/custom_code/actions/check_for_updates.dart' show checkForUpdates;
+export '/custom_code/actions/update_user_preferences.dart'
+    show updateUserPreferences;

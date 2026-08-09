@@ -1,6 +1,9 @@
+import '/auth/supabase_auth/auth_util.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
+import '/custom_code/actions/index.dart' as actions;
+import '/index.dart';
 import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -51,16 +54,12 @@ class _DeleleAccountWidgetState extends State<DeleleAccountWidget> {
     super.initState();
     _model = createModel(context, () => DeleleAccountModel());
 
-    _model.textController ??= TextEditingController();
-    _model.textFieldFocusNode ??= FocusNode();
-    _model.textFieldFocusNode!.addListener(
-      () async {
-        logFirebaseEvent('DELELE_ACCOUNT_TextField_58tb18i5_ON_FOC');
-        logFirebaseEvent('TextField_update_component_state');
-        _model.mismatch = false;
-        safeSetState(() {});
-      },
-    );
+    _model.usernameTextController ??= TextEditingController();
+    _model.usernameFocusNode ??= FocusNode();
+    _model.usernameFocusNode!.addListener(() => safeSetState(() {}));
+    _model.passwordTextController ??= TextEditingController();
+    _model.passwordFocusNode ??= FocusNode();
+    _model.passwordFocusNode!.addListener(() => safeSetState(() {}));
     WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
   }
 
@@ -125,6 +124,7 @@ class _DeleleAccountWidgetState extends State<DeleleAccountWidget> {
                           fontFamily:
                               FlutterFlowTheme.of(context).headlineSmallFamily,
                           color: FlutterFlowTheme.of(context).error,
+                          fontSize: 18.0,
                           letterSpacing: 0.0,
                           useGoogleFonts: !FlutterFlowTheme.of(context)
                               .headlineSmallIsCustom,
@@ -255,265 +255,393 @@ class _DeleleAccountWidgetState extends State<DeleleAccountWidget> {
                   ),
                 ].divide(SizedBox(height: 6.0)),
               ),
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: EdgeInsetsDirectional.fromSTEB(4.0, 0.0, 0.0, 0.0),
-                    child: RichText(
-                      textScaler: MediaQuery.of(context).textScaler,
-                      text: TextSpan(
-                        children: [
-                          TextSpan(
-                            text: 'Type ',
-                            style:
-                                FlutterFlowTheme.of(context).bodyLarge.override(
-                                      font: GoogleFonts.outfit(
-                                        fontWeight: FontWeight.w500,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyLarge
-                                            .fontStyle,
-                                      ),
-                                      color: FlutterFlowTheme.of(context)
-                                          .secondaryText,
-                                      fontSize: 14.0,
-                                      letterSpacing: 0.0,
+              Padding(
+                padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 16.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding:
+                          EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 6.0),
+                      child: RichText(
+                        textScaler: MediaQuery.of(context).textScaler,
+                        text: TextSpan(
+                          children: [
+                            TextSpan(
+                              text: 'Type ',
+                              style: FlutterFlowTheme.of(context)
+                                  .bodyLarge
+                                  .override(
+                                    font: GoogleFonts.outfit(
                                       fontWeight: FontWeight.w500,
                                       fontStyle: FlutterFlowTheme.of(context)
                                           .bodyLarge
                                           .fontStyle,
                                     ),
-                          ),
-                          TextSpan(
-                            text: FFAppState().userProfile.username,
-                            style:
-                                FlutterFlowTheme.of(context).bodyLarge.override(
-                                      font: GoogleFonts.robotoMono(
-                                        fontWeight: FontWeight.bold,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyLarge
-                                            .fontStyle,
-                                      ),
-                                      fontSize: 14.0,
-                                      letterSpacing: 0.0,
+                                    color: FlutterFlowTheme.of(context)
+                                        .secondaryText,
+                                    fontSize: 14.0,
+                                    letterSpacing: 0.0,
+                                    fontWeight: FontWeight.w500,
+                                    fontStyle: FlutterFlowTheme.of(context)
+                                        .bodyLarge
+                                        .fontStyle,
+                                  ),
+                            ),
+                            TextSpan(
+                              text: valueOrDefault<String>(
+                                FFAppState().userProfile.username,
+                                'your username',
+                              ),
+                              style: FlutterFlowTheme.of(context)
+                                  .bodyLarge
+                                  .override(
+                                    font: GoogleFonts.robotoMono(
                                       fontWeight: FontWeight.bold,
                                       fontStyle: FlutterFlowTheme.of(context)
                                           .bodyLarge
                                           .fontStyle,
                                     ),
-                          ),
-                          TextSpan(
-                            text: ' to confirm account deletion.',
-                            style: TextStyle(),
-                          )
-                        ],
-                        style:
-                            FlutterFlowTheme.of(context).labelMedium.override(
-                                  fontFamily: FlutterFlowTheme.of(context)
-                                      .labelMediumFamily,
-                                  letterSpacing: 0.0,
-                                  useGoogleFonts: !FlutterFlowTheme.of(context)
-                                      .labelMediumIsCustom,
-                                ),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    width: double.infinity,
-                    child: TextFormField(
-                      controller: _model.textController,
-                      focusNode: _model.textFieldFocusNode,
-                      onChanged: (_) => EasyDebounce.debounce(
-                        '_model.textController',
-                        Duration(milliseconds: 2000),
-                        () async {
-                          logFirebaseEvent(
-                              'DELELE_ACCOUNT_TextField_58tb18i5_ON_TEX');
-                          logFirebaseEvent('TextField_update_component_state');
-                          _model.mismatch = false;
-                          safeSetState(() {});
-                        },
-                      ),
-                      onFieldSubmitted: (_) async {
-                        logFirebaseEvent(
-                            'DELELE_ACCOUNT_TextField_58tb18i5_ON_TEX');
-                        logFirebaseEvent('TextField_update_component_state');
-                        _model.mismatch = false;
-                        safeSetState(() {});
-                      },
-                      autofocus: false,
-                      textInputAction: TextInputAction.done,
-                      obscureText: false,
-                      decoration: InputDecoration(
-                        hintStyle:
-                            FlutterFlowTheme.of(context).headlineSmall.override(
-                                  fontFamily: FlutterFlowTheme.of(context)
-                                      .headlineSmallFamily,
-                                  fontSize: 13.0,
-                                  letterSpacing: 0.0,
-                                  useGoogleFonts: !FlutterFlowTheme.of(context)
-                                      .headlineSmallIsCustom,
-                                ),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: FlutterFlowTheme.of(context).secondaryText,
-                            width: 2.0,
-                          ),
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: FlutterFlowTheme.of(context).error,
-                            width: 2.0,
-                          ),
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        errorBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: Color(0x00000000),
-                            width: 2.0,
-                          ),
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        focusedErrorBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: Color(0x00000000),
-                            width: 2.0,
-                          ),
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        filled: true,
-                        fillColor: Color(0xFFFFF5F5),
-                        contentPadding: EdgeInsetsDirectional.fromSTEB(
-                            16.0, 16.0, 16.0, 16.0),
-                      ),
-                      style: FlutterFlowTheme.of(context).bodyMedium.override(
-                            fontFamily:
-                                FlutterFlowTheme.of(context).bodyMediumFamily,
-                            letterSpacing: 0.0,
-                            useGoogleFonts: !FlutterFlowTheme.of(context)
-                                .bodyMediumIsCustom,
-                          ),
-                      validator:
-                          _model.textControllerValidator.asValidator(context),
-                    ),
-                  ),
-                  if (_model.mismatch)
-                    Row(
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        Flexible(
-                          child: Padding(
-                            padding: EdgeInsetsDirectional.fromSTEB(
-                                8.0, 0.0, 0.0, 0.0),
-                            child: Text(
-                              'To delete your account, enter your username correctly.',
-                              style: FlutterFlowTheme.of(context)
-                                  .bodyMedium
-                                  .override(
-                                    font: GoogleFonts.outfit(
-                                      fontWeight: FontWeight.w600,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .fontStyle,
-                                    ),
-                                    color: Color(0xFFFF000F),
-                                    fontSize: 12.0,
+                                    fontSize: 14.0,
                                     letterSpacing: 0.0,
-                                    fontWeight: FontWeight.w600,
+                                    fontWeight: FontWeight.bold,
                                     fontStyle: FlutterFlowTheme.of(context)
-                                        .bodyMedium
+                                        .bodyLarge
                                         .fontStyle,
                                   ),
                             ),
-                          ),
+                            TextSpan(
+                              text: ' to confirm account deletion.',
+                              style: TextStyle(),
+                            )
+                          ],
+                          style: FlutterFlowTheme.of(context)
+                              .labelMedium
+                              .override(
+                                fontFamily: FlutterFlowTheme.of(context)
+                                    .labelMediumFamily,
+                                letterSpacing: 0.0,
+                                useGoogleFonts: !FlutterFlowTheme.of(context)
+                                    .labelMediumIsCustom,
+                              ),
                         ),
-                        Padding(
-                          padding: EdgeInsetsDirectional.fromSTEB(
-                              2.0, 0.0, 0.0, 0.0),
-                          child: Icon(
-                            FFIcons.kalertTriangle,
-                            color: Color(0xFFFA000E),
-                            size: 16.0,
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
-                ].divide(SizedBox(height: 4.0)),
-              ),
-              Flexible(
-                child: Row(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    FFButtonWidget(
-                      onPressed: () async {
-                        logFirebaseEvent(
-                            'DELELE_ACCOUNT_COMP_CANCEL_BTN_ON_TAP');
-                        logFirebaseEvent('Button_dismiss_dialog');
-                        Navigator.pop(context);
-                      },
-                      text: 'Cancel',
-                      options: FFButtonOptions(
-                        width: 120.0,
-                        height: 48.0,
-                        padding: EdgeInsets.all(8.0),
-                        iconPadding:
-                            EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
-                        color: FlutterFlowTheme.of(context).primaryBackground,
-                        textStyle: FlutterFlowTheme.of(context)
-                            .titleSmall
-                            .override(
-                              fontFamily:
-                                  FlutterFlowTheme.of(context).titleSmallFamily,
+                    Container(
+                      width: double.infinity,
+                      child: TextFormField(
+                        controller: _model.usernameTextController,
+                        focusNode: _model.usernameFocusNode,
+                        onChanged: (_) => EasyDebounce.debounce(
+                          '_model.usernameTextController',
+                          Duration(milliseconds: 2000),
+                          () => safeSetState(() {}),
+                        ),
+                        autofocus: false,
+                        textInputAction: TextInputAction.done,
+                        obscureText: false,
+                        decoration: InputDecoration(
+                          hintStyle: FlutterFlowTheme.of(context)
+                              .headlineSmall
+                              .override(
+                                fontFamily: FlutterFlowTheme.of(context)
+                                    .headlineSmallFamily,
+                                fontSize: 13.0,
+                                letterSpacing: 0.0,
+                                useGoogleFonts: !FlutterFlowTheme.of(context)
+                                    .headlineSmallIsCustom,
+                              ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
                               color: FlutterFlowTheme.of(context).secondaryText,
-                              letterSpacing: 0.0,
-                              useGoogleFonts: !FlutterFlowTheme.of(context)
-                                  .titleSmallIsCustom,
+                              width: 2.0,
                             ),
-                        elevation: 0.0,
-                        borderSide: BorderSide(
-                          color: FlutterFlowTheme.of(context).alternate,
-                          width: 1.0,
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: FlutterFlowTheme.of(context).error,
+                              width: 2.0,
+                            ),
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          errorBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Color(0x00000000),
+                              width: 2.0,
+                            ),
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          focusedErrorBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Color(0x00000000),
+                              width: 2.0,
+                            ),
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          filled: true,
+                          fillColor: Color(0xFFFFF5F5),
+                          contentPadding: EdgeInsetsDirectional.fromSTEB(
+                              16.0, 16.0, 16.0, 16.0),
                         ),
-                        borderRadius: BorderRadius.circular(8.0),
+                        style: FlutterFlowTheme.of(context).bodyMedium.override(
+                              font: GoogleFonts.robotoMono(
+                                fontWeight: FlutterFlowTheme.of(context)
+                                    .bodyMedium
+                                    .fontWeight,
+                                fontStyle: FlutterFlowTheme.of(context)
+                                    .bodyMedium
+                                    .fontStyle,
+                              ),
+                              letterSpacing: 0.0,
+                              fontWeight: FlutterFlowTheme.of(context)
+                                  .bodyMedium
+                                  .fontWeight,
+                              fontStyle: FlutterFlowTheme.of(context)
+                                  .bodyMedium
+                                  .fontStyle,
+                            ),
+                        validator: _model.usernameTextControllerValidator
+                            .asValidator(context),
                       ),
                     ),
-                    FFButtonWidget(
-                      onPressed: () {
-                        print('Button pressed ...');
-                      },
-                      text: 'Delete Account',
-                      options: FFButtonOptions(
-                        width: 160.0,
-                        height: 48.0,
-                        padding: EdgeInsets.all(8.0),
-                        iconPadding:
-                            EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
-                        color: FlutterFlowTheme.of(context).error,
-                        textStyle: FlutterFlowTheme.of(context)
-                            .titleSmall
-                            .override(
-                              fontFamily:
-                                  FlutterFlowTheme.of(context).titleSmallFamily,
-                              color: Colors.white,
-                              letterSpacing: 0.0,
-                              useGoogleFonts: !FlutterFlowTheme.of(context)
-                                  .titleSmallIsCustom,
-                            ),
-                        elevation: 0.0,
-                        borderSide: BorderSide(
-                          color: Colors.transparent,
-                          width: 1.0,
+                    Padding(
+                      padding:
+                          EdgeInsetsDirectional.fromSTEB(0.0, 4.0, 0.0, 0.0),
+                      child: RichText(
+                        textScaler: MediaQuery.of(context).textScaler,
+                        text: TextSpan(
+                          children: [
+                            TextSpan(
+                              text: 'Your Password',
+                              style: FlutterFlowTheme.of(context)
+                                  .bodyLarge
+                                  .override(
+                                    font: GoogleFonts.outfit(
+                                      fontWeight: FontWeight.w500,
+                                      fontStyle: FlutterFlowTheme.of(context)
+                                          .bodyLarge
+                                          .fontStyle,
+                                    ),
+                                    color: FlutterFlowTheme.of(context)
+                                        .secondaryText,
+                                    fontSize: 14.0,
+                                    letterSpacing: 0.0,
+                                    fontWeight: FontWeight.w500,
+                                    fontStyle: FlutterFlowTheme.of(context)
+                                        .bodyLarge
+                                        .fontStyle,
+                                  ),
+                            )
+                          ],
+                          style: FlutterFlowTheme.of(context)
+                              .labelMedium
+                              .override(
+                                fontFamily: FlutterFlowTheme.of(context)
+                                    .labelMediumFamily,
+                                letterSpacing: 0.0,
+                                useGoogleFonts: !FlutterFlowTheme.of(context)
+                                    .labelMediumIsCustom,
+                              ),
                         ),
-                        borderRadius: BorderRadius.circular(8.0),
                       ),
                     ),
-                  ].divide(SizedBox(width: 12.0)),
+                    Container(
+                      width: double.infinity,
+                      child: TextFormField(
+                        controller: _model.passwordTextController,
+                        focusNode: _model.passwordFocusNode,
+                        onChanged: (_) => EasyDebounce.debounce(
+                          '_model.passwordTextController',
+                          Duration(milliseconds: 2000),
+                          () => safeSetState(() {}),
+                        ),
+                        autofocus: false,
+                        textInputAction: TextInputAction.done,
+                        obscureText: false,
+                        decoration: InputDecoration(
+                          hintStyle: FlutterFlowTheme.of(context)
+                              .headlineSmall
+                              .override(
+                                fontFamily: FlutterFlowTheme.of(context)
+                                    .headlineSmallFamily,
+                                fontSize: 13.0,
+                                letterSpacing: 0.0,
+                                useGoogleFonts: !FlutterFlowTheme.of(context)
+                                    .headlineSmallIsCustom,
+                              ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: FlutterFlowTheme.of(context).secondaryText,
+                              width: 2.0,
+                            ),
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: FlutterFlowTheme.of(context).error,
+                              width: 2.0,
+                            ),
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          errorBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Color(0x00000000),
+                              width: 2.0,
+                            ),
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          focusedErrorBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Color(0x00000000),
+                              width: 2.0,
+                            ),
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          filled: true,
+                          fillColor: Color(0xFFFFF5F5),
+                          contentPadding: EdgeInsetsDirectional.fromSTEB(
+                              16.0, 16.0, 16.0, 16.0),
+                        ),
+                        style: FlutterFlowTheme.of(context).bodyMedium.override(
+                              font: GoogleFonts.robotoMono(
+                                fontWeight: FlutterFlowTheme.of(context)
+                                    .bodyMedium
+                                    .fontWeight,
+                                fontStyle: FlutterFlowTheme.of(context)
+                                    .bodyMedium
+                                    .fontStyle,
+                              ),
+                              letterSpacing: 0.0,
+                              fontWeight: FlutterFlowTheme.of(context)
+                                  .bodyMedium
+                                  .fontWeight,
+                              fontStyle: FlutterFlowTheme.of(context)
+                                  .bodyMedium
+                                  .fontStyle,
+                            ),
+                        validator: _model.passwordTextControllerValidator
+                            .asValidator(context),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ].divide(SizedBox(height: 8.0)),
+              Flexible(
+                child: FFButtonWidget(
+                  onPressed: !((_model.usernameTextController.text != '') &&
+                          (_model.passwordTextController.text != ''))
+                      ? null
+                      : () async {
+                          logFirebaseEvent(
+                              'DELELE_ACCOUNT_DELETE_ACCOUNT_BTN_ON_TAP');
+                          Function() _navigate = () {};
+                          logFirebaseEvent('Button_custom_action');
+                          _model.userDeletion = await actions.deleteUserAccount(
+                            _model.usernameTextController.text,
+                            _model.passwordTextController.text,
+                          );
+                          if (_model.userDeletion!) {
+                            logFirebaseEvent('Button_auth');
+                            GoRouter.of(context).prepareAuthEvent();
+                            await authManager.signOut();
+                            GoRouter.of(context).clearRedirectLocation();
+
+                            _navigate = () => context.goNamedAuth(
+                                CreateAccountWidget.routeName, context.mounted);
+                          } else {
+                            logFirebaseEvent('Button_show_snack_bar');
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  'Failed to delete account. Incorrect username or password.',
+                                  style: GoogleFonts.outfit(
+                                    color: FlutterFlowTheme.of(context).info,
+                                    fontWeight: FontWeight.normal,
+                                    fontSize: 12.0,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                duration: Duration(milliseconds: 4000),
+                                backgroundColor:
+                                    FlutterFlowTheme.of(context).error,
+                              ),
+                            );
+                            logFirebaseEvent('Button_dismiss_dialog');
+                            Navigator.pop(context);
+                          }
+
+                          _navigate();
+
+                          safeSetState(() {});
+                        },
+                  text: 'Delete Account',
+                  options: FFButtonOptions(
+                    width: MediaQuery.sizeOf(context).width * 1.0,
+                    height: 48.0,
+                    padding: EdgeInsets.all(8.0),
+                    iconPadding:
+                        EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
+                    color: FlutterFlowTheme.of(context).error,
+                    textStyle: FlutterFlowTheme.of(context).titleSmall.override(
+                          fontFamily:
+                              FlutterFlowTheme.of(context).titleSmallFamily,
+                          color: Colors.white,
+                          letterSpacing: 0.0,
+                          useGoogleFonts:
+                              !FlutterFlowTheme.of(context).titleSmallIsCustom,
+                        ),
+                    elevation: 0.0,
+                    borderSide: BorderSide(
+                      color: Colors.transparent,
+                      width: 1.0,
+                    ),
+                    borderRadius: BorderRadius.circular(8.0),
+                    disabledColor: FlutterFlowTheme.of(context).secondaryText,
+                    disabledTextColor: FlutterFlowTheme.of(context).primaryText,
+                  ),
+                ),
+              ),
+              Flexible(
+                flex: 1,
+                child: Padding(
+                  padding: EdgeInsetsDirectional.fromSTEB(0.0, 5.0, 0.0, 0.0),
+                  child: FFButtonWidget(
+                    onPressed: () async {
+                      logFirebaseEvent('DELELE_ACCOUNT_COMP_CANCEL_BTN_ON_TAP');
+                      logFirebaseEvent('Button_dismiss_dialog');
+                      Navigator.pop(context);
+                    },
+                    text: 'Cancel',
+                    options: FFButtonOptions(
+                      width: MediaQuery.sizeOf(context).width * 1.0,
+                      height: 48.0,
+                      padding: EdgeInsets.all(8.0),
+                      iconPadding:
+                          EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
+                      color: FlutterFlowTheme.of(context).primaryBackground,
+                      textStyle: FlutterFlowTheme.of(context)
+                          .titleSmall
+                          .override(
+                            fontFamily:
+                                FlutterFlowTheme.of(context).titleSmallFamily,
+                            color: FlutterFlowTheme.of(context).secondaryText,
+                            letterSpacing: 0.0,
+                            useGoogleFonts: !FlutterFlowTheme.of(context)
+                                .titleSmallIsCustom,
+                          ),
+                      elevation: 0.0,
+                      borderSide: BorderSide(
+                        color: FlutterFlowTheme.of(context).alternate,
+                        width: 2.0,
+                      ),
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),

@@ -13,17 +13,17 @@ import 'package:flutter/material.dart';
 import '/custom_code/actions/update_android_widget_from_app_state.dart';
 import 'dart:async';
 import 'dart:io';
-import 'package:path_provider/path_provider.dart';
 
 // ─────────────────────────────────────────────────────────────────────────
-// Attendrix Industrial Client Synchronization Engine — v11 (Bulletproof)
-// High-performance, zero-flashing, 100% type-safe state reconciliation + APOD
+// Attendrix Industrial Client Synchronization Engine — v12 (Production Grade)
+// High-performance, zero-flashing, 100% type-safe state reconciliation
 // ─────────────────────────────────────────────────────────────────────────
 
 String get _currentAppVersion => FFAppConstants.appVersion;
 
-/// Global concurrency lock to prevent overlapping sync executions
+/// Global concurrency lock and pending queue to prevent overlapping sync runs
 bool _isSyncRunning = false;
+bool _hasPendingSyncRequest = false;
 
 class _DatasetState<T> {
   T? data;
@@ -34,18 +34,30 @@ class _DatasetState<T> {
 
 class _SyncOutcome {
   final profile = _DatasetState<UserProfileStruct>();
+  final userPreferences = _DatasetState<UserPreferencesStruct>();
   final dashboard = _DatasetState<List<ScheduledClassStruct>>();
   final calendar = _DatasetState<List<ScheduledClassStruct>>();
   final missed = _DatasetState<List<ScheduledClassStruct>>();
   final bus = _DatasetState<List<BusRouteStruct>>();
   final mess = _DatasetState<List<MessStruct>>();
   final apod = _DatasetState<ApodStruct>();
+  int? userPreferencesUpdatedAtOverride;
 }
 
-/// Executes an RPC call with timeout and exponential backoff retries for transient errors.
-Future<dynamic> _callRpcWithRetry(
-  String rpcName, {
-  Map<String, dynamic>? params,
+/// Structured exception thrown when dataset sync failures occur.
+class SyncException implements Exception {
+  final String message;
+  final Map<String, Object> datasetErrors;
+  SyncException(this.message, [this.datasetErrors = const {}]);
+
+  @override
+  String toString() =>
+      'SyncException: $message ${datasetErrors.isNotEmpty ? datasetErrors : ""}';
+}
+
+/// Generic retry helper for Supabase DB calls enforcing timeout and backoff.
+Future<T> _callDbWithRetry<T>(
+  Future<T> Function() dbCall, {
   Duration timeout = const Duration(seconds: 12),
   int maxRetries = 2,
 }) async {
@@ -53,9 +65,7 @@ Future<dynamic> _callRpcWithRetry(
   while (true) {
     attempts++;
     try {
-      final dynamic response =
-          await SupaFlow.client.rpc(rpcName, params: params).timeout(timeout);
-      return response;
+      return await dbCall().timeout(timeout);
     } catch (e) {
       final String errStr = e.toString().toLowerCase();
       final bool isTransient = e is TimeoutException ||
@@ -71,7 +81,7 @@ Future<dynamic> _callRpcWithRetry(
       if (isTransient && attempts <= maxRetries) {
         final int delayMs = 300 * (1 << (attempts - 1));
         debugPrint(
-            'syncAppData: transient error on $rpcName (attempt $attempts/$maxRetries). Retrying in ${delayMs}ms... Error: $e');
+            'syncAppData: transient error on DB call (attempt $attempts/$maxRetries). Retrying in ${delayMs}ms... Error: $e');
         await Future.delayed(Duration(milliseconds: delayMs));
         continue;
       }
@@ -80,24 +90,18 @@ Future<dynamic> _callRpcWithRetry(
   }
 }
 
-Future<String?> _downloadAndSaveApodImage(String url) async {
-  if (url.isEmpty || !url.startsWith('http')) return null;
-  try {
-    final client = HttpClient();
-    final request = await client.getUrl(Uri.parse(url)).timeout(const Duration(seconds: 8));
-    final response = await request.close().timeout(const Duration(seconds: 10));
-    if (response.statusCode == 200) {
-      final bytes = await response
-          .fold<List<int>>(<int>[], (acc, element) => acc..addAll(element));
-      final dir = await getApplicationDocumentsDirectory();
-      final file = File('${dir.path}/apod_latest.jpg');
-      await file.writeAsBytes(bytes);
-      return file.path;
-    }
-  } catch (e) {
-    debugPrint('syncAppData: failed to download APOD image - $e');
-  }
-  return null;
+/// Executes an RPC call with timeout and exponential backoff retries for transient errors.
+Future<dynamic> _callRpcWithRetry(
+  String rpcName, {
+  Map<String, dynamic>? params,
+  Duration timeout = const Duration(seconds: 12),
+  int maxRetries = 2,
+}) async {
+  return _callDbWithRetry(
+    () => SupaFlow.client.rpc(rpcName, params: params),
+    timeout: timeout,
+    maxRetries: maxRetries,
+  );
 }
 
 Future<void> syncAppData(
@@ -110,9 +114,11 @@ Future<void> syncAppData(
   bool? syncMess,
   List<DateTime>? calendarDates,
 ) async {
-  // Prevent duplicate concurrent sync runs unless explicitly forced
-  if (_isSyncRunning && forceSync != true) {
-    debugPrint('syncAppData: skipped - sync operation is already in progress.');
+  // MEDIUM FIX: Handle concurrent invocation without dropping requests outright
+  if (_isSyncRunning) {
+    _hasPendingSyncRequest = true;
+    debugPrint(
+        'syncAppData: operation already in progress - queued pending re-run request.');
     return;
   }
 
@@ -127,6 +133,7 @@ Future<void> syncAppData(
     final bool doSyncMissedClasses = syncMissedClasses ?? true;
     final bool doSyncBus = syncBus ?? true;
     final bool doSyncMess = syncMess ?? true;
+    final bool doSyncPreferences = doSyncProfile;
 
     final CacheMetadataStruct? localMetaCandidate = FFAppState().cacheMetaData;
     final CacheMetadataStruct localMeta =
@@ -149,7 +156,8 @@ Future<void> syncAppData(
         serverMeta = localMeta;
       }
     } catch (e) {
-      debugPrint('syncAppData: get_cache_metadata failed: $e. Using local fallback.');
+      debugPrint(
+          'syncAppData: get_cache_metadata failed: $e. Using local fallback.');
       serverMeta = localMeta;
     }
 
@@ -158,12 +166,12 @@ Future<void> syncAppData(
         localMeta.appVersion != _currentAppVersion;
 
     // Standard TTL values (in milliseconds)
-    const int profileTtl = 5 * 60 * 1000;       // 5 mins
-    const int dashboardTtl = 2 * 60 * 1000;     // 2 mins
-    const int calendarTtl = 5 * 60 * 1000;      // 5 mins
-    const int missedTtl = 2 * 60 * 1000;        // 2 mins
-    const int busTtl = 60 * 60 * 1000;          // 60 mins
-    const int messTtl = 60 * 60 * 1000;         // 60 mins
+    const int profileTtl = 2 * 60 * 60 * 1000; // 2 hrs (7,200,000 ms)
+    const int dashboardTtl = 30 * 60 * 1000; // 30 mins (1,800,000 ms)
+    const int calendarTtl = 60 * 60 * 1000; // 1 hr (3,600,000 ms)
+    const int missedTtl = 3 * 60 * 60 * 1000; // 3 hrs (10,800,000 ms)
+    const int busTtl = 15 * 24 * 60 * 60 * 1000; // 15 days
+    const int messTtl = 15 * 24 * 60 * 60 * 1000; // 15 days
 
     bool isDatasetStale({
       required bool force,
@@ -185,6 +193,25 @@ Future<void> syncAppData(
     final bool wantsCalendar =
         doSyncCalendar && calendarDates != null && calendarDates.isNotEmpty;
 
+    // Calendar cache correctness: Compare requested date strings against cached dates
+    final List<String> requestedDateStrings = wantsCalendar
+        ? calendarDates
+            .map((d) => d.toIso8601String().split('T').first)
+            .toList()
+        : const [];
+
+    bool calendarDatesMismatch = false;
+    if (wantsCalendar) {
+      final cachedDates = localMeta.calendarDates;
+      if (cachedDates.length != requestedDateStrings.length) {
+        calendarDatesMismatch = true;
+      } else {
+        final setCached = cachedDates.toSet();
+        calendarDatesMismatch =
+            requestedDateStrings.any((d) => !setCached.contains(d));
+      }
+    }
+
     final bool staleProfile = doSyncProfile &&
         isDatasetStale(
           force: fullSync,
@@ -205,18 +232,21 @@ Future<void> syncAppData(
         );
 
     final bool staleCalendar = wantsCalendar &&
-        isDatasetStale(
-          force: fullSync,
-          empty: FFAppState().calendarClasses.isEmpty,
-          localTs: localMeta.calendarClassesUpdatedAt,
-          serverTs: serverMeta.calendarClassesUpdatedAt,
-          ttl: calendarTtl,
-        );
+        (calendarDatesMismatch ||
+            isDatasetStale(
+              force: fullSync,
+              empty: FFAppState().calendarClasses.isEmpty,
+              localTs: localMeta.calendarClassesUpdatedAt,
+              serverTs: serverMeta.calendarClassesUpdatedAt,
+              ttl: calendarTtl,
+            ));
 
+    // CRITICAL FIX: Track missed classes fetch state rather than hardcoding empty: false
+    final bool missedNeverFetched = localMeta.absencesUpdatedAt <= 0;
     final bool staleMissed = doSyncMissedClasses &&
         isDatasetStale(
           force: fullSync,
-          empty: false,
+          empty: missedNeverFetched || FFAppState().missedClasses.isEmpty,
           localTs: localMeta.absencesUpdatedAt,
           serverTs: serverMeta.absencesUpdatedAt,
           ttl: missedTtl,
@@ -251,6 +281,9 @@ Future<void> syncAppData(
     final List<Future<void>> pending = [];
 
     if (staleProfile) pending.add(_fetchProfile(outcome));
+    if (doSyncPreferences) {
+      pending.add(_syncUserPreferences(outcome, localMeta, serverMeta));
+    }
     if (staleDashboard) pending.add(_fetchDashboard(outcome));
     if (staleCalendar) pending.add(_fetchCalendar(outcome, calendarDates!));
     if (staleMissed) pending.add(_fetchMissed(outcome));
@@ -262,10 +295,70 @@ Future<void> syncAppData(
       await Future.wait(pending, eagerError: false);
     }
 
+    // Capture dataset-level errors
+    final Map<String, Object> datasetErrors = {};
+    if (outcome.profile.error != null)
+      datasetErrors['profile'] = outcome.profile.error!;
+    if (outcome.userPreferences.error != null)
+      datasetErrors['userPreferences'] = outcome.userPreferences.error!;
+    if (outcome.dashboard.error != null)
+      datasetErrors['dashboard'] = outcome.dashboard.error!;
+    if (outcome.calendar.error != null)
+      datasetErrors['calendar'] = outcome.calendar.error!;
+    if (outcome.missed.error != null)
+      datasetErrors['missed'] = outcome.missed.error!;
+    if (outcome.bus.error != null) datasetErrors['bus'] = outcome.bus.error!;
+    if (outcome.mess.error != null) datasetErrors['mess'] = outcome.mess.error!;
+    if (outcome.apod.error != null) datasetErrors['apod'] = outcome.apod.error!;
+
+    // CRITICAL FIX: Only stamp updated timestamps when fetch succeeded (fetched == true)
+    final int newProfileTs = outcome.profile.fetched
+        ? (serverMeta.profileUpdatedAt > 0
+            ? serverMeta.profileUpdatedAt
+            : nowMs)
+        : localMeta.profileUpdatedAt;
+
+    final int newUserPrefTs = outcome.userPreferences.fetched
+        ? (outcome.userPreferencesUpdatedAtOverride ??
+            (serverMeta.userPreferencesUpdatedAt > 0
+                ? serverMeta.userPreferencesUpdatedAt
+                : nowMs))
+        : localMeta.userPreferencesUpdatedAt;
+
+    final int newDashboardTs = outcome.dashboard.fetched
+        ? (serverMeta.dashboardUpdatedAt > 0
+            ? serverMeta.dashboardUpdatedAt
+            : nowMs)
+        : localMeta.dashboardUpdatedAt;
+
+    final int newCalendarTs = outcome.calendar.fetched
+        ? (serverMeta.calendarClassesUpdatedAt > 0
+            ? serverMeta.calendarClassesUpdatedAt
+            : nowMs)
+        : localMeta.calendarClassesUpdatedAt;
+
+    final int newMissedTs = outcome.missed.fetched
+        ? (serverMeta.absencesUpdatedAt > 0
+            ? serverMeta.absencesUpdatedAt
+            : nowMs)
+        : localMeta.absencesUpdatedAt;
+
+    final int newBusTs = outcome.bus.fetched
+        ? (serverMeta.busUpdatedAt > 0 ? serverMeta.busUpdatedAt : nowMs)
+        : localMeta.busUpdatedAt;
+
+    final int newMessTs = outcome.mess.fetched
+        ? (serverMeta.messUpdatedAt > 0 ? serverMeta.messUpdatedAt : nowMs)
+        : localMeta.messUpdatedAt;
+
     // Atomic AppState reconciliation & Cache Metadata update
     FFAppState().update(() {
       if (outcome.profile.fetched && outcome.profile.data != null) {
         FFAppState().userProfile = outcome.profile.data!;
+      }
+      if (outcome.userPreferences.fetched &&
+          outcome.userPreferences.data != null) {
+        FFAppState().userPreferences = outcome.userPreferences.data!;
       }
       if (outcome.dashboard.fetched && outcome.dashboard.data != null) {
         FFAppState().dashboardClasses = outcome.dashboard.data!;
@@ -288,54 +381,68 @@ Future<void> syncAppData(
 
       FFAppState().cacheMetaData = CacheMetadataStruct(
         appVersion: _currentAppVersion,
-        generatedAt: serverMeta.generatedAt ?? nowMs,
-        profileUpdatedAt: outcome.profile.fetched
-            ? (serverMeta.profileUpdatedAt ?? nowMs)
-            : (localMeta.profileUpdatedAt ?? nowMs),
-        dashboardUpdatedAt: outcome.dashboard.fetched
-            ? (serverMeta.dashboardUpdatedAt ?? nowMs)
-            : (localMeta.dashboardUpdatedAt ?? nowMs),
-        calendarClassesUpdatedAt: outcome.calendar.fetched
-            ? (serverMeta.calendarClassesUpdatedAt ?? nowMs)
-            : (localMeta.calendarClassesUpdatedAt ?? nowMs),
-        absencesUpdatedAt: outcome.missed.fetched
-            ? (serverMeta.absencesUpdatedAt ?? nowMs)
-            : (localMeta.absencesUpdatedAt ?? nowMs),
-        busUpdatedAt: outcome.bus.fetched
-            ? (serverMeta.busUpdatedAt ?? nowMs)
-            : (localMeta.busUpdatedAt ?? nowMs),
-        messUpdatedAt: outcome.mess.fetched
-            ? (serverMeta.messUpdatedAt ?? nowMs)
-            : (localMeta.messUpdatedAt ?? nowMs),
+        generatedAt:
+            serverMeta.generatedAt > 0 ? serverMeta.generatedAt : nowMs,
+        profileUpdatedAt: newProfileTs,
+        userPreferencesUpdatedAt: newUserPrefTs,
+        dashboardUpdatedAt: newDashboardTs,
+        calendarClassesUpdatedAt: newCalendarTs,
+        absencesUpdatedAt: newMissedTs,
+        busUpdatedAt: newBusTs,
+        messUpdatedAt: newMessTs,
         apodLastFetchedAt:
             outcome.apod.fetched ? DateTime.now() : localMeta.apodLastFetchedAt,
+        calendarDates: outcome.calendar.fetched
+            ? requestedDateStrings
+            : localMeta.calendarDates,
       );
     });
 
+    // MEDIUM FIX: Explicit error logging for widget updates
     try {
       await updateAndroidWidgetFromAppState();
-    } catch (_) {}
-
-    try {
-      await syncLocalNotificationsAction();
-    } catch (e) {
-      debugPrint('syncAppData: local notifications sync failed - $e');
+    } catch (widgetErr) {
+      debugPrint(
+          'syncAppData: updateAndroidWidgetFromAppState failed: $widgetErr');
     }
 
     debugPrint(
         '⚡ syncAppData: completed in ${stopwatch.elapsedMilliseconds}ms - '
         'firstTime=$firstTimeSync force=$doForceSync | '
         'profile=${outcome.profile.fetched} (${outcome.profile.latencyMs}ms) '
+        'userPrefs=${outcome.userPreferences.fetched} (${outcome.userPreferences.latencyMs}ms) '
         'dashboard=${outcome.dashboard.fetched} (${outcome.dashboard.latencyMs}ms) '
         'calendar=${outcome.calendar.fetched} (${outcome.calendar.latencyMs}ms) '
         'missed=${outcome.missed.fetched} (${outcome.missed.latencyMs}ms) '
         'bus=${outcome.bus.fetched} (${outcome.bus.latencyMs}ms) '
         'mess=${outcome.mess.fetched} (${outcome.mess.latencyMs}ms) '
         'apod=${outcome.apod.fetched} (${outcome.apod.latencyMs}ms)');
+
+    // Propagate errors when forced sync hits failures
+    if (doForceSync && datasetErrors.isNotEmpty) {
+      throw SyncException(
+          'Forced sync completed with dataset errors', datasetErrors);
+    }
   } catch (globalErr, stack) {
-    debugPrint('syncAppData: global non-fatal exception caught: $globalErr\n$stack');
+    debugPrint(
+        'syncAppData: global non-fatal exception caught: $globalErr\n$stack');
+    rethrow;
   } finally {
     _isSyncRunning = false;
+    if (_hasPendingSyncRequest) {
+      _hasPendingSyncRequest = false;
+      debugPrint('syncAppData: executing queued pending sync request...');
+      unawaited(syncAppData(
+        forceSync,
+        syncProfile,
+        syncDashboard,
+        syncCalendar,
+        syncMissedClasses,
+        syncBus,
+        syncMess,
+        calendarDates,
+      ));
+    }
   }
 }
 
@@ -343,6 +450,7 @@ bool _hasInitializedCacheMetadata(CacheMetadataStruct meta) {
   return meta.hasAppVersion() ||
       meta.hasGeneratedAt() ||
       meta.hasProfileUpdatedAt() ||
+      meta.hasUserPreferencesUpdatedAt() ||
       meta.hasDashboardUpdatedAt() ||
       meta.hasCalendarClassesUpdatedAt() ||
       meta.hasAbsencesUpdatedAt() ||
@@ -356,6 +464,11 @@ CacheMetadataStruct _parseCacheMetadata(Map<String, dynamic> data) {
     appVersion: _readString(data, 'appVersion', 'app_version'),
     generatedAt: _readInt(data, 'generatedAt', 'generated_at'),
     profileUpdatedAt: _readInt(data, 'profileUpdatedAt', 'profile_updated_at'),
+    userPreferencesUpdatedAt: _readInt(
+      data,
+      'userPreferencesUpdatedAt',
+      'user_preferences_updated_at',
+    ),
     dashboardUpdatedAt:
         _readInt(data, 'dashboardUpdatedAt', 'dashboard_updated_at'),
     calendarClassesUpdatedAt: _readInt(
@@ -375,12 +488,80 @@ CacheMetadataStruct _parseCacheMetadata(Map<String, dynamic> data) {
   );
 }
 
+// Standardized boolean deserialization helper
+bool _parseBool(dynamic val, [bool defaultVal = false]) {
+  if (val == null) return defaultVal;
+  if (val is bool) return val;
+  if (val is num) return val != 0;
+  if (val is String) {
+    final str = val.trim().toLowerCase();
+    if (str == 'true' || str == '1' || str == 'yes' || str == 't') return true;
+    if (str == 'false' || str == '0' || str == 'no' || str == 'f') return false;
+  }
+  return defaultVal;
+}
+
+// Unified field-reading logic
 dynamic _readAny(Map<String, dynamic> data, String camelKey, String snakeKey) {
-  if (data.containsKey(camelKey) && data[camelKey] != null)
+  if (data.containsKey(camelKey) && data[camelKey] != null) {
     return data[camelKey];
-  if (data.containsKey(snakeKey) && data[snakeKey] != null)
+  }
+  if (data.containsKey(snakeKey) && data[snakeKey] != null) {
     return data[snakeKey];
+  }
   return null;
+}
+
+// PostgreSQL TIME format helper ("HH:mm:ss")
+String _formatTimeForSupabase(String? raw, String fallback) {
+  if (raw == null || raw.trim().isEmpty) return fallback;
+  final str = raw.trim();
+
+  final amPmMatch = RegExp(
+    r'^(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)$',
+    caseSensitive: false,
+  ).firstMatch(str);
+
+  if (amPmMatch != null) {
+    int h = int.parse(amPmMatch.group(1)!);
+    final int m = int.parse(amPmMatch.group(2)!);
+    final String period = amPmMatch.group(3)!.toUpperCase();
+
+    if (period == 'PM' && h < 12) h += 12;
+    if (period == 'AM' && h == 12) h = 0;
+
+    final hStr = h.toString().padLeft(2, '0');
+    final mStr = m.toString().padLeft(2, '0');
+    return '$hStr:$mStr:00';
+  }
+
+  final time24Match =
+      RegExp(r'^(\d{1,2}):(\d{2})(?::(\d{2}))?$').firstMatch(str);
+  if (time24Match != null) {
+    final int h = int.parse(time24Match.group(1)!);
+    final int m = int.parse(time24Match.group(2)!);
+    final int s =
+        time24Match.group(3) != null ? int.parse(time24Match.group(3)!) : 0;
+
+    if (h >= 0 && h <= 23 && m >= 0 && m <= 59 && s >= 0 && s <= 59) {
+      final hStr = h.toString().padLeft(2, '0');
+      final mStr = m.toString().padLeft(2, '0');
+      final sStr = s.toString().padLeft(2, '0');
+      return '$hStr:$mStr:$sStr';
+    }
+  }
+
+  return fallback;
+}
+
+bool _readBool(
+  Map<String, dynamic> data,
+  String camelKey,
+  String snakeKey, [
+  bool defaultVal = false,
+]) {
+  final val = _readAny(data, camelKey, snakeKey);
+  return _parseBool(val, defaultVal);
 }
 
 String? _readString(
@@ -435,49 +616,46 @@ CourseType? _parseCourseType(dynamic val) {
   for (final type in CourseType.values) {
     if (type.name.toUpperCase() == str) return type;
   }
-  return null;
+  debugPrint(
+      'syncAppData: unknown CourseType "$val", defaulting to CourseType.PC');
+  return CourseType.PC;
 }
 
 ScheduledClassStruct _parseScheduledClass(Map<String, dynamic> raw) {
   final now = DateTime.now();
   return ScheduledClassStruct(
-    classId: (raw['classId'] ?? raw['class_id'])?.toString() ?? '',
-    courseId: (raw['courseId'] ?? raw['course_id'])?.toString() ?? '',
-    courseCode: (raw['courseCode'] ?? raw['course_code'])?.toString() ?? '',
-    courseName: (raw['courseName'] ?? raw['course_name'])?.toString() ?? '',
-    batchId: (raw['batchId'] ?? raw['batch_id'])?.toString() ?? '',
-    courseCategory: _parseCourseType(raw['courseCategory'] ??
-        raw['course_category'] ??
-        raw['courseType'] ??
-        raw['course_type']) ?? CourseType.theory,
-    scheduledStart:
-        _parseDateTimeValue(raw['scheduledStart'] ?? raw['scheduled_start']) ?? now,
+    classId: _readString(raw, 'classId', 'class_id') ?? '',
+    courseId: _readString(raw, 'courseId', 'course_id') ?? '',
+    courseCode: _readString(raw, 'courseCode', 'course_code') ?? '',
+    courseName: _readString(raw, 'courseName', 'course_name') ?? '',
+    batchId: _readString(raw, 'batchId', 'batch_id') ?? '',
+    courseCategory: _parseCourseType(
+            _readAny(raw, 'courseCategory', 'course_category') ??
+                _readAny(raw, 'courseType', 'course_type')) ??
+        CourseType.PC,
+    scheduledStart: _parseDateTimeValue(
+            _readAny(raw, 'scheduledStart', 'scheduled_start')) ??
+        now,
     scheduledEnd:
-        _parseDateTimeValue(raw['scheduledEnd'] ?? raw['scheduled_end']) ?? now,
-    venue: (raw['venue'])?.toString() ?? '',
-    labGroup: (raw['labGroup'] ?? raw['lab_group'])?.toString() ?? '',
-    isPlusSlot: raw['isPlusSlot'] == true ||
-        raw['is_plus_slot'] == true ||
-        raw['isPlusSlot'] == 'true',
-    isExtraClass: raw['isExtraClass'] == true ||
-        raw['is_extra_class'] == true ||
-        raw['isExtraClass'] == 'true',
-    isAbsent: raw['isAbsent'] == true ||
-        raw['is_absent'] == true ||
-        raw['is_absent'] == 1 ||
-        raw['isAbsent'] == 'true',
+        _parseDateTimeValue(_readAny(raw, 'scheduledEnd', 'scheduled_end')) ??
+            now,
+    venue: _readString(raw, 'venue', 'venue') ?? '',
+    labGroup: _readString(raw, 'labGroup', 'lab_group') ?? '',
+    isPlusSlot: _readBool(raw, 'isPlusSlot', 'is_plus_slot', false),
+    isExtraClass: _readBool(raw, 'isExtraClass', 'is_extra_class', false),
+    isAbsent: _readBool(raw, 'isAbsent', 'is_absent', false),
   );
 }
 
 UserProfileStruct _parseUserProfile(Map<String, dynamic> raw) {
   final now = DateTime.now();
   return UserProfileStruct(
-    userId: (raw['userId'] ?? raw['user_id'])?.toString() ?? '',
-    username: (raw['username'])?.toString() ?? '',
-    email: (raw['email'])?.toString() ?? '',
-    role: (raw['role'])?.toString() ?? '',
-    departmentId: (raw['departmentId'] ?? raw['department_id'])?.toString() ?? '',
-    batchId: (raw['batchId'] ?? raw['batch_id'])?.toString() ?? '',
+    userId: _readString(raw, 'userId', 'user_id') ?? '',
+    username: _readString(raw, 'username', 'username') ?? '',
+    email: _readString(raw, 'email', 'email') ?? '',
+    role: _readString(raw, 'role', 'role') ?? '',
+    departmentId: _readString(raw, 'departmentId', 'department_id') ?? '',
+    batchId: _readString(raw, 'batchId', 'batch_id') ?? '',
     currentSemester: _readInt(raw, 'currentSemester', 'current_semester') ?? 1,
     enrolledCourses: (raw['enrolledCourses'] ?? raw['enrolled_courses']) is List
         ? ((raw['enrolledCourses'] ?? raw['enrolled_courses']) as List)
@@ -485,21 +663,42 @@ UserProfileStruct _parseUserProfile(Map<String, dynamic> raw) {
             if (e is Map) {
               final map = Map<String, dynamic>.from(e as Map);
               return EnrolledCourseStruct(
-                courseId: (map['courseId'] ?? map['course_id'])?.toString() ?? '',
-                courseCode: (map['courseCode'] ?? map['course_code'])?.toString() ?? '',
-                courseName: (map['courseName'] ?? map['course_name'])?.toString() ?? '',
-                courseType: (map['courseType'] ?? map['course_type'])?.toString() ?? '',
-                slot: (map['slot'])?.toString() ?? '',
+                courseId: _readString(map, 'courseId', 'course_id') ?? '',
+                courseCode: _readString(map, 'courseCode', 'course_code') ?? '',
+                courseName: _readString(map, 'courseName', 'course_name') ?? '',
+                courseType: _readString(map, 'courseType', 'course_type') ?? '',
+                slot: _readString(map, 'slot', 'slot') ?? '',
                 credits: _readInt(map, 'credits', 'credits') ?? 0,
-                isLab: map['isLab'] == true || map['is_lab'] == true,
-                isElective: map['isElective'] == true || map['is_elective'] == true,
-                electiveCategory: (map['electiveCategory'] ?? map['elective_category'])?.toString() ?? '',
+                isLab: _readBool(map, 'isLab', 'is_lab', false),
+                isElective: _readBool(map, 'isElective', 'is_elective', false),
+                electiveCategory:
+                    _readString(map, 'electiveCategory', 'elective_category') ??
+                        '',
                 attendance: map['attendance'] is Map
                     ? AttendanceStruct(
-                        attended: _readInt(Map<String, dynamic>.from(map['attendance'] as Map), 'attended', 'attended') ?? 0,
-                        missed: _readInt(Map<String, dynamic>.from(map['attendance'] as Map), 'missed', 'missed') ?? 0,
-                        percentage: (Map<String, dynamic>.from(map['attendance'] as Map)['percentage'] as num?)?.toDouble() ?? 0.0,
-                        required: _readInt(Map<String, dynamic>.from(map['attendance'] as Map), 'required', 'required') ?? 80,
+                        attended: _readInt(
+                                Map<String, dynamic>.from(
+                                    map['attendance'] as Map),
+                                'attended',
+                                'attended') ??
+                            0,
+                        missed: _readInt(
+                                Map<String, dynamic>.from(
+                                    map['attendance'] as Map),
+                                'missed',
+                                'missed') ??
+                            0,
+                        percentage: (Map<String, dynamic>.from(
+                                        map['attendance'] as Map)['percentage']
+                                    as num?)
+                                ?.toDouble() ??
+                            0.0,
+                        required: _readInt(
+                                Map<String, dynamic>.from(
+                                    map['attendance'] as Map),
+                                'required',
+                                'required') ??
+                            80,
                       )
                     : AttendanceStruct(),
               );
@@ -512,30 +711,32 @@ UserProfileStruct _parseUserProfile(Map<String, dynamic> raw) {
         : <EnrolledCourseStruct>[],
     amplixBalance: _readInt(raw, 'amplixBalance', 'amplix_balance') ?? 0,
     profileUpdatedAt: _parseDateTimeValue(
-        raw['profileUpdatedAt'] ?? raw['profile_updated_at']) ?? now,
-    onboardingComplete: raw['onboardingComplete'] == true ||
-        raw['onboarding_complete'] == true ||
-        raw['onboarding_completed'] == true,
-    odometer: _readInt(raw, 'odometer', 'streak') ?? 0,
+            _readAny(raw, 'profileUpdatedAt', 'profile_updated_at')) ??
+        now,
+    onboardingComplete: _readBool(
+            raw, 'onboardingComplete', 'onboarding_complete', false) ||
+        _readBool(raw, 'onboardingCompleted', 'onboarding_completed', false),
+    odometer: _readInt(raw, 'odometer', 'odometer') ??
+        _readInt(raw, 'streak', 'streak') ??
+        0,
   );
 }
 
 BusRouteStruct _parseBusRoute(Map<String, dynamic> raw) {
   return BusRouteStruct(
-    busId: (raw['busId'] ?? raw['bus_id'])?.toString() ?? '',
-    routeName: (raw['routeName'] ?? raw['route_name'])?.toString() ?? '',
-    stopsSummary: (raw['stopsSummary'] ?? raw['stops_summary'])?.toString() ?? '',
-    isActive: raw['isActive'] == true ||
-        raw['is_active'] == true ||
-        raw['isActive'] == 'true',
+    busId: _readString(raw, 'busId', 'bus_id') ?? '',
+    routeName: _readString(raw, 'routeName', 'route_name') ?? '',
+    stopsSummary: _readString(raw, 'stopsSummary', 'stops_summary') ?? '',
+    isActive: _readBool(raw, 'isActive', 'is_active', false),
     timings: raw['timings'] is List
         ? (raw['timings'] as List).map((e) {
             if (e is Map) {
               final map = Map<String, dynamic>.from(e as Map);
               return BusTimingStruct(
-                timingId: (map['timingId'] ?? map['timing_id'])?.toString() ?? '',
-                departureTime: (map['departureTime'] ?? map['departure_time'])?.toString() ?? '',
-                isSpecial: map['isSpecial'] == true || map['is_special'] == true,
+                timingId: _readString(map, 'timingId', 'timing_id') ?? '',
+                departureTime:
+                    _readString(map, 'departureTime', 'departure_time') ?? '',
+                isSpecial: _readBool(map, 'isSpecial', 'is_special', false),
                 sortOrder: _readInt(map, 'sortOrder', 'sort_order') ?? 0,
               );
             }
@@ -547,16 +748,16 @@ BusRouteStruct _parseBusRoute(Map<String, dynamic> raw) {
 
 MessStruct _parseMess(Map<String, dynamic> raw) {
   return MessStruct(
-    messId: (raw['messId'] ?? raw['mess_id'])?.toString() ?? '',
-    name: (raw['name'])?.toString() ?? '',
+    messId: _readString(raw, 'messId', 'mess_id') ?? '',
+    name: _readString(raw, 'name', 'name') ?? '',
     menu: raw['menu'] is List
         ? (raw['menu'] as List).map((e) {
             if (e is Map) {
-              final map = Map<String, dynamic>.from(e as Map);
+              final map = Map<String, dynamic>.from(e);
               return MessMenuStruct(
                 weekday: _readInt(map, 'weekday', 'weekday') ?? 0,
-                meal: (map['meal'])?.toString() ?? '',
-                menu: (map['menu'])?.toString() ?? '',
+                meal: _readString(map, 'meal', 'meal') ?? '',
+                menu: _readString(map, 'menu', 'menu') ?? '',
               );
             }
             return MessMenuStruct();
@@ -567,17 +768,15 @@ MessStruct _parseMess(Map<String, dynamic> raw) {
 
 ApodStruct _parseApod(Map<String, dynamic> raw) {
   return ApodStruct(
-    apodDate: (raw['apodDate'] ?? raw['apod_date'])?.toString() ?? '',
-    title: (raw['title'])?.toString() ?? '',
-    description: (raw['description'])?.toString() ?? '',
-    imageUrl: (raw['imageUrl'] ?? raw['image_url'])?.toString() ?? '',
-    hdImageUrl: (raw['hdImageUrl'] ?? raw['hd_image_url'])?.toString() ?? '',
-    mediaType: (raw['mediaType'] ?? raw['media_type'])?.toString() ?? '',
-    shareUrl:
-        (raw['shareUrl'] ?? raw['share_url'] ?? raw['shareurl'])?.toString() ??
-            '',
-    copyright: (raw['copyright'])?.toString() ?? '',
-    fetchedAt: _parseDateTimeValue(raw['fetchedAt'] ?? raw['fetched_at']),
+    apodDate: _readString(raw, 'apodDate', 'apod_date') ?? '',
+    title: _readString(raw, 'title', 'title') ?? '',
+    description: _readString(raw, 'description', 'description') ?? '',
+    imageUrl: _readString(raw, 'imageUrl', 'image_url') ?? '',
+    hdImageUrl: _readString(raw, 'hdImageUrl', 'hd_image_url') ?? '',
+    mediaType: _readString(raw, 'mediaType', 'media_type') ?? '',
+    shareUrl: _readString(raw, 'shareUrl', 'share_url') ?? '',
+    copyright: _readString(raw, 'copyright', 'copyright') ?? '',
+    fetchedAt: _parseDateTimeValue(_readAny(raw, 'fetchedAt', 'fetched_at')),
   );
 }
 
@@ -729,16 +928,6 @@ Future<void> _fetchApod(_SyncOutcome outcome) async {
 
     if (data != null) {
       final parsedApod = _parseApod(data);
-      final rawImageUrl = parsedApod.hdImageUrl.isNotEmpty
-          ? parsedApod.hdImageUrl
-          : parsedApod.imageUrl;
-
-      if (rawImageUrl.isNotEmpty) {
-        final localPath = await _downloadAndSaveApodImage(rawImageUrl);
-        if (localPath != null) {
-          parsedApod.imageUrl = localPath;
-        }
-      }
       outcome.apod.data = parsedApod;
       outcome.apod.fetched = true;
     } else {
@@ -750,5 +939,249 @@ Future<void> _fetchApod(_SyncOutcome outcome) async {
     debugPrint('syncAppData: apod sync failed - $e');
   } finally {
     outcome.apod.latencyMs = sw.elapsedMilliseconds;
+  }
+}
+
+Future<void> _syncUserPreferences(
+  _SyncOutcome outcome,
+  CacheMetadataStruct localMeta,
+  CacheMetadataStruct serverMeta,
+) async {
+  final sw = Stopwatch()..start();
+  try {
+    final userId = SupaFlow.client.auth.currentUser?.id;
+    if (userId == null || userId.isEmpty) {
+      outcome.userPreferences.latencyMs = sw.elapsedMilliseconds;
+      return;
+    }
+
+    final int localTs = localMeta.userPreferencesUpdatedAt;
+    final int serverTs = serverMeta.userPreferencesUpdatedAt;
+
+    // Case 1: Local writes are newer -> Push local FFAppState().userPreferences to Supabase
+    if (localTs > 0 && localTs > serverTs) {
+      final prefs = FFAppState().userPreferences;
+      final updatePayload = {
+        'user_id': userId,
+        'enable_apod': prefs.enableAPOD,
+        'user_mess': prefs.userMess,
+        'at_a_glance_view': prefs.atAGlanceView,
+        'use_scheduled_classes_for_greeting_message':
+            prefs.useScheduledClassesForGreetingMessage,
+        'use_action_tone_for_greeting_message':
+            prefs.useActionToneForGreetingMessage,
+        'time_format':
+            prefs.preferredTimeFormat == TimeFormat.twelveHour ? '12h' : '24h',
+        'action_tone': prefs.preferredActionTone.name,
+        'attendance_threshold': prefs.attendanceThreshold,
+        'theme': prefs.theme,
+        'timezone': prefs.timezone,
+        'language': prefs.language,
+        'notifications_enabled': prefs.notificationsEnabled,
+        'notif_class_reminder': prefs.notifClassReminder,
+        'notif_reminder_minutes': prefs.notifReminderMinutes,
+        'notif_class_cancelled': prefs.notifClassCancelled,
+        'notif_class_rescheduled': prefs.notifClassRescheduled,
+        'notif_task_published': prefs.notifTaskPublished,
+        'notif_task_due_soon': prefs.notifTaskDueSoon,
+        'notif_exam_reminder': prefs.notifExamReminder,
+        'notif_daily_brief': prefs.notifDailyBrief,
+        'notif_attendance_alert': prefs.notifAttendanceAlert,
+        'notif_weekly_summary': prefs.notifWeeklySummary,
+        'quiet_hours_enabled': prefs.quietHoursEnabled,
+        'quiet_hours_start':
+            _formatTimeForSupabase(prefs.quietHoursStart, '22:00:00'),
+        'quiet_hours_end':
+            _formatTimeForSupabase(prefs.quietHoursEnd, '07:00:00'),
+        'notif_mess_reminder': prefs.notifMessReminder,
+        'notif_breakfast_reminder': prefs.notifBreakfastReminder,
+        'notif_lunch_reminder': prefs.notifLunchReminder,
+        'notif_evening_tea_reminder': prefs.notifEveningTeaReminder,
+        'notif_dinner_reminder': prefs.notifDinnerReminder,
+        'notif_mess_reminder_minutes': prefs.notifMessReminderMinutes,
+        'daily_brief_time':
+            _formatTimeForSupabase(prefs.dailyBriefTime, '07:00:00'),
+        'updated_at': DateTime.now().toIso8601String(),
+      };
+
+      // HIGH FIX: Wrapped in _callDbWithRetry for timeout + backoff
+      await _callDbWithRetry(
+          () => SupaFlow.client.from('user_preferences').upsert(updatePayload));
+
+      // CRITICAL FIX: Stamp current device timestamp override so local cache-meta is fresh
+      final int pushSuccessTs = DateTime.now().millisecondsSinceEpoch;
+      outcome.userPreferencesUpdatedAtOverride = pushSuccessTs;
+      outcome.userPreferences.fetched = true;
+      debugPrint(
+          'syncAppData: Pushed local userPreferences to Supabase (${sw.elapsedMilliseconds}ms)');
+      return;
+    }
+
+    // Case 2: Server is newer or initial sync -> Pull from Supabase user_preferences
+    final response = await _callDbWithRetry(() => SupaFlow.client
+        .from('user_preferences')
+        .select('*')
+        .eq('user_id', userId)
+        .maybeSingle());
+
+    if (response != null && response is Map<String, dynamic>) {
+      final String? timeFormatStr =
+          _readString(response, 'timeFormat', 'time_format');
+      final String? actionToneStr =
+          _readString(response, 'actionTone', 'action_tone');
+      final int? threshold =
+          _readInt(response, 'attendanceThreshold', 'attendance_threshold') ??
+              _readInt(response, 'defaultRequiredAttendance',
+                  'default_required_attendance');
+
+      final TimeFormat timeFormat =
+          (timeFormatStr == '24h' || timeFormatStr == 'twentyFourHour')
+              ? TimeFormat.twentyFourHour
+              : TimeFormat.twelveHour;
+
+      ActionTone actionTone = ActionTone.playful;
+      if (actionToneStr != null && actionToneStr.isNotEmpty) {
+        try {
+          final parsed = deserializeEnum<ActionTone>(actionToneStr);
+          if (parsed != null) {
+            actionTone = parsed;
+          } else {
+            debugPrint(
+                'syncAppData: unknown ActionTone value "$actionToneStr", defaulting to ActionTone.playful');
+          }
+        } catch (e) {
+          debugPrint(
+              'syncAppData: failed to parse ActionTone "$actionToneStr": $e');
+        }
+      }
+
+      final fetchedStruct = UserPreferencesStruct(
+        enableAPOD: _readBool(response, 'enableAPOD', 'enable_apod', true),
+        userMess: _readString(response, 'userMess', 'user_mess') ?? '',
+        atAGlanceView:
+            _readBool(response, 'atAGlanceView', 'at_a_glance_view', true),
+        useScheduledClassesForGreetingMessage: _readBool(
+            response,
+            'useScheduledClassesForGreetingMessage',
+            'use_scheduled_classes_for_greeting_message',
+            true),
+        useActionToneForGreetingMessage: _readBool(
+            response,
+            'useActionToneForGreetingMessage',
+            'use_action_tone_for_greeting_message',
+            true),
+        preferredTimeFormat: timeFormat,
+        preferredActionTone: actionTone,
+        attendanceThreshold: threshold ?? 80,
+        theme: _readString(response, 'theme', 'theme') ?? 'system',
+        timezone:
+            _readString(response, 'timezone', 'timezone') ?? 'Asia/Kolkata',
+        language: _readString(response, 'language', 'language') ?? 'en',
+        notificationsEnabled: _readBool(
+            response, 'notificationsEnabled', 'notifications_enabled', true),
+        notifClassReminder: _readBool(
+            response, 'notifClassReminder', 'notif_class_reminder', true),
+        notifReminderMinutes: _readInt(
+                response, 'notifReminderMinutes', 'notif_reminder_minutes') ??
+            10,
+        notifClassCancelled: _readBool(
+            response, 'notifClassCancelled', 'notif_class_cancelled', true),
+        notifClassRescheduled: _readBool(
+            response, 'notifClassRescheduled', 'notif_class_rescheduled', true),
+        notifTaskPublished: _readBool(
+            response, 'notifTaskPublished', 'notif_task_published', true),
+        notifTaskDueSoon: _readBool(
+            response, 'notifTaskDueSoon', 'notif_task_due_soon', true),
+        notifExamReminder: _readBool(
+            response, 'notifExamReminder', 'notif_exam_reminder', true),
+        notifDailyBrief:
+            _readBool(response, 'notifDailyBrief', 'notif_daily_brief', true),
+        notifAttendanceAlert: _readBool(
+            response, 'notifAttendanceAlert', 'notif_attendance_alert', true),
+        notifWeeklySummary: _readBool(
+            response, 'notifWeeklySummary', 'notif_weekly_summary', true),
+        quietHoursEnabled: _readBool(
+            response, 'quietHoursEnabled', 'quiet_hours_enabled', true),
+        quietHoursStart:
+            _readString(response, 'quietHoursStart', 'quiet_hours_start') ??
+                '22:00:00',
+        quietHoursEnd:
+            _readString(response, 'quietHoursEnd', 'quiet_hours_end') ??
+                '07:00:00',
+        notifMessReminder: _readBool(
+            response, 'notifMessReminder', 'notif_mess_reminder', true),
+        notifBreakfastReminder: _readBool(response, 'notifBreakfastReminder',
+            'notif_breakfast_reminder', true),
+        notifLunchReminder: _readBool(
+            response, 'notifLunchReminder', 'notif_lunch_reminder', true),
+        notifEveningTeaReminder: _readBool(response, 'notifEveningTeaReminder',
+            'notif_evening_tea_reminder', true),
+        notifDinnerReminder: _readBool(
+            response, 'notifDinnerReminder', 'notif_dinner_reminder', true),
+        notifMessReminderMinutes: _readInt(response, 'notifMessReminderMinutes',
+                'notif_mess_reminder_minutes') ??
+            30,
+        dailyBriefTime:
+            _readString(response, 'dailyBriefTime', 'daily_brief_time') ??
+                '07:00:00',
+      );
+
+      outcome.userPreferences.data = fetchedStruct;
+      outcome.userPreferences.fetched = true;
+    } else {
+      // Initialize server row with defaults if record doesn't exist yet
+      final defaultPrefs = UserPreferencesStruct();
+      final initialPayload = {
+        'user_id': userId,
+        'enable_apod': defaultPrefs.enableAPOD,
+        'user_mess': defaultPrefs.userMess,
+        'at_a_glance_view': defaultPrefs.atAGlanceView,
+        'use_scheduled_classes_for_greeting_message':
+            defaultPrefs.useScheduledClassesForGreetingMessage,
+        'use_action_tone_for_greeting_message':
+            defaultPrefs.useActionToneForGreetingMessage,
+        'time_format': defaultPrefs.preferredTimeFormat == TimeFormat.twelveHour
+            ? '12h'
+            : '24h',
+        'action_tone': defaultPrefs.preferredActionTone.name,
+        'attendance_threshold': defaultPrefs.attendanceThreshold,
+        'theme': defaultPrefs.theme,
+        'timezone': defaultPrefs.timezone,
+        'language': defaultPrefs.language,
+        'notifications_enabled': defaultPrefs.notificationsEnabled,
+        'notif_class_reminder': defaultPrefs.notifClassReminder,
+        'notif_reminder_minutes': defaultPrefs.notifReminderMinutes,
+        'notif_class_cancelled': defaultPrefs.notifClassCancelled,
+        'notif_class_rescheduled': defaultPrefs.notifClassRescheduled,
+        'notif_task_published': defaultPrefs.notifTaskPublished,
+        'notif_task_due_soon': defaultPrefs.notifTaskDueSoon,
+        'notif_exam_reminder': defaultPrefs.notifExamReminder,
+        'notif_daily_brief': defaultPrefs.notifDailyBrief,
+        'notif_attendance_alert': defaultPrefs.notifAttendanceAlert,
+        'notif_weekly_summary': defaultPrefs.notifWeeklySummary,
+        'quiet_hours_enabled': defaultPrefs.quietHoursEnabled,
+        'quiet_hours_start': defaultPrefs.quietHoursStart,
+        'quiet_hours_end': defaultPrefs.quietHoursEnd,
+        'notif_mess_reminder': defaultPrefs.notifMessReminder,
+        'notif_breakfast_reminder': defaultPrefs.notifBreakfastReminder,
+        'notif_lunch_reminder': defaultPrefs.notifLunchReminder,
+        'notif_evening_tea_reminder': defaultPrefs.notifEveningTeaReminder,
+        'notif_dinner_reminder': defaultPrefs.notifDinnerReminder,
+        'notif_mess_reminder_minutes': defaultPrefs.notifMessReminderMinutes,
+        'daily_brief_time': defaultPrefs.dailyBriefTime,
+        'updated_at': DateTime.now().toIso8601String(),
+      };
+
+      await _callDbWithRetry(() =>
+          SupaFlow.client.from('user_preferences').upsert(initialPayload));
+
+      outcome.userPreferences.data = defaultPrefs;
+      outcome.userPreferences.fetched = true;
+    }
+  } catch (e) {
+    outcome.userPreferences.error = e;
+    debugPrint('syncAppData: userPreferences sync failed - $e');
+  } finally {
+    outcome.userPreferences.latencyMs = sw.elapsedMilliseconds;
   }
 }

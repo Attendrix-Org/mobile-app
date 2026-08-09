@@ -193,7 +193,6 @@ class _NavBarPageState extends State<NavBarPage> {
       'attendance': AttendanceWidget(),
       'calendar': CalendarWidget(),
       'classes': ClassesWidget(),
-      'tasks': TasksWidget(),
     };
     final currentIndex = tabs.keys.toList().indexOf(_currentPageName);
 
@@ -259,16 +258,6 @@ class _NavBarPageState extends State<NavBarPage> {
                     ? FFIcons.kbxsNotepad
                     : FFIcons.knotepadBold,
                 text: 'Classes',
-                textStyle: GoogleFonts.outfit(
-                  color: FlutterFlowTheme.of(context).info,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 13.0,
-                ),
-                iconSize: 16.0,
-              ),
-              GButton(
-                icon: currentIndex == 4 ? FFIcons.ktask01 : FFIcons.knotebook,
-                text: 'Tasks',
                 textStyle: GoogleFonts.outfit(
                   color: FlutterFlowTheme.of(context).info,
                   fontWeight: FontWeight.w600,

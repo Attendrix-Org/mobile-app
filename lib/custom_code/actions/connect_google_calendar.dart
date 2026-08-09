@@ -22,18 +22,35 @@ Future<void> connectGoogleCalendar() async {
       throw Exception('User is not authenticated.');
     }
 
+    // Automatically select web vs mobile deep link redirect URI
+    final redirectUri = kIsWeb
+        ? '${Uri.base.origin}/google-calendar'
+        : 'attendrix://attendrix.app/google-calendar';
+
     final response = await SupaFlow.client.functions.invoke(
       'google-calendar-auth',
       headers: {
         'Authorization': 'Bearer ${session.accessToken}',
+      },
+      body: {
+        'redirect_uri': redirectUri,
       },
     );
 
     debugPrint('Status: ${response.status}');
     debugPrint('Response: ${response.data}');
 
+    if (response.status != 200) {
+      final errorMsg = response.data is Map
+          ? (response.data['error'] ??
+              response.data['message'] ??
+              'HTTP ${response.status}')
+          : 'HTTP ${response.status}';
+      throw Exception('Edge Function Error: $errorMsg');
+    }
+
     if (response.data == null) {
-      throw Exception('No response from Edge Function.');
+      throw Exception('No response data from Edge Function.');
     }
 
     final data = Map<String, dynamic>.from(response.data);
@@ -41,7 +58,7 @@ Future<void> connectGoogleCalendar() async {
     final authUrl = data['authorization_url']?.toString();
 
     if (authUrl == null || authUrl.isEmpty) {
-      throw Exception('Authorization URL not found.');
+      throw Exception('Authorization URL not found in response.');
     }
 
     debugPrint('OAuth URL: $authUrl');
@@ -54,17 +71,15 @@ Future<void> connectGoogleCalendar() async {
     );
 
     if (!launched) {
-      throw Exception('Failed to launch OAuth URL.');
+      throw Exception('Failed to launch OAuth URL in external browser.');
     }
   } on PostgrestException catch (e, stack) {
-    debugPrint('PostgrestException');
-    debugPrint(e.message);
+    debugPrint('PostgrestException: ${e.message}');
     debugPrint(e.hint);
     debugPrint(stack.toString());
     rethrow;
   } catch (e, stack) {
-    debugPrint('Google Calendar OAuth Error');
-    debugPrint(e.toString());
+    debugPrint('Google Calendar OAuth Error: $e');
     debugPrint(stack.toString());
     rethrow;
   }

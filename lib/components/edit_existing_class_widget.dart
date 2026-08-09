@@ -208,138 +208,68 @@ class _EditExistingClassWidgetState extends State<EditExistingClassWidget> {
                       ),
                     ),
                     Expanded(
-                      child: InkWell(
-                        splashColor: Colors.transparent,
-                        focusColor: Colors.transparent,
-                        hoverColor: Colors.transparent,
-                        highlightColor: Colors.transparent,
-                        onTap: () async {
-                          logFirebaseEvent(
-                              'EDIT_EXISTING_CLASS_Container_5dael904_O');
-                          logFirebaseEvent('Container_date_time_picker');
-                          final _datePicked1Date = await showDatePicker(
-                            context: context,
-                            initialDate: getCurrentTimestamp,
-                            firstDate: (getCurrentTimestamp ?? DateTime(1900)),
-                            lastDate: DateTime(2050),
-                            builder: (context, child) {
-                              return wrapInMaterialDatePickerTheme(
-                                context,
-                                child!,
-                                headerBackgroundColor:
-                                    FlutterFlowTheme.of(context).primary,
-                                headerForegroundColor:
-                                    FlutterFlowTheme.of(context).info,
-                                headerTextStyle: FlutterFlowTheme.of(context)
-                                    .headlineLarge
-                                    .override(
-                                      fontFamily: FlutterFlowTheme.of(context)
-                                          .headlineLargeFamily,
-                                      fontSize: 32.0,
-                                      letterSpacing: 0.0,
-                                      fontWeight: FontWeight.w600,
-                                      useGoogleFonts:
-                                          !FlutterFlowTheme.of(context)
-                                              .headlineLargeIsCustom,
-                                    ),
-                                pickerBackgroundColor:
-                                    FlutterFlowTheme.of(context)
-                                        .secondaryBackground,
-                                pickerForegroundColor:
-                                    FlutterFlowTheme.of(context).primaryText,
-                                selectedDateTimeBackgroundColor:
-                                    FlutterFlowTheme.of(context).primary,
-                                selectedDateTimeForegroundColor:
-                                    FlutterFlowTheme.of(context).info,
-                                actionButtonForegroundColor:
-                                    FlutterFlowTheme.of(context).primaryText,
-                                iconSize: 24.0,
-                              );
-                            },
-                          );
-
-                          if (_datePicked1Date != null) {
-                            safeSetState(() {
-                              _model.datePicked1 = DateTime(
-                                _datePicked1Date.year,
-                                _datePicked1Date.month,
-                                _datePicked1Date.day,
-                              );
-                            });
-                          } else if (_model.datePicked1 != null) {
-                            safeSetState(() {
-                              _model.datePicked1 = getCurrentTimestamp;
-                            });
-                          }
-                          logFirebaseEvent('Container_update_component_state');
-                          _model.classDate = _model.datePicked1;
-                        },
-                        child: Container(
-                          width: MediaQuery.sizeOf(context).width * 1.0,
-                          height: 50.0,
-                          decoration: BoxDecoration(
-                            color:
-                                FlutterFlowTheme.of(context).primaryBackground,
-                            boxShadow: [
-                              FlutterFlowTheme.of(context).designToken.shadow.sm
-                            ],
-                            borderRadius: BorderRadius.circular(16.0),
-                            border: Border.all(
-                              color: FlutterFlowTheme.of(context).alternate,
-                            ),
+                      child: Container(
+                        width: MediaQuery.sizeOf(context).width * 1.0,
+                        height: 50.0,
+                        decoration: BoxDecoration(
+                          color: FlutterFlowTheme.of(context).primaryBackground,
+                          boxShadow: [
+                            FlutterFlowTheme.of(context).designToken.shadow.sm
+                          ],
+                          borderRadius: BorderRadius.circular(16.0),
+                          border: Border.all(
+                            color: FlutterFlowTheme.of(context).alternate,
                           ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.max,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Align(
-                                alignment: AlignmentDirectional(-1.0, 0.0),
-                                child: Padding(
-                                  padding: EdgeInsetsDirectional.fromSTEB(
-                                      10.0, 0.0, 0.0, 2.0),
-                                  child: Text(
-                                    valueOrDefault<String>(
-                                      dateTimeFormat(
-                                        "MMMMEEEEd",
-                                        _model.classDate,
-                                        locale: FFLocalizations.of(context)
-                                            .languageCode,
-                                      ),
-                                      'Friday, July 24',
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Align(
+                              alignment: AlignmentDirectional(-1.0, 0.0),
+                              child: Padding(
+                                padding: EdgeInsetsDirectional.fromSTEB(
+                                    10.0, 0.0, 0.0, 2.0),
+                                child: Text(
+                                  valueOrDefault<String>(
+                                    dateTimeFormat(
+                                      "MMMMEEEEd",
+                                      _model.classDate,
+                                      locale: FFLocalizations.of(context)
+                                          .languageCode,
                                     ),
-                                    style: FlutterFlowTheme.of(context)
-                                        .bodyMedium
-                                        .override(
-                                          font: GoogleFonts.outfit(
-                                            fontWeight: FontWeight.w600,
-                                            fontStyle:
-                                                FlutterFlowTheme.of(context)
-                                                    .bodyMedium
-                                                    .fontStyle,
-                                          ),
-                                          fontSize: 20.0,
-                                          letterSpacing: 0.0,
+                                    'Friday, July 24',
+                                  ),
+                                  style: FlutterFlowTheme.of(context)
+                                      .bodyMedium
+                                      .override(
+                                        font: GoogleFonts.outfit(
                                           fontWeight: FontWeight.w600,
                                           fontStyle:
                                               FlutterFlowTheme.of(context)
                                                   .bodyMedium
                                                   .fontStyle,
                                         ),
-                                  ),
+                                        fontSize: 20.0,
+                                        letterSpacing: 0.0,
+                                        fontWeight: FontWeight.w600,
+                                        fontStyle: FlutterFlowTheme.of(context)
+                                            .bodyMedium
+                                            .fontStyle,
+                                      ),
                                 ),
                               ),
-                              Padding(
-                                padding: EdgeInsetsDirectional.fromSTEB(
-                                    0.0, 0.0, 20.0, 0.0),
-                                child: Icon(
-                                  FFIcons.kcalendarClock,
-                                  color:
-                                      FlutterFlowTheme.of(context).primaryText,
-                                  size: 30.0,
-                                ),
+                            ),
+                            Padding(
+                              padding: EdgeInsetsDirectional.fromSTEB(
+                                  0.0, 0.0, 20.0, 0.0),
+                              child: Icon(
+                                FFIcons.kcalendarClock,
+                                color: FlutterFlowTheme.of(context).primaryText,
+                                size: 30.0,
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -386,7 +316,7 @@ class _EditExistingClassWidgetState extends State<EditExistingClassWidget> {
                                   'EDIT_EXISTING_CLASS_Container_rqq4gvca_O');
                               logFirebaseEvent('Container_date_time_picker');
 
-                              final _datePicked2Time = await showTimePicker(
+                              final _datePicked1Time = await showTimePicker(
                                 context: context,
                                 initialTime:
                                     TimeOfDay.fromDateTime(getCurrentTimestamp),
@@ -429,24 +359,25 @@ class _EditExistingClassWidgetState extends State<EditExistingClassWidget> {
                                   );
                                 },
                               );
-                              if (_datePicked2Time != null) {
+                              if (_datePicked1Time != null) {
                                 safeSetState(() {
-                                  _model.datePicked2 = DateTime(
+                                  _model.datePicked1 = DateTime(
                                     getCurrentTimestamp.year,
                                     getCurrentTimestamp.month,
                                     getCurrentTimestamp.day,
-                                    _datePicked2Time.hour,
-                                    _datePicked2Time.minute,
+                                    _datePicked1Time.hour,
+                                    _datePicked1Time.minute,
                                   );
                                 });
-                              } else if (_model.datePicked2 != null) {
+                              } else if (_model.datePicked1 != null) {
                                 safeSetState(() {
-                                  _model.datePicked2 = getCurrentTimestamp;
+                                  _model.datePicked1 = getCurrentTimestamp;
                                 });
                               }
                               logFirebaseEvent(
                                   'Container_update_component_state');
-                              _model.startTime = _model.datePicked2;
+                              _model.startTime = _model.datePicked1;
+                              safeSetState(() {});
                             },
                             child: Container(
                               width: MediaQuery.sizeOf(context).width * 0.36,
@@ -559,7 +490,7 @@ class _EditExistingClassWidgetState extends State<EditExistingClassWidget> {
                                   'EDIT_EXISTING_CLASS_Container_09qlf1i8_O');
                               logFirebaseEvent('Container_date_time_picker');
 
-                              final _datePicked3Time = await showTimePicker(
+                              final _datePicked2Time = await showTimePicker(
                                 context: context,
                                 initialTime:
                                     TimeOfDay.fromDateTime(getCurrentTimestamp),
@@ -602,24 +533,25 @@ class _EditExistingClassWidgetState extends State<EditExistingClassWidget> {
                                   );
                                 },
                               );
-                              if (_datePicked3Time != null) {
+                              if (_datePicked2Time != null) {
                                 safeSetState(() {
-                                  _model.datePicked3 = DateTime(
+                                  _model.datePicked2 = DateTime(
                                     getCurrentTimestamp.year,
                                     getCurrentTimestamp.month,
                                     getCurrentTimestamp.day,
-                                    _datePicked3Time.hour,
-                                    _datePicked3Time.minute,
+                                    _datePicked2Time.hour,
+                                    _datePicked2Time.minute,
                                   );
                                 });
-                              } else if (_model.datePicked3 != null) {
+                              } else if (_model.datePicked2 != null) {
                                 safeSetState(() {
-                                  _model.datePicked3 = getCurrentTimestamp;
+                                  _model.datePicked2 = getCurrentTimestamp;
                                 });
                               }
                               logFirebaseEvent(
                                   'Container_update_component_state');
-                              _model.startTime = _model.datePicked3;
+                              _model.endTime = _model.datePicked2;
+                              safeSetState(() {});
                             },
                             child: Container(
                               width: MediaQuery.sizeOf(context).width * 0.36,

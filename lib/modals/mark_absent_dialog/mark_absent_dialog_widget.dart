@@ -188,15 +188,12 @@ class _MarkAbsentDialogWidgetState extends State<MarkAbsentDialogWidget> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(
-                        valueOrDefault<String>(
-                          _model.markAbsentfeedback!.success
-                              ? 'Absence recorded successfully.'
-                              : 'Failed to record absence. Please try again.',
-                          'Failed to record absence. Please try again.',
-                        ),
+                        _model.markAbsentfeedback!.success
+                            ? 'Attendance updated. Absence marked.'
+                            : 'Failed to mark absence. Please try again.',
                         style: GoogleFonts.outfit(
                           color: FlutterFlowTheme.of(context).info,
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w600,
                           fontSize: 12.0,
                         ),
                       ),
@@ -205,7 +202,7 @@ class _MarkAbsentDialogWidgetState extends State<MarkAbsentDialogWidget> {
                           ? FlutterFlowTheme.of(context).primary
                           : FlutterFlowTheme.of(context).error,
                       action: SnackBarAction(
-                        label: 'Undo',
+                        label: 'Revert',
                         textColor: FlutterFlowTheme.of(context).info,
                         onPressed: () async {
                           await actions.unMarkAbsent(

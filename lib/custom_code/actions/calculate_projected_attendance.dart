@@ -10,14 +10,6 @@ import 'package:flutter/material.dart';
 // Begin custom action code
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
-// Custom Action: calculateProjectedAttendance
-// FlutterFlow Config:
-//   enrolledCourse   → Data type: enrolledCourse   (struct)
-//   addToAttended    → Integer
-//   addToSkip        → Integer
-//   actionTone       → Enum: ActionTone (playful, direct, motivational, roast)
-//   Return type      → Data type: attendanceCalculatorData (struct)
-
 import 'dart:math';
 
 Future<AttendanceCalculatorDataStruct> calculateProjectedAttendance(
@@ -49,7 +41,12 @@ Future<AttendanceCalculatorDataStruct> calculateProjectedAttendance(
   final currentAttended = attendance.attended;
   final currentMissed = attendance.missed;
   final currentTotal = currentAttended + currentMissed;
-  final requiredPercent = attendance.required; // e.g., 75
+
+  // Required attendance percentage derived from global user preferences (user_preferences table)
+  final requiredPercent =
+      (FFAppState().userPreferences.defaultRequiredAttendance > 0)
+          ? FFAppState().userPreferences.defaultRequiredAttendance
+          : (attendance.required > 0 ? attendance.required : 80);
 
   final projectedAttended = currentAttended + toAttend;
   final projectedTotal = currentTotal + toAttend + toSkip;

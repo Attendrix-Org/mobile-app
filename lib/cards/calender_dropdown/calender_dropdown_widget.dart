@@ -1,6 +1,5 @@
 import '/backend/schema/structs/index.dart';
 import '/bottom_sheets/class_block_bottom_sheet/class_block_bottom_sheet_widget.dart';
-import '/bottom_sheets/schedule_remainder/schedule_remainder_widget.dart';
 import '/components/class_report_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -50,8 +49,8 @@ class _CalenderDropdownWidgetState extends State<CalenderDropdownWidget> {
     context.watch<FFAppState>();
 
     return Container(
-      width: 215.0,
-      height: 200.0,
+      width: 200.0,
+      height: 155.0,
       decoration: BoxDecoration(
         color: FlutterFlowTheme.of(context).secondaryBackground,
         boxShadow: [
@@ -73,7 +72,7 @@ class _CalenderDropdownWidgetState extends State<CalenderDropdownWidget> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: EdgeInsetsDirectional.fromSTEB(12.0, 12.0, 8.0, 0.0),
+              padding: EdgeInsetsDirectional.fromSTEB(12.0, 8.0, 8.0, 0.0),
               child: Row(
                 mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -95,96 +94,6 @@ class _CalenderDropdownWidgetState extends State<CalenderDropdownWidget> {
                     size: 24.0,
                   ),
                 ],
-              ),
-            ),
-            Padding(
-              padding: EdgeInsetsDirectional.fromSTEB(0.0, 6.0, 0.0, 0.0),
-              child: InkWell(
-                splashColor: Colors.transparent,
-                focusColor: Colors.transparent,
-                hoverColor: Colors.transparent,
-                highlightColor: Colors.transparent,
-                onTap: () async {
-                  logFirebaseEvent('CALENDER_DROPDOWN_replaceWidget_ON_TAP');
-                  logFirebaseEvent('replaceWidget_dismiss_dialog');
-                  Navigator.pop(context);
-                  logFirebaseEvent('replaceWidget_bottom_sheet');
-                  await showModalBottomSheet(
-                    isScrollControlled: true,
-                    backgroundColor: Colors.transparent,
-                    enableDrag: false,
-                    context: context,
-                    builder: (context) {
-                      return Padding(
-                        padding: MediaQuery.viewInsetsOf(context),
-                        child: ScheduleRemainderWidget(
-                          classBlock: widget.classBlock!,
-                        ),
-                      );
-                    },
-                  ).then((value) => safeSetState(() {}));
-                },
-                child: Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: FlutterFlowTheme.of(context).secondaryBackground,
-                  ),
-                  child: Padding(
-                    padding: EdgeInsetsDirectional.fromSTEB(0.0, 8.0, 0.0, 8.0),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        if (!_model.remainderSet)
-                          Padding(
-                            padding: EdgeInsetsDirectional.fromSTEB(
-                                12.0, 0.0, 0.0, 0.0),
-                            child: Icon(
-                              FFIcons.kbellNotification,
-                              color: FlutterFlowTheme.of(context).primaryText,
-                              size: 20.0,
-                            ),
-                          ),
-                        if (_model.remainderSet)
-                          Padding(
-                            padding: EdgeInsetsDirectional.fromSTEB(
-                                12.0, 0.0, 0.0, 0.0),
-                            child: Icon(
-                              FFIcons.kbellCheck,
-                              color: FlutterFlowTheme.of(context).primaryText,
-                              size: 20.0,
-                            ),
-                          ),
-                        Expanded(
-                          child: Padding(
-                            padding: EdgeInsetsDirectional.fromSTEB(
-                                12.0, 0.0, 4.0, 0.0),
-                            child: Text(
-                              valueOrDefault<String>(
-                                _model.remainderSet
-                                    ? 'Remainder Set!'
-                                    : 'Add Class Remainder',
-                                'Reminder Set',
-                              ),
-                              textAlign: TextAlign.start,
-                              maxLines: 2,
-                              style: FlutterFlowTheme.of(context)
-                                  .labelLarge
-                                  .override(
-                                    fontFamily: FlutterFlowTheme.of(context)
-                                        .labelLargeFamily,
-                                    fontSize: 12.0,
-                                    letterSpacing: 0.0,
-                                    useGoogleFonts:
-                                        !FlutterFlowTheme.of(context)
-                                            .labelLargeIsCustom,
-                                  ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
               ),
             ),
             InkWell(
@@ -282,7 +191,7 @@ class _CalenderDropdownWidgetState extends State<CalenderDropdownWidget> {
                         padding:
                             EdgeInsetsDirectional.fromSTEB(12.0, 0.0, 0.0, 0.0),
                         child: Icon(
-                          FFIcons.klistAdd,
+                          FFIcons.kfileEdit,
                           color: FlutterFlowTheme.of(context).primaryText,
                           size: 20.0,
                         ),

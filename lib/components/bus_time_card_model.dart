@@ -7,18 +7,10 @@ import 'package:flutter/material.dart';
 class BusTimeCardModel extends FlutterFlowModel<BusTimeCardWidget> {
   ///  Local state fields for this component.
 
-  List<NextBusInfoStruct> nextBusInfoState = [];
-  void addToNextBusInfoState(NextBusInfoStruct item) =>
-      nextBusInfoState.add(item);
-  void removeFromNextBusInfoState(NextBusInfoStruct item) =>
-      nextBusInfoState.remove(item);
-  void removeAtIndexFromNextBusInfoState(int index) =>
-      nextBusInfoState.removeAt(index);
-  void insertAtIndexInNextBusInfoState(int index, NextBusInfoStruct item) =>
-      nextBusInfoState.insert(index, item);
-  void updateNextBusInfoStateAtIndex(
-          int index, Function(NextBusInfoStruct) updateFn) =>
-      nextBusInfoState[index] = updateFn(nextBusInfoState[index]);
+  RouteResultStruct? nextBusInfoState;
+  void updateNextBusInfoStateStruct(Function(RouteResultStruct) updateFn) {
+    updateFn(nextBusInfoState ??= RouteResultStruct());
+  }
 
   bool locationPermission = true;
 
@@ -26,11 +18,11 @@ class BusTimeCardModel extends FlutterFlowModel<BusTimeCardWidget> {
 
   InstantTimer? nextBusFetchTimer;
   // Stores action output result for [Custom Action - getNextBusInfo] action in busTimeCard widget.
-  List<NextBusInfoStruct>? nextBusInfoData;
+  RouteResultStruct? nextBusInfoData;
+  // Stores action output result for [Custom Action - getNextBusInfo] action in ListView widget.
+  RouteResultStruct? newBusData;
   // Stores action output result for [Custom Action - getNextBusInfo] action in Button widget.
-  List<NextBusInfoStruct>? nextBusInfoDataRequest;
-  // Stores action output result for [Custom Action - getNextBusInfo] action in Button widget.
-  List<NextBusInfoStruct>? nextBusInfoDataRefresh;
+  RouteResultStruct? nextBusInfoDataRefresh;
 
   @override
   void initState(BuildContext context) {}

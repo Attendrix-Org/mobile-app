@@ -1,13 +1,11 @@
-import 'dart:io';
 import '/flutter_flow/flutter_flow_expanded_image_view.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
-import '/custom_code/actions/index.dart' as actions;
 import '/index.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'apod_model.dart';
@@ -66,15 +64,6 @@ class _ApodWidgetState extends State<ApodWidget> {
     _model = createModel(context, () => ApodModel());
 
     logFirebaseEvent('screen_view', parameters: {'screen_name': 'APOD'});
-    // On page load action.
-    SchedulerBinding.instance.addPostFrameCallback((_) async {
-      logFirebaseEvent('APOD_PAGE_APOD_ON_INIT_STATE');
-      logFirebaseEvent('APOD_custom_action');
-      _model.apodImage = await actions.convertPathToUploadedFile(
-        FFAppState().apodData.imageUrl,
-      );
-    });
-
     WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
   }
 
@@ -83,66 +72,6 @@ class _ApodWidgetState extends State<ApodWidget> {
     _model.dispose();
 
     super.dispose();
-  }
-
-  Widget _buildApodImage(
-    String pathOrUrl, {
-    BoxFit fit = BoxFit.cover,
-    double? width,
-    double? height,
-  }) {
-    if (pathOrUrl.isEmpty) {
-      return Container(
-        width: width,
-        height: height,
-        color: const Color(0xFF1A1F2E),
-        child: const Center(
-          child: Icon(Icons.image_not_supported, color: Colors.white54, size: 40),
-        ),
-      );
-    }
-
-    if (pathOrUrl.startsWith('http://') || pathOrUrl.startsWith('https://')) {
-      return CachedNetworkImage(
-        fadeInDuration: const Duration(milliseconds: 0),
-        fadeOutDuration: const Duration(milliseconds: 0),
-        imageUrl: pathOrUrl,
-        width: width,
-        height: height,
-        fit: fit,
-        errorWidget: (context, url, error) => Container(
-          color: const Color(0xFF1A1F2E),
-          child: const Center(
-            child: Icon(Icons.error_outline, color: Colors.white54, size: 40),
-          ),
-        ),
-      );
-    }
-
-    final file = File(pathOrUrl);
-    if (file.existsSync()) {
-      return Image.file(
-        file,
-        width: width,
-        height: height,
-        fit: fit,
-        errorBuilder: (context, error, stackTrace) => Container(
-          color: const Color(0xFF1A1F2E),
-          child: const Center(
-            child: Icon(Icons.error_outline, color: Colors.white54, size: 40),
-          ),
-        ),
-      );
-    }
-
-    return Container(
-      width: width,
-      height: height,
-      color: const Color(0xFF1A1F2E),
-      child: const Center(
-        child: Icon(Icons.image_not_supported, color: Colors.white54, size: 40),
-      ),
-    );
   }
 
   @override
@@ -215,28 +144,49 @@ class _ApodWidgetState extends State<ApodWidget> {
                                           PageTransition(
                                             type: PageTransitionType.fade,
                                             child: FlutterFlowExpandedImageView(
-                                              image: _buildApodImage(
-                                                FFAppState().apodData.imageUrl,
+                                              image: CachedNetworkImage(
+                                                fadeInDuration:
+                                                    Duration(milliseconds: 0),
+                                                fadeOutDuration:
+                                                    Duration(milliseconds: 0),
+                                                imageUrl: FFAppState()
+                                                    .apodData
+                                                    .imageUrl,
                                                 fit: BoxFit.contain,
+                                                memCacheWidth: 50,
+                                                memCacheHeight: 50,
                                               ),
                                               allowRotation: false,
-                                              tag: 'imageTag',
+                                              tag: FFAppState()
+                                                  .apodData
+                                                  .imageUrl,
                                               useHeroAnimation: true,
                                             ),
                                           ),
                                         );
                                       },
                                       child: Hero(
-                                        tag: 'imageTag',
+                                        tag: FFAppState().apodData.imageUrl,
                                         transitionOnUserGestures: true,
                                         child: ClipRRect(
                                           borderRadius:
                                               BorderRadius.circular(0.0),
-                                          child: _buildApodImage(
-                                            FFAppState().apodData.imageUrl,
-                                            width: double.infinity,
-                                            height: double.infinity,
+                                          child: CachedNetworkImage(
+                                            fadeInDuration:
+                                                Duration(milliseconds: 0),
+                                            fadeOutDuration:
+                                                Duration(milliseconds: 0),
+                                            imageUrl:
+                                                FFAppState().apodData.imageUrl,
+                                            width: MediaQuery.sizeOf(context)
+                                                    .width *
+                                                1.0,
+                                            height: MediaQuery.sizeOf(context)
+                                                    .height *
+                                                1.0,
                                             fit: BoxFit.cover,
+                                            memCacheWidth: 50,
+                                            memCacheHeight: 50,
                                           ),
                                         ),
                                       ),

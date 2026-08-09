@@ -38,9 +38,13 @@ class ClassesModel extends FlutterFlowModel<ClassesWidget> {
   // State field(s) for DropDown widget.
   DateRange? dropDownValue1;
   FormFieldController<DateRange>? dropDownValueController1;
+  // Stores action output result for [Custom Action - generatePastDateRange] action in DropDown widget.
+  List<DateTime>? generatedDatesDateRange;
   // State field(s) for DropDown widget.
   WeekendPolicy? dropDownValue2;
   FormFieldController<WeekendPolicy>? dropDownValueController2;
+  // Stores action output result for [Custom Action - generatePastDateRange] action in DropDown widget.
+  List<DateTime>? generatedDatesWeekendPolicy;
   // Models for classBlock_general dynamic component.
   late FlutterFlowDynamicModels<ClassBlockGeneralModel>
       classBlockGeneralModels1;

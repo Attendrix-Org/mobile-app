@@ -93,13 +93,11 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
             FFRoute(
               name: ForgotPasswordWidget.routeName,
               path: ForgotPasswordWidget.routePath,
-              requireAuth: true,
               builder: (context, params) => ForgotPasswordWidget(),
             ),
             FFRoute(
               name: ResetPasswordWidget.routeName,
               path: ResetPasswordWidget.routePath,
-              requireAuth: true,
               builder: (context, params) => ResetPasswordWidget(),
             ),
             FFRoute(
@@ -181,12 +179,10 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
                 name: TasksWidget.routeName,
                 path: TasksWidget.routePath,
                 requireAuth: true,
-                builder: (context, params) => params.isEmpty
-                    ? NavBarPage(initialPage: 'tasks')
-                    : NavBarPage(
-                        initialPage: 'tasks',
-                        page: TasksWidget(),
-                      )),
+                builder: (context, params) => NavBarPage(
+                      initialPage: '',
+                      page: TasksWidget(),
+                    )),
             FFRoute(
               name: ChallengesWidget.routeName,
               path: ChallengesWidget.routePath,
@@ -241,6 +237,21 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               path: ManageNotificationsWidget.routePath,
               requireAuth: true,
               builder: (context, params) => ManageNotificationsWidget(),
+            ),
+            FFRoute(
+              name: GoogleCalendarWidget.routeName,
+              path: GoogleCalendarWidget.routePath,
+              requireAuth: true,
+              builder: (context, params) => GoogleCalendarWidget(
+                success: params.getParam(
+                  'success',
+                  ParamType.bool,
+                ),
+                error: params.getParam(
+                  'error',
+                  ParamType.String,
+                ),
+              ),
             )
           ].map((r) => r.toRoute(appStateNotifier)).toList(),
         ),

@@ -622,51 +622,55 @@ class FFAppState extends ChangeNotifier {
   void clearCourseCatalogCacheKey(String? uniqueKey) =>
       _courseCatalogManager.clearRequest(uniqueKey);
 
-  final _currentDayAcademicCalendarManager =
-      FutureRequestManager<List<AcademicCalendarEventsRow>>();
-  Future<List<AcademicCalendarEventsRow>> currentDayAcademicCalendar({
+  final _userGoogleSyncManager =
+      FutureRequestManager<List<UserGoogleIntegrationsRow>>();
+  Future<List<UserGoogleIntegrationsRow>> userGoogleSync({
     String? uniqueQueryKey,
     bool? overrideCache,
-    required Future<List<AcademicCalendarEventsRow>> Function() requestFn,
+    required Future<List<UserGoogleIntegrationsRow>> Function() requestFn,
   }) =>
-      _currentDayAcademicCalendarManager.performRequest(
+      _userGoogleSyncManager.performRequest(
         uniqueQueryKey: uniqueQueryKey,
         overrideCache: overrideCache,
         requestFn: requestFn,
       );
-  void clearCurrentDayAcademicCalendarCache() =>
-      _currentDayAcademicCalendarManager.clear();
-  void clearCurrentDayAcademicCalendarCacheKey(String? uniqueKey) =>
-      _currentDayAcademicCalendarManager.clearRequest(uniqueKey);
+  void clearUserGoogleSyncCache() => _userGoogleSyncManager.clear();
+  void clearUserGoogleSyncCacheKey(String? uniqueKey) =>
+      _userGoogleSyncManager.clearRequest(uniqueKey);
 
-  List<CampusBuildingStruct> _campusBuildingData = [];
-  List<CampusBuildingStruct> get campusBuildingData => _campusBuildingData;
-  set campusBuildingData(List<CampusBuildingStruct> value) {
-    _campusBuildingData = value;
-  }
+  final _appVersionMetadataCacheManager =
+      FutureRequestManager<List<AppVersionControlRow>>();
+  Future<List<AppVersionControlRow>> appVersionMetadataCache({
+    String? uniqueQueryKey,
+    bool? overrideCache,
+    required Future<List<AppVersionControlRow>> Function() requestFn,
+  }) =>
+      _appVersionMetadataCacheManager.performRequest(
+        uniqueQueryKey: uniqueQueryKey,
+        overrideCache: overrideCache,
+        requestFn: requestFn,
+      );
+  void clearAppVersionMetadataCacheCache() =>
+      _appVersionMetadataCacheManager.clear();
+  void clearAppVersionMetadataCacheCacheKey(String? uniqueKey) =>
+      _appVersionMetadataCacheManager.clearRequest(uniqueKey);
 
-  void addToCampusBuildingData(CampusBuildingStruct value) {
-    _campusBuildingData.add(value);
-  }
-
-  void removeFromCampusBuildingData(CampusBuildingStruct value) {
-    _campusBuildingData.remove(value);
-  }
-
-  void removeAtIndexFromCampusBuildingData(int index) {
-    _campusBuildingData.removeAt(index);
-  }
-
-  void updateCampusBuildingDataAtIndex(
-    int index,
-    CampusBuildingStruct Function(CampusBuildingStruct) updateFn,
-  ) {
-    _campusBuildingData[index] = updateFn(_campusBuildingData[index]);
-  }
-
-  void insertAtIndexInCampusBuildingData(int index, CampusBuildingStruct value) {
-    _campusBuildingData.insert(index, value);
-  }
+  final _campusBuildingDataCacheManager =
+      FutureRequestManager<List<CampusBuildingsRow>>();
+  Future<List<CampusBuildingsRow>> campusBuildingDataCache({
+    String? uniqueQueryKey,
+    bool? overrideCache,
+    required Future<List<CampusBuildingsRow>> Function() requestFn,
+  }) =>
+      _campusBuildingDataCacheManager.performRequest(
+        uniqueQueryKey: uniqueQueryKey,
+        overrideCache: overrideCache,
+        requestFn: requestFn,
+      );
+  void clearCampusBuildingDataCacheCache() =>
+      _campusBuildingDataCacheManager.clear();
+  void clearCampusBuildingDataCacheCacheKey(String? uniqueKey) =>
+      _campusBuildingDataCacheManager.clearRequest(uniqueKey);
 }
 
 void _safeInit(Function() initializeField) {
