@@ -16,7 +16,6 @@ class EditExistingClassModel extends FlutterFlowModel<EditExistingClassWidget> {
 
   DateTime? datePicked1;
   DateTime? datePicked2;
-  DateTime? datePicked3;
   // State field(s) for Checkbox widget.
   bool? checkboxValue1;
   // State field(s) for Checkbox widget.

@@ -39,6 +39,8 @@ class SettingsModel extends FlutterFlowModel<SettingsWidget> {
   int? countControllerValue;
   // Stores action output result for [Custom Action - syncNowGoogleCalendar] action in Row widget.
   bool? syncStatus;
+  // Stores action output result for [Custom Action - generatePastDateRange] action in Row widget.
+  List<DateTime>? generatedPastDates;
 
   @override
   void initState(BuildContext context) {}

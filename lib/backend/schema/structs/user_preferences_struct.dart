@@ -13,7 +13,7 @@ class UserPreferencesStruct extends BaseStruct {
     String? userMess,
     ActionTone? preferredActionTone,
     bool? atAGlanceView,
-    int? defaultRequiredAttendance,
+    int? attendanceThreshold,
     bool? useScheduledClassesForGreetingMessage,
     bool? useActionToneForGreetingMessage,
     String? theme,
@@ -23,21 +23,30 @@ class UserPreferencesStruct extends BaseStruct {
     bool? notifClassReminder,
     int? notifReminderMinutes,
     bool? notifClassCancelled,
+    bool? notifClassRescheduled,
     bool? notifTaskPublished,
     bool? notifTaskDueSoon,
     bool? notifExamReminder,
     bool? notifDailyBrief,
+    String? dailyBriefTime,
     bool? notifAttendanceAlert,
     bool? notifWeeklySummary,
     bool? quietHoursEnabled,
     String? quietHoursStart,
     String? quietHoursEnd,
+    bool? notifMessReminder,
+    bool? notifBreakfastReminder,
+    bool? notifLunchReminder,
+    bool? notifEveningTeaReminder,
+    bool? notifDinnerReminder,
+    int? notifMessReminderMinutes,
+    int? defaultRequiredAttendance,
   })  : _enableAPOD = enableAPOD,
         _preferredTimeFormat = preferredTimeFormat,
         _userMess = userMess,
         _preferredActionTone = preferredActionTone,
         _atAGlanceView = atAGlanceView,
-        _defaultRequiredAttendance = defaultRequiredAttendance,
+        _attendanceThreshold = attendanceThreshold,
         _useScheduledClassesForGreetingMessage =
             useScheduledClassesForGreetingMessage,
         _useActionToneForGreetingMessage = useActionToneForGreetingMessage,
@@ -48,15 +57,24 @@ class UserPreferencesStruct extends BaseStruct {
         _notifClassReminder = notifClassReminder,
         _notifReminderMinutes = notifReminderMinutes,
         _notifClassCancelled = notifClassCancelled,
+        _notifClassRescheduled = notifClassRescheduled,
         _notifTaskPublished = notifTaskPublished,
         _notifTaskDueSoon = notifTaskDueSoon,
         _notifExamReminder = notifExamReminder,
         _notifDailyBrief = notifDailyBrief,
+        _dailyBriefTime = dailyBriefTime,
         _notifAttendanceAlert = notifAttendanceAlert,
         _notifWeeklySummary = notifWeeklySummary,
         _quietHoursEnabled = quietHoursEnabled,
         _quietHoursStart = quietHoursStart,
-        _quietHoursEnd = quietHoursEnd;
+        _quietHoursEnd = quietHoursEnd,
+        _notifMessReminder = notifMessReminder,
+        _notifBreakfastReminder = notifBreakfastReminder,
+        _notifLunchReminder = notifLunchReminder,
+        _notifEveningTeaReminder = notifEveningTeaReminder,
+        _notifDinnerReminder = notifDinnerReminder,
+        _notifMessReminderMinutes = notifMessReminderMinutes,
+        _defaultRequiredAttendance = defaultRequiredAttendance;
 
   // "enableAPOD" field.
   bool? _enableAPOD;
@@ -95,15 +113,15 @@ class UserPreferencesStruct extends BaseStruct {
 
   bool hasAtAGlanceView() => _atAGlanceView != null;
 
-  // "defaultRequiredAttendance" field.
-  int? _defaultRequiredAttendance;
-  int get defaultRequiredAttendance => _defaultRequiredAttendance ?? 80;
-  set defaultRequiredAttendance(int? val) => _defaultRequiredAttendance = val;
+  // "attendanceThreshold" field.
+  int? _attendanceThreshold;
+  int get attendanceThreshold => _attendanceThreshold ?? 80;
+  set attendanceThreshold(int? val) => _attendanceThreshold = val;
 
-  void incrementDefaultRequiredAttendance(int amount) =>
-      defaultRequiredAttendance = defaultRequiredAttendance + amount;
+  void incrementAttendanceThreshold(int amount) =>
+      attendanceThreshold = attendanceThreshold + amount;
 
-  bool hasDefaultRequiredAttendance() => _defaultRequiredAttendance != null;
+  bool hasAttendanceThreshold() => _attendanceThreshold != null;
 
   // "useScheduledClassesForGreetingMessage" field.
   bool? _useScheduledClassesForGreetingMessage;
@@ -177,6 +195,13 @@ class UserPreferencesStruct extends BaseStruct {
 
   bool hasNotifClassCancelled() => _notifClassCancelled != null;
 
+  // "notifClassRescheduled" field.
+  bool? _notifClassRescheduled;
+  bool get notifClassRescheduled => _notifClassRescheduled ?? true;
+  set notifClassRescheduled(bool? val) => _notifClassRescheduled = val;
+
+  bool hasNotifClassRescheduled() => _notifClassRescheduled != null;
+
   // "notifTaskPublished" field.
   bool? _notifTaskPublished;
   bool get notifTaskPublished => _notifTaskPublished ?? true;
@@ -204,6 +229,13 @@ class UserPreferencesStruct extends BaseStruct {
   set notifDailyBrief(bool? val) => _notifDailyBrief = val;
 
   bool hasNotifDailyBrief() => _notifDailyBrief != null;
+
+  // "dailyBriefTime" field.
+  String? _dailyBriefTime;
+  String get dailyBriefTime => _dailyBriefTime ?? '07:00:00';
+  set dailyBriefTime(String? val) => _dailyBriefTime = val;
+
+  bool hasDailyBriefTime() => _dailyBriefTime != null;
 
   // "notifAttendanceAlert" field.
   bool? _notifAttendanceAlert;
@@ -240,6 +272,61 @@ class UserPreferencesStruct extends BaseStruct {
 
   bool hasQuietHoursEnd() => _quietHoursEnd != null;
 
+  // "notifMessReminder" field.
+  bool? _notifMessReminder;
+  bool get notifMessReminder => _notifMessReminder ?? true;
+  set notifMessReminder(bool? val) => _notifMessReminder = val;
+
+  bool hasNotifMessReminder() => _notifMessReminder != null;
+
+  // "notifBreakfastReminder" field.
+  bool? _notifBreakfastReminder;
+  bool get notifBreakfastReminder => _notifBreakfastReminder ?? true;
+  set notifBreakfastReminder(bool? val) => _notifBreakfastReminder = val;
+
+  bool hasNotifBreakfastReminder() => _notifBreakfastReminder != null;
+
+  // "notifLunchReminder" field.
+  bool? _notifLunchReminder;
+  bool get notifLunchReminder => _notifLunchReminder ?? true;
+  set notifLunchReminder(bool? val) => _notifLunchReminder = val;
+
+  bool hasNotifLunchReminder() => _notifLunchReminder != null;
+
+  // "notifEveningTeaReminder" field.
+  bool? _notifEveningTeaReminder;
+  bool get notifEveningTeaReminder => _notifEveningTeaReminder ?? true;
+  set notifEveningTeaReminder(bool? val) => _notifEveningTeaReminder = val;
+
+  bool hasNotifEveningTeaReminder() => _notifEveningTeaReminder != null;
+
+  // "notifDinnerReminder" field.
+  bool? _notifDinnerReminder;
+  bool get notifDinnerReminder => _notifDinnerReminder ?? true;
+  set notifDinnerReminder(bool? val) => _notifDinnerReminder = val;
+
+  bool hasNotifDinnerReminder() => _notifDinnerReminder != null;
+
+  // "notifMessReminderMinutes" field.
+  int? _notifMessReminderMinutes;
+  int get notifMessReminderMinutes => _notifMessReminderMinutes ?? 30;
+  set notifMessReminderMinutes(int? val) => _notifMessReminderMinutes = val;
+
+  void incrementNotifMessReminderMinutes(int amount) =>
+      notifMessReminderMinutes = notifMessReminderMinutes + amount;
+
+  bool hasNotifMessReminderMinutes() => _notifMessReminderMinutes != null;
+
+  // "defaultRequiredAttendance" field.
+  int? _defaultRequiredAttendance;
+  int get defaultRequiredAttendance => _defaultRequiredAttendance ?? 80;
+  set defaultRequiredAttendance(int? val) => _defaultRequiredAttendance = val;
+
+  void incrementDefaultRequiredAttendance(int amount) =>
+      defaultRequiredAttendance = defaultRequiredAttendance + amount;
+
+  bool hasDefaultRequiredAttendance() => _defaultRequiredAttendance != null;
+
   static UserPreferencesStruct fromMap(Map<String, dynamic> data) =>
       UserPreferencesStruct(
         enableAPOD: data['enableAPOD'] as bool?,
@@ -251,8 +338,7 @@ class UserPreferencesStruct extends BaseStruct {
             ? data['preferredActionTone']
             : deserializeEnum<ActionTone>(data['preferredActionTone']),
         atAGlanceView: data['atAGlanceView'] as bool?,
-        defaultRequiredAttendance:
-            castToType<int>(data['defaultRequiredAttendance']),
+        attendanceThreshold: castToType<int>(data['attendanceThreshold']),
         useScheduledClassesForGreetingMessage:
             data['useScheduledClassesForGreetingMessage'] as bool?,
         useActionToneForGreetingMessage:
@@ -264,15 +350,26 @@ class UserPreferencesStruct extends BaseStruct {
         notifClassReminder: data['notifClassReminder'] as bool?,
         notifReminderMinutes: castToType<int>(data['notifReminderMinutes']),
         notifClassCancelled: data['notifClassCancelled'] as bool?,
+        notifClassRescheduled: data['notifClassRescheduled'] as bool?,
         notifTaskPublished: data['notifTaskPublished'] as bool?,
         notifTaskDueSoon: data['notifTaskDueSoon'] as bool?,
         notifExamReminder: data['notifExamReminder'] as bool?,
         notifDailyBrief: data['notifDailyBrief'] as bool?,
+        dailyBriefTime: data['dailyBriefTime'] as String?,
         notifAttendanceAlert: data['notifAttendanceAlert'] as bool?,
         notifWeeklySummary: data['notifWeeklySummary'] as bool?,
         quietHoursEnabled: data['quietHoursEnabled'] as bool?,
         quietHoursStart: data['quietHoursStart'] as String?,
         quietHoursEnd: data['quietHoursEnd'] as String?,
+        notifMessReminder: data['notifMessReminder'] as bool?,
+        notifBreakfastReminder: data['notifBreakfastReminder'] as bool?,
+        notifLunchReminder: data['notifLunchReminder'] as bool?,
+        notifEveningTeaReminder: data['notifEveningTeaReminder'] as bool?,
+        notifDinnerReminder: data['notifDinnerReminder'] as bool?,
+        notifMessReminderMinutes:
+            castToType<int>(data['notifMessReminderMinutes']),
+        defaultRequiredAttendance:
+            castToType<int>(data['defaultRequiredAttendance']),
       );
 
   static UserPreferencesStruct? maybeFromMap(dynamic data) => data is Map
@@ -285,7 +382,7 @@ class UserPreferencesStruct extends BaseStruct {
         'userMess': _userMess,
         'preferredActionTone': _preferredActionTone?.serialize(),
         'atAGlanceView': _atAGlanceView,
-        'defaultRequiredAttendance': _defaultRequiredAttendance,
+        'attendanceThreshold': _attendanceThreshold,
         'useScheduledClassesForGreetingMessage':
             _useScheduledClassesForGreetingMessage,
         'useActionToneForGreetingMessage': _useActionToneForGreetingMessage,
@@ -296,15 +393,24 @@ class UserPreferencesStruct extends BaseStruct {
         'notifClassReminder': _notifClassReminder,
         'notifReminderMinutes': _notifReminderMinutes,
         'notifClassCancelled': _notifClassCancelled,
+        'notifClassRescheduled': _notifClassRescheduled,
         'notifTaskPublished': _notifTaskPublished,
         'notifTaskDueSoon': _notifTaskDueSoon,
         'notifExamReminder': _notifExamReminder,
         'notifDailyBrief': _notifDailyBrief,
+        'dailyBriefTime': _dailyBriefTime,
         'notifAttendanceAlert': _notifAttendanceAlert,
         'notifWeeklySummary': _notifWeeklySummary,
         'quietHoursEnabled': _quietHoursEnabled,
         'quietHoursStart': _quietHoursStart,
         'quietHoursEnd': _quietHoursEnd,
+        'notifMessReminder': _notifMessReminder,
+        'notifBreakfastReminder': _notifBreakfastReminder,
+        'notifLunchReminder': _notifLunchReminder,
+        'notifEveningTeaReminder': _notifEveningTeaReminder,
+        'notifDinnerReminder': _notifDinnerReminder,
+        'notifMessReminderMinutes': _notifMessReminderMinutes,
+        'defaultRequiredAttendance': _defaultRequiredAttendance,
       }.withoutNulls;
 
   @override
@@ -329,8 +435,8 @@ class UserPreferencesStruct extends BaseStruct {
           _atAGlanceView,
           ParamType.bool,
         ),
-        'defaultRequiredAttendance': serializeParam(
-          _defaultRequiredAttendance,
+        'attendanceThreshold': serializeParam(
+          _attendanceThreshold,
           ParamType.int,
         ),
         'useScheduledClassesForGreetingMessage': serializeParam(
@@ -369,6 +475,10 @@ class UserPreferencesStruct extends BaseStruct {
           _notifClassCancelled,
           ParamType.bool,
         ),
+        'notifClassRescheduled': serializeParam(
+          _notifClassRescheduled,
+          ParamType.bool,
+        ),
         'notifTaskPublished': serializeParam(
           _notifTaskPublished,
           ParamType.bool,
@@ -384,6 +494,10 @@ class UserPreferencesStruct extends BaseStruct {
         'notifDailyBrief': serializeParam(
           _notifDailyBrief,
           ParamType.bool,
+        ),
+        'dailyBriefTime': serializeParam(
+          _dailyBriefTime,
+          ParamType.String,
         ),
         'notifAttendanceAlert': serializeParam(
           _notifAttendanceAlert,
@@ -404,6 +518,34 @@ class UserPreferencesStruct extends BaseStruct {
         'quietHoursEnd': serializeParam(
           _quietHoursEnd,
           ParamType.String,
+        ),
+        'notifMessReminder': serializeParam(
+          _notifMessReminder,
+          ParamType.bool,
+        ),
+        'notifBreakfastReminder': serializeParam(
+          _notifBreakfastReminder,
+          ParamType.bool,
+        ),
+        'notifLunchReminder': serializeParam(
+          _notifLunchReminder,
+          ParamType.bool,
+        ),
+        'notifEveningTeaReminder': serializeParam(
+          _notifEveningTeaReminder,
+          ParamType.bool,
+        ),
+        'notifDinnerReminder': serializeParam(
+          _notifDinnerReminder,
+          ParamType.bool,
+        ),
+        'notifMessReminderMinutes': serializeParam(
+          _notifMessReminderMinutes,
+          ParamType.int,
+        ),
+        'defaultRequiredAttendance': serializeParam(
+          _defaultRequiredAttendance,
+          ParamType.int,
         ),
       }.withoutNulls;
 
@@ -434,8 +576,8 @@ class UserPreferencesStruct extends BaseStruct {
           ParamType.bool,
           false,
         ),
-        defaultRequiredAttendance: deserializeParam(
-          data['defaultRequiredAttendance'],
+        attendanceThreshold: deserializeParam(
+          data['attendanceThreshold'],
           ParamType.int,
           false,
         ),
@@ -484,6 +626,11 @@ class UserPreferencesStruct extends BaseStruct {
           ParamType.bool,
           false,
         ),
+        notifClassRescheduled: deserializeParam(
+          data['notifClassRescheduled'],
+          ParamType.bool,
+          false,
+        ),
         notifTaskPublished: deserializeParam(
           data['notifTaskPublished'],
           ParamType.bool,
@@ -502,6 +649,11 @@ class UserPreferencesStruct extends BaseStruct {
         notifDailyBrief: deserializeParam(
           data['notifDailyBrief'],
           ParamType.bool,
+          false,
+        ),
+        dailyBriefTime: deserializeParam(
+          data['dailyBriefTime'],
+          ParamType.String,
           false,
         ),
         notifAttendanceAlert: deserializeParam(
@@ -529,6 +681,41 @@ class UserPreferencesStruct extends BaseStruct {
           ParamType.String,
           false,
         ),
+        notifMessReminder: deserializeParam(
+          data['notifMessReminder'],
+          ParamType.bool,
+          false,
+        ),
+        notifBreakfastReminder: deserializeParam(
+          data['notifBreakfastReminder'],
+          ParamType.bool,
+          false,
+        ),
+        notifLunchReminder: deserializeParam(
+          data['notifLunchReminder'],
+          ParamType.bool,
+          false,
+        ),
+        notifEveningTeaReminder: deserializeParam(
+          data['notifEveningTeaReminder'],
+          ParamType.bool,
+          false,
+        ),
+        notifDinnerReminder: deserializeParam(
+          data['notifDinnerReminder'],
+          ParamType.bool,
+          false,
+        ),
+        notifMessReminderMinutes: deserializeParam(
+          data['notifMessReminderMinutes'],
+          ParamType.int,
+          false,
+        ),
+        defaultRequiredAttendance: deserializeParam(
+          data['defaultRequiredAttendance'],
+          ParamType.int,
+          false,
+        ),
       );
 
   @override
@@ -542,7 +729,7 @@ class UserPreferencesStruct extends BaseStruct {
         userMess == other.userMess &&
         preferredActionTone == other.preferredActionTone &&
         atAGlanceView == other.atAGlanceView &&
-        defaultRequiredAttendance == other.defaultRequiredAttendance &&
+        attendanceThreshold == other.attendanceThreshold &&
         useScheduledClassesForGreetingMessage ==
             other.useScheduledClassesForGreetingMessage &&
         useActionToneForGreetingMessage ==
@@ -554,15 +741,24 @@ class UserPreferencesStruct extends BaseStruct {
         notifClassReminder == other.notifClassReminder &&
         notifReminderMinutes == other.notifReminderMinutes &&
         notifClassCancelled == other.notifClassCancelled &&
+        notifClassRescheduled == other.notifClassRescheduled &&
         notifTaskPublished == other.notifTaskPublished &&
         notifTaskDueSoon == other.notifTaskDueSoon &&
         notifExamReminder == other.notifExamReminder &&
         notifDailyBrief == other.notifDailyBrief &&
+        dailyBriefTime == other.dailyBriefTime &&
         notifAttendanceAlert == other.notifAttendanceAlert &&
         notifWeeklySummary == other.notifWeeklySummary &&
         quietHoursEnabled == other.quietHoursEnabled &&
         quietHoursStart == other.quietHoursStart &&
-        quietHoursEnd == other.quietHoursEnd;
+        quietHoursEnd == other.quietHoursEnd &&
+        notifMessReminder == other.notifMessReminder &&
+        notifBreakfastReminder == other.notifBreakfastReminder &&
+        notifLunchReminder == other.notifLunchReminder &&
+        notifEveningTeaReminder == other.notifEveningTeaReminder &&
+        notifDinnerReminder == other.notifDinnerReminder &&
+        notifMessReminderMinutes == other.notifMessReminderMinutes &&
+        defaultRequiredAttendance == other.defaultRequiredAttendance;
   }
 
   @override
@@ -572,7 +768,7 @@ class UserPreferencesStruct extends BaseStruct {
         userMess,
         preferredActionTone,
         atAGlanceView,
-        defaultRequiredAttendance,
+        attendanceThreshold,
         useScheduledClassesForGreetingMessage,
         useActionToneForGreetingMessage,
         theme,
@@ -582,15 +778,24 @@ class UserPreferencesStruct extends BaseStruct {
         notifClassReminder,
         notifReminderMinutes,
         notifClassCancelled,
+        notifClassRescheduled,
         notifTaskPublished,
         notifTaskDueSoon,
         notifExamReminder,
         notifDailyBrief,
+        dailyBriefTime,
         notifAttendanceAlert,
         notifWeeklySummary,
         quietHoursEnabled,
         quietHoursStart,
-        quietHoursEnd
+        quietHoursEnd,
+        notifMessReminder,
+        notifBreakfastReminder,
+        notifLunchReminder,
+        notifEveningTeaReminder,
+        notifDinnerReminder,
+        notifMessReminderMinutes,
+        defaultRequiredAttendance
       ]);
 }
 
@@ -600,7 +805,7 @@ UserPreferencesStruct createUserPreferencesStruct({
   String? userMess,
   ActionTone? preferredActionTone,
   bool? atAGlanceView,
-  int? defaultRequiredAttendance,
+  int? attendanceThreshold,
   bool? useScheduledClassesForGreetingMessage,
   bool? useActionToneForGreetingMessage,
   String? theme,
@@ -610,15 +815,24 @@ UserPreferencesStruct createUserPreferencesStruct({
   bool? notifClassReminder,
   int? notifReminderMinutes,
   bool? notifClassCancelled,
+  bool? notifClassRescheduled,
   bool? notifTaskPublished,
   bool? notifTaskDueSoon,
   bool? notifExamReminder,
   bool? notifDailyBrief,
+  String? dailyBriefTime,
   bool? notifAttendanceAlert,
   bool? notifWeeklySummary,
   bool? quietHoursEnabled,
   String? quietHoursStart,
   String? quietHoursEnd,
+  bool? notifMessReminder,
+  bool? notifBreakfastReminder,
+  bool? notifLunchReminder,
+  bool? notifEveningTeaReminder,
+  bool? notifDinnerReminder,
+  int? notifMessReminderMinutes,
+  int? defaultRequiredAttendance,
 }) =>
     UserPreferencesStruct(
       enableAPOD: enableAPOD,
@@ -626,7 +840,7 @@ UserPreferencesStruct createUserPreferencesStruct({
       userMess: userMess,
       preferredActionTone: preferredActionTone,
       atAGlanceView: atAGlanceView,
-      defaultRequiredAttendance: defaultRequiredAttendance,
+      attendanceThreshold: attendanceThreshold,
       useScheduledClassesForGreetingMessage:
           useScheduledClassesForGreetingMessage,
       useActionToneForGreetingMessage: useActionToneForGreetingMessage,
@@ -637,13 +851,22 @@ UserPreferencesStruct createUserPreferencesStruct({
       notifClassReminder: notifClassReminder,
       notifReminderMinutes: notifReminderMinutes,
       notifClassCancelled: notifClassCancelled,
+      notifClassRescheduled: notifClassRescheduled,
       notifTaskPublished: notifTaskPublished,
       notifTaskDueSoon: notifTaskDueSoon,
       notifExamReminder: notifExamReminder,
       notifDailyBrief: notifDailyBrief,
+      dailyBriefTime: dailyBriefTime,
       notifAttendanceAlert: notifAttendanceAlert,
       notifWeeklySummary: notifWeeklySummary,
       quietHoursEnabled: quietHoursEnabled,
       quietHoursStart: quietHoursStart,
       quietHoursEnd: quietHoursEnd,
+      notifMessReminder: notifMessReminder,
+      notifBreakfastReminder: notifBreakfastReminder,
+      notifLunchReminder: notifLunchReminder,
+      notifEveningTeaReminder: notifEveningTeaReminder,
+      notifDinnerReminder: notifDinnerReminder,
+      notifMessReminderMinutes: notifMessReminderMinutes,
+      defaultRequiredAttendance: defaultRequiredAttendance,
     );

@@ -2455,9 +2455,43 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                                 onTap: () async {
                                   logFirebaseEvent(
                                       'SETTINGS_PAGE_Row_whtnxgrc_ON_TAP');
-                                  logFirebaseEvent('Row_launch_u_r_l');
-                                  await launchURL(
-                                      'https://github.com/SH1SHANK/attendrix/wiki');
+                                  logFirebaseEvent('Row_custom_action');
+                                  _model.generatedPastDates =
+                                      await actions.generatePastDateRange(
+                                    getCurrentTimestamp,
+                                    DateRange.sevenDays,
+                                    WeekendPolicy.excludeAll,
+                                  );
+                                  logFirebaseEvent('Row_custom_action');
+                                  await actions.syncAppData(
+                                    true,
+                                    true,
+                                    true,
+                                    true,
+                                    true,
+                                    true,
+                                    true,
+                                    _model.generatedPastDates?.toList(),
+                                  );
+                                  logFirebaseEvent('Row_show_snack_bar');
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        'Force Synced All Data',
+                                        style: GoogleFonts.outfit(
+                                          color:
+                                              FlutterFlowTheme.of(context).info,
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 12.0,
+                                        ),
+                                      ),
+                                      duration: Duration(milliseconds: 4000),
+                                      backgroundColor:
+                                          FlutterFlowTheme.of(context).success,
+                                    ),
+                                  );
+
+                                  safeSetState(() {});
                                 },
                                 child: Row(
                                   mainAxisSize: MainAxisSize.max,
@@ -2583,9 +2617,23 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                                 onTap: () async {
                                   logFirebaseEvent(
                                       'SETTINGS_PAGE_Row_wbkpc04b_ON_TAP');
-                                  logFirebaseEvent('Row_launch_u_r_l');
-                                  await launchURL(
-                                      'https://github.com/SH1SHANK/attendrix/issues/new?assignees=&labels=bug&template=bug_report.md&title=%5BBUG%5D');
+                                  logFirebaseEvent('Row_show_snack_bar');
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        'Feature Currently Unavailable!',
+                                        style: GoogleFonts.outfit(
+                                          color:
+                                              FlutterFlowTheme.of(context).info,
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 12.0,
+                                        ),
+                                      ),
+                                      duration: Duration(milliseconds: 4000),
+                                      backgroundColor:
+                                          FlutterFlowTheme.of(context).error,
+                                    ),
+                                  );
                                 },
                                 child: Row(
                                   mainAxisSize: MainAxisSize.max,
@@ -2703,20 +2751,23 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                                   onTap: () async {
                                     logFirebaseEvent(
                                         'SETTINGS_PAGE_Row_3yxx60vj_ON_TAP');
-                                    logFirebaseEvent('Row_send_email');
-                                    await launchUrl(Uri(
-                                        scheme: 'mailto',
-                                        path: 'support@attendrix.app',
-                                        query: {
-                                          'subject':
-                                              'Requesting Support Regarding My Attendrix Account',
-                                          'body':
-                                              'Dear Attendrix Support Team,  I hope this message finds you well. I am reaching out regarding an issue I encountered with my Attendrix account.  [Briefly describe your issue here — e.g., “I am unable to access my account using my registered email,” or “Some of my attendance records appear to be missing.”]  Here are my account details for reference: - Full Name: [Your Full Name] - Registered Email: [Your Email Address] - Username (if applicable): [Your Username] - Issue faced: [Clear and concise description]  I would appreciate it if you could look into this at your earliest convenience. Please let me know if you require any further information from my side.  Thank you for your assistance.  Warm regards,   [Your Full Name]   [Your Contact Number (optional)]  ',
-                                        }
-                                            .entries
-                                            .map((MapEntry<String, String> e) =>
-                                                '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
-                                            .join('&')));
+                                    logFirebaseEvent('Row_show_snack_bar');
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'Feature Currently Unavailable!',
+                                          style: GoogleFonts.outfit(
+                                            color: FlutterFlowTheme.of(context)
+                                                .info,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 12.0,
+                                          ),
+                                        ),
+                                        duration: Duration(milliseconds: 4000),
+                                        backgroundColor:
+                                            FlutterFlowTheme.of(context).error,
+                                      ),
+                                    );
                                   },
                                   child: Row(
                                     mainAxisSize: MainAxisSize.max,
@@ -2886,7 +2937,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                                       'SETTINGS_PAGE_Row_gak40c17_ON_TAP');
                                   logFirebaseEvent('Row_launch_u_r_l');
                                   await launchURL(
-                                      'https://github.com/sh1shank/attendrix');
+                                      'https://github.com/Attendrix-Org/mobile-app');
                                 },
                                 child: Row(
                                   mainAxisSize: MainAxisSize.max,
@@ -3158,7 +3209,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                                   Align(
                                     alignment: AlignmentDirectional(-1.0, 0.0),
                                     child: Text(
-                                      ' v0.0.1+1 Release Candidate 1',
+                                      ' v0.0.1+5 Release Candidate 2',
                                       style: FlutterFlowTheme.of(context)
                                           .labelMedium
                                           .override(
@@ -3490,8 +3541,16 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                                     padding: EdgeInsetsDirectional.fromSTEB(
                                         0.0, 0.0, 0.0, 6.0),
                                     child: FFButtonWidget(
-                                      onPressed: () {
-                                        print('Button pressed ...');
+                                      onPressed: () async {
+                                        logFirebaseEvent(
+                                            'SETTINGS_CHECK_FOR_UPDATES_BTN_ON_TAP');
+                                        logFirebaseEvent(
+                                            'Button_custom_action');
+                                        await actions.checkForUpdates(
+                                          context,
+                                          FFAppConstants.appVersion,
+                                          true,
+                                        );
                                       },
                                       text: 'Check for Updates',
                                       icon: Icon(

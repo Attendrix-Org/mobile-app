@@ -1,4 +1,3 @@
-import '/backend/schema/structs/index.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/instant_timer.dart';
 import 'class_block_next_class_widget.dart' show ClassBlockNextClassWidget;
@@ -9,11 +8,6 @@ class ClassBlockNextClassModel
   ///  Local state fields for this component.
 
   DateTime? lastUpdatedAt;
-
-  RouteResultStruct? walkRouteDataState;
-  void updateWalkRouteDataStateStruct(Function(RouteResultStruct) updateFn) {
-    updateFn(walkRouteDataState ??= RouteResultStruct());
-  }
 
   ///  State fields for stateful widgets in this component.
 

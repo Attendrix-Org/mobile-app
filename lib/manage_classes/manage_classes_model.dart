@@ -82,9 +82,8 @@ class ManageClassesModel extends FlutterFlowModel<ManageClassesWidget> {
   // State field(s) for classEndTime widget.
   int? classEndTimeValue;
   // State field(s) for classVenue widget.
-  FocusNode? classVenueFocusNode;
-  TextEditingController? classVenueTextController;
-  String? Function(BuildContext, String?)? classVenueTextControllerValidator;
+  String? classVenueValue;
+  FormFieldController<String>? classVenueValueController;
   // State field(s) for isPlusSlot widget.
   FormFieldController<List<String>>? isPlusSlotValueController;
   String? get isPlusSlotValue => isPlusSlotValueController?.value?.firstOrNull;
@@ -99,7 +98,7 @@ class ManageClassesModel extends FlutterFlowModel<ManageClassesWidget> {
   // Stores action output result for [Custom Action - scheduleClass] action in scheduleButton widget.
   FeedbackStruct? schedulerFeedback;
   DateTime? datePicked2;
-  // Stores action output result for [Custom Action - executeScheduleQuery] action in Row widget.
+  // Stores action output result for [Custom Action - executeScheduleQuery] action in Column widget.
   List<ScheduledClassStruct>? selectedClassesRefresh;
 
   @override
@@ -108,7 +107,5 @@ class ManageClassesModel extends FlutterFlowModel<ManageClassesWidget> {
   @override
   void dispose() {
     tabBarController?.dispose();
-    classVenueFocusNode?.dispose();
-    classVenueTextController?.dispose();
   }
 }

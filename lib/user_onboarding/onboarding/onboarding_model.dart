@@ -102,6 +102,17 @@ class OnboardingModel extends FlutterFlowModel<OnboardingWidget> {
 
   bool dataLoaded = false;
 
+  List<MessesRow> messesData = [];
+  void addToMessesData(MessesRow item) => messesData.add(item);
+  void removeFromMessesData(MessesRow item) => messesData.remove(item);
+  void removeAtIndexFromMessesData(int index) => messesData.removeAt(index);
+  void insertAtIndexInMessesData(int index, MessesRow item) =>
+      messesData.insert(index, item);
+  void updateMessesDataAtIndex(int index, Function(MessesRow) updateFn) =>
+      messesData[index] = updateFn(messesData[index]);
+
+  String? selectedMessId = '';
+
   ///  State fields for stateful widgets in this page.
 
   final formKey1 = GlobalKey<FormState>();
@@ -110,6 +121,8 @@ class OnboardingModel extends FlutterFlowModel<OnboardingWidget> {
   List<SemestersRow>? semesterQueryData;
   // Stores action output result for [Backend Call - Query Rows] action in onboarding widget.
   List<BatchesRow>? batchDataQuery;
+  // Stores action output result for [Backend Call - Query Rows] action in onboarding widget.
+  List<MessesRow>? messData;
   // State field(s) for onboardingPages widget.
   PageController? onboardingPagesController;
 
@@ -180,14 +193,11 @@ class OnboardingModel extends FlutterFlowModel<OnboardingWidget> {
   // State field(s) for batch widget.
   String? batchValue;
   FormFieldController<String>? batchValueController;
-  // State field(s) for userBio widget.
-  FocusNode? userBioFocusNode;
-  TextEditingController? userBioTextController;
-  String? Function(BuildContext, String?)? userBioTextControllerValidator;
+  // State field(s) for mess widget.
+  String? messValue;
+  FormFieldController<String>? messValueController;
   // State field(s) for Checkbox widget.
-  bool? checkboxValue1;
-  // State field(s) for Checkbox widget.
-  bool? checkboxValue2;
+  bool? checkboxValue;
   // Stores action output result for [Validate Form] action in Button widget.
   bool? academicProfileFormValidation;
   // Stores action output result for [Custom Action - getCoreCourses] action in Button widget.
@@ -262,9 +272,6 @@ class OnboardingModel extends FlutterFlowModel<OnboardingWidget> {
 
     rollNumberFocusNode?.dispose();
     rollNumberTextController?.dispose();
-
-    userBioFocusNode?.dispose();
-    userBioTextController?.dispose();
 
     usernameFocusNode?.dispose();
     usernameTextController?.dispose();

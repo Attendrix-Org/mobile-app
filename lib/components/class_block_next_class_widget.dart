@@ -94,103 +94,110 @@ class _ClassBlockNextClassWidgetState extends State<ClassBlockNextClassWidget> {
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  mainAxisSize: MainAxisSize.max,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      valueOrDefault<String>(
-                        widget.classBlock!.scheduledStart! >
-                                getCurrentTimestamp
-                            ? 'Next Up:'
-                            : 'Ongoing Class:',
-                        'Ongoing Class:',
-                      ),
-                      style: FlutterFlowTheme.of(context).bodyMedium.override(
-                            font: GoogleFonts.outfit(
+                Padding(
+                  padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 5.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.max,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        valueOrDefault<String>(
+                          widget.classBlock!.scheduledStart! >
+                                  getCurrentTimestamp
+                              ? 'Next Up:'
+                              : 'Ongoing Class:',
+                          'Ongoing Class:',
+                        ),
+                        style: FlutterFlowTheme.of(context).bodyMedium.override(
+                              font: GoogleFonts.outfit(
+                                fontWeight: FontWeight.w800,
+                                fontStyle: FlutterFlowTheme.of(context)
+                                    .bodyMedium
+                                    .fontStyle,
+                              ),
+                              color: FlutterFlowTheme.of(context).tertiary,
+                              fontSize: 17.0,
+                              letterSpacing: 0.0,
                               fontWeight: FontWeight.w800,
                               fontStyle: FlutterFlowTheme.of(context)
                                   .bodyMedium
                                   .fontStyle,
                             ),
-                            color: FlutterFlowTheme.of(context).tertiary,
-                            fontSize: 16.0,
-                            letterSpacing: 0.0,
-                            fontWeight: FontWeight.w800,
-                            fontStyle: FlutterFlowTheme.of(context)
-                                .bodyMedium
-                                .fontStyle,
-                          ),
-                    ),
-                    Container(
-                      width: MediaQuery.sizeOf(context).width * 0.95,
-                      decoration: BoxDecoration(),
-                      child: Text(
-                        valueOrDefault<String>(
-                          widget.classBlock?.courseName,
-                          'CourseName Not Defined',
-                        ),
-                        style: FlutterFlowTheme.of(context).bodyMedium.override(
-                              font: GoogleFonts.outfit(
-                                fontWeight: FontWeight.bold,
-                                fontStyle: FlutterFlowTheme.of(context)
-                                    .bodyMedium
-                                    .fontStyle,
-                              ),
-                              fontSize: 16.0,
-                              letterSpacing: 0.0,
-                              fontWeight: FontWeight.bold,
-                              fontStyle: FlutterFlowTheme.of(context)
-                                  .bodyMedium
-                                  .fontStyle,
-                            ),
                       ),
-                    ),
-                    Padding(
-                      padding:
-                          EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 2.0),
-                      child: Text(
-                        '${dateTimeFormat(
-                          "MMMMEEEEd",
-                          widget.classBlock?.scheduledStart,
-                          locale: FFLocalizations.of(context).languageCode,
-                        )}, ${functions.formatClassTime(widget.classBlock?.scheduledStart, FFAppState().userPreferences.preferredTimeFormat)} - ${functions.formatClassTime(widget.classBlock?.scheduledEnd, FFAppState().userPreferences.preferredTimeFormat)}',
-                        style: FlutterFlowTheme.of(context).bodyMedium.override(
-                              font: GoogleFonts.outfit(
+                      Container(
+                        width: MediaQuery.sizeOf(context).width * 0.95,
+                        decoration: BoxDecoration(),
+                        child: Text(
+                          valueOrDefault<String>(
+                            widget.classBlock?.courseName,
+                            'CourseName Not Defined',
+                          ),
+                          style:
+                              FlutterFlowTheme.of(context).bodyMedium.override(
+                                    font: GoogleFonts.outfit(
+                                      fontWeight: FontWeight.bold,
+                                      fontStyle: FlutterFlowTheme.of(context)
+                                          .bodyMedium
+                                          .fontStyle,
+                                    ),
+                                    fontSize: 17.0,
+                                    letterSpacing: 0.0,
+                                    fontWeight: FontWeight.bold,
+                                    fontStyle: FlutterFlowTheme.of(context)
+                                        .bodyMedium
+                                        .fontStyle,
+                                  ),
+                        ),
+                      ),
+                      Padding(
+                        padding:
+                            EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 2.0),
+                        child: Text(
+                          '${dateTimeFormat(
+                            "MMMMEEEEd",
+                            widget.classBlock?.scheduledStart,
+                            locale: FFLocalizations.of(context).languageCode,
+                          )}, ${functions.formatClassTime(widget.classBlock?.scheduledStart, FFAppState().userPreferences.preferredTimeFormat)} - ${functions.formatClassTime(widget.classBlock?.scheduledEnd, FFAppState().userPreferences.preferredTimeFormat)}',
+                          style: FlutterFlowTheme.of(context)
+                              .bodyMedium
+                              .override(
+                                font: GoogleFonts.outfit(
+                                  fontWeight: FontWeight.w500,
+                                  fontStyle: FlutterFlowTheme.of(context)
+                                      .bodyMedium
+                                      .fontStyle,
+                                ),
+                                color:
+                                    FlutterFlowTheme.of(context).secondaryText,
+                                fontSize: 13.0,
+                                letterSpacing: 0.0,
                                 fontWeight: FontWeight.w500,
                                 fontStyle: FlutterFlowTheme.of(context)
                                     .bodyMedium
                                     .fontStyle,
                               ),
-                              color: FlutterFlowTheme.of(context).secondaryText,
-                              fontSize: 11.0,
-                              letterSpacing: 0.0,
-                              fontWeight: FontWeight.w500,
-                              fontStyle: FlutterFlowTheme.of(context)
-                                  .bodyMedium
-                                  .fontStyle,
-                            ),
-                      ),
-                    ),
-                    Padding(
-                      padding:
-                          EdgeInsetsDirectional.fromSTEB(0.0, 2.0, 0.0, 2.0),
-                      child: Container(
-                        width: MediaQuery.sizeOf(context).width * 0.95,
-                        height: 2.0,
-                        decoration: BoxDecoration(
-                          color: FlutterFlowTheme.of(context).secondaryText,
                         ),
                       ),
-                    ),
-                  ],
+                      Padding(
+                        padding:
+                            EdgeInsetsDirectional.fromSTEB(0.0, 2.0, 0.0, 2.0),
+                        child: Container(
+                          width: MediaQuery.sizeOf(context).width * 0.95,
+                          height: 2.0,
+                          decoration: BoxDecoration(
+                            color: FlutterFlowTheme.of(context).secondaryText,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
             Text(
               valueOrDefault<String>(
                 widget.classBlock!.scheduledStart! > getCurrentTimestamp
-                    ? 'Class Starts in:'
+                    ? 'Class Starts:'
                     : 'Class Progress: ',
                 'Class Starts in:',
               ),
@@ -211,32 +218,36 @@ class _ClassBlockNextClassWidgetState extends State<ClassBlockNextClassWidget> {
             Builder(
               builder: (context) {
                 if (widget.classBlock!.scheduledStart! > getCurrentTimestamp) {
-                  return Row(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        valueOrDefault<String>(
-                          functions.generateRelativeTime(
-                              widget.classBlock?.scheduledStart, true),
-                          'in 7 Hours 56 Minutes',
+                  return Padding(
+                    padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 4.0),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          valueOrDefault<String>(
+                            functions.generateRelativeTime(
+                                widget.classBlock?.scheduledStart, true),
+                            'in 7 Hours 56 Minutes',
+                          ),
+                          style:
+                              FlutterFlowTheme.of(context).bodyMedium.override(
+                                    font: GoogleFonts.outfit(
+                                      fontWeight: FontWeight.w800,
+                                      fontStyle: FlutterFlowTheme.of(context)
+                                          .bodyMedium
+                                          .fontStyle,
+                                    ),
+                                    fontSize: 20.0,
+                                    letterSpacing: 0.0,
+                                    fontWeight: FontWeight.w800,
+                                    fontStyle: FlutterFlowTheme.of(context)
+                                        .bodyMedium
+                                        .fontStyle,
+                                  ),
                         ),
-                        style: FlutterFlowTheme.of(context).bodyMedium.override(
-                              font: GoogleFonts.outfit(
-                                fontWeight: FontWeight.w800,
-                                fontStyle: FlutterFlowTheme.of(context)
-                                    .bodyMedium
-                                    .fontStyle,
-                              ),
-                              fontSize: 18.0,
-                              letterSpacing: 0.0,
-                              fontWeight: FontWeight.w800,
-                              fontStyle: FlutterFlowTheme.of(context)
-                                  .bodyMedium
-                                  .fontStyle,
-                            ),
-                      ),
-                    ],
+                      ],
+                    ),
                   );
                 } else {
                   return Container(
@@ -284,7 +295,7 @@ class _ClassBlockNextClassWidgetState extends State<ClassBlockNextClassWidget> {
             Align(
               alignment: AlignmentDirectional(1.0, -1.0),
               child: Padding(
-                padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 6.0, 0.0),
+                padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 6.0, 3.0),
                 child: Row(
                   mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,

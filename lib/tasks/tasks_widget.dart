@@ -1,7 +1,5 @@
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
-import '/modals/add_assignment/add_assignment_widget.dart';
-import '/modals/add_exam/add_exam_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'tasks_model.dart';
@@ -58,77 +56,6 @@ class _TasksWidgetState extends State<TasksWidget>
           child: Scaffold(
             key: scaffoldKey,
             backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
-            floatingActionButton: Builder(
-              builder: (context) => FloatingActionButton.extended(
-                onPressed: () async {
-                  logFirebaseEvent('TASKS_FloatingActionButton_6mqvga1m_ON_T');
-                  if (_model.mainBarCurrentIndex == 1) {
-                    logFirebaseEvent('FloatingActionButton_alert_dialog');
-                    await showDialog(
-                      context: context,
-                      builder: (dialogContext) {
-                        return Dialog(
-                          elevation: 0,
-                          insetPadding: EdgeInsets.zero,
-                          backgroundColor: Colors.transparent,
-                          alignment: AlignmentDirectional(0.0, 0.0)
-                              .resolve(Directionality.of(context)),
-                          child: GestureDetector(
-                            onTap: () {
-                              FocusScope.of(dialogContext).unfocus();
-                              FocusManager.instance.primaryFocus?.unfocus();
-                            },
-                            child: AddExamWidget(),
-                          ),
-                        );
-                      },
-                    );
-                  } else {
-                    logFirebaseEvent('FloatingActionButton_alert_dialog');
-                    await showDialog(
-                      context: context,
-                      builder: (dialogContext) {
-                        return Dialog(
-                          elevation: 0,
-                          insetPadding: EdgeInsets.zero,
-                          backgroundColor: Colors.transparent,
-                          alignment: AlignmentDirectional(0.0, 0.0)
-                              .resolve(Directionality.of(context)),
-                          child: GestureDetector(
-                            onTap: () {
-                              FocusScope.of(dialogContext).unfocus();
-                              FocusManager.instance.primaryFocus?.unfocus();
-                            },
-                            child: AddAssignmentWidget(),
-                          ),
-                        );
-                      },
-                    );
-                  }
-                },
-                backgroundColor: FlutterFlowTheme.of(context).primary,
-                icon: Icon(
-                  Icons.add_rounded,
-                  color: FlutterFlowTheme.of(context).info,
-                  size: 24.0,
-                ),
-                elevation: 8.0,
-                label: Text(
-                  _model.mainBarCurrentIndex == 1
-                      ? 'Add Exam'
-                      : 'Add Assignment',
-                  style: FlutterFlowTheme.of(context).headlineSmall.override(
-                        fontFamily:
-                            FlutterFlowTheme.of(context).headlineSmallFamily,
-                        color: FlutterFlowTheme.of(context).info,
-                        fontSize: 12.0,
-                        letterSpacing: 0.0,
-                        useGoogleFonts:
-                            !FlutterFlowTheme.of(context).headlineSmallIsCustom,
-                      ),
-                ),
-              ),
-            ),
             appBar: AppBar(
               backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
               automaticallyImplyLeading: false,
@@ -152,11 +79,6 @@ class _TasksWidgetState extends State<TasksWidget>
                                     .headlineMediumIsCustom,
                               ),
                     ),
-                  ),
-                  Icon(
-                    FFIcons.knoteBold,
-                    color: FlutterFlowTheme.of(context).primaryText,
-                    size: 28.0,
                   ),
                 ],
               ),

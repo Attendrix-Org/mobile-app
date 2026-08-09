@@ -3,6 +3,7 @@ import '/flutter_flow/flutter_flow_count_controller.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/custom_code/actions/index.dart' as actions;
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -89,19 +90,24 @@ class _AttendanceCalculatorWidgetState
                 mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    'Attendance Calculator',
-                    style: FlutterFlowTheme.of(context).headlineSmall.override(
-                          fontFamily:
-                              FlutterFlowTheme.of(context).headlineSmallFamily,
-                          color: FlutterFlowTheme.of(context).primaryText,
-                          fontSize: 24.0,
-                          letterSpacing: 0.0,
-                          fontWeight: FontWeight.bold,
-                          lineHeight: 1.2,
-                          useGoogleFonts: !FlutterFlowTheme.of(context)
-                              .headlineSmallIsCustom,
-                        ),
+                  Container(
+                    width: MediaQuery.sizeOf(context).width * 0.7,
+                    decoration: BoxDecoration(),
+                    child: AutoSizeText(
+                      'Attendance Calculator',
+                      style:
+                          FlutterFlowTheme.of(context).headlineSmall.override(
+                                fontFamily: FlutterFlowTheme.of(context)
+                                    .headlineSmallFamily,
+                                color: FlutterFlowTheme.of(context).primaryText,
+                                fontSize: 24.0,
+                                letterSpacing: 0.0,
+                                fontWeight: FontWeight.bold,
+                                lineHeight: 1.2,
+                                useGoogleFonts: !FlutterFlowTheme.of(context)
+                                    .headlineSmallIsCustom,
+                              ),
+                    ),
                   ),
                   Align(
                     alignment: AlignmentDirectional(1.0, -1.0),
@@ -130,7 +136,6 @@ class _AttendanceCalculatorWidgetState
               padding: EdgeInsets.all(8.0),
               child: Container(
                 width: MediaQuery.sizeOf(context).width * 1.0,
-                height: 110.0,
                 decoration: BoxDecoration(
                   color: FlutterFlowTheme.of(context).primaryBackground,
                   borderRadius: BorderRadius.circular(16.0),

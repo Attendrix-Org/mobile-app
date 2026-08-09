@@ -654,6 +654,23 @@ class FFAppState extends ChangeNotifier {
       _appVersionMetadataCacheManager.clear();
   void clearAppVersionMetadataCacheCacheKey(String? uniqueKey) =>
       _appVersionMetadataCacheManager.clearRequest(uniqueKey);
+
+  final _campusBuildingDataCacheManager =
+      FutureRequestManager<List<CampusBuildingsRow>>();
+  Future<List<CampusBuildingsRow>> campusBuildingDataCache({
+    String? uniqueQueryKey,
+    bool? overrideCache,
+    required Future<List<CampusBuildingsRow>> Function() requestFn,
+  }) =>
+      _campusBuildingDataCacheManager.performRequest(
+        uniqueQueryKey: uniqueQueryKey,
+        overrideCache: overrideCache,
+        requestFn: requestFn,
+      );
+  void clearCampusBuildingDataCacheCache() =>
+      _campusBuildingDataCacheManager.clear();
+  void clearCampusBuildingDataCacheCacheKey(String? uniqueKey) =>
+      _campusBuildingDataCacheManager.clearRequest(uniqueKey);
 }
 
 void _safeInit(Function() initializeField) {
