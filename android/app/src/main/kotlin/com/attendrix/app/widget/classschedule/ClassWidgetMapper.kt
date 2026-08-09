@@ -1,15 +1,17 @@
 package com.attendrix.app.widget.classschedule
 
-import com.attendrix.app.widget.core.ClassWidgetState
 import com.attendrix.app.widget.core.EmptyState
 import com.attendrix.app.widget.core.WidgetClock
 import com.attendrix.app.widget.core.WidgetSnapshot
 import com.attendrix.app.widget.model.WidgetClass
 import org.json.JSONArray
-import org.json.JSONObject
 
 object ClassWidgetMapper {
     fun toWidgetState(snapshot: WidgetSnapshot, nowMillis: Long = WidgetClock.currentTimeMillis()): ClassWidgetState {
+        if (snapshot.isExpired(nowMillis)) {
+            return ClassWidgetState.Empty(EmptyState.NO_CLASSES)
+        }
+
         val payload = snapshot.payload
         val stateStr = payload.optString("state", "Ready")
         val emptyReasonStr = payload.optString("emptyReason", "NO_CLASSES").uppercase()
@@ -49,7 +51,6 @@ object ClassWidgetMapper {
             return ClassWidgetState.Empty(emptyReason)
         }
 
-        // Dynamically compute live progress and remaining minutes using WidgetClock
         val progress = if (currentClass != null) {
             WidgetClock.calculateProgress(currentClass.startMillis, currentClass.endMillis, nowMillis)
         } else 0.0
@@ -70,8 +71,8 @@ object ClassWidgetMapper {
             updatedAtMillis = snapshot.generatedAt
         )
 
-        return if (snapshot.isStale) {
-            val staleMin = ((nowMillis - snapshot.generatedAt) / 60000L).toInt()
+        return if (snapshot.isStale(nowMillis)) {
+            val staleMin = ((nowMillis - snapshot.generatedAt) / 60000L).toInt().coerceAtLeast(0)
             ClassWidgetState.Stale(readyState, staleMin)
         } else {
             readyState

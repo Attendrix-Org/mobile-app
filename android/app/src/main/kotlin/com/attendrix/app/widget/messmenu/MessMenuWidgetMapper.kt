@@ -1,7 +1,6 @@
 package com.attendrix.app.widget.messmenu
 
 import com.attendrix.app.widget.core.EmptyState
-import com.attendrix.app.widget.core.MessMenuWidgetState
 import com.attendrix.app.widget.core.WidgetClock
 import com.attendrix.app.widget.core.WidgetSnapshot
 import com.attendrix.app.widget.model.MealItem
@@ -9,6 +8,10 @@ import org.json.JSONArray
 
 object MessMenuWidgetMapper {
     fun toWidgetState(snapshot: WidgetSnapshot, nowMillis: Long = WidgetClock.currentTimeMillis()): MessMenuWidgetState {
+        if (snapshot.isExpired(nowMillis)) {
+            return MessMenuWidgetState.Empty(EmptyState.NO_MENU_AVAILABLE)
+        }
+
         val payload = snapshot.payload
         val stateStr = payload.optString("state", "Ready")
         val emptyReasonStr = payload.optString("emptyReason", "NO_MENU_AVAILABLE").uppercase()
@@ -57,8 +60,8 @@ object MessMenuWidgetMapper {
             updatedAtMillis = snapshot.generatedAt
         )
 
-        return if (snapshot.isStale) {
-            val staleMin = ((nowMillis - snapshot.generatedAt) / 60000L).toInt()
+        return if (snapshot.isStale(nowMillis)) {
+            val staleMin = ((nowMillis - snapshot.generatedAt) / 60000L).toInt().coerceAtLeast(0)
             MessMenuWidgetState.Stale(readyState, staleMin)
         } else {
             readyState
